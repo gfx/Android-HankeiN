@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">半径nキロメートル</string>
+    <string name="app_name">半径n</string>
+    <string name="app_title_template">半径%.01fキロメートル</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">中心を設定する</string>
+    <string name="action_settings">半径を設定する</string>
     <string name="action_about">このアプリについて</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
