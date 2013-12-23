@@ -99,7 +99,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         dialog.setTitle("半径の設定 (km)");
 
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         input.setText(String.valueOf(getRadius()));
         dialog.setView(input);
 
