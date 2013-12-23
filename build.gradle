@@ -1,1 +1,39 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:0.7.+"
+    }
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+//https://plus.google.com/109385828142935151413/posts/hF7W59uZ7rX
+//        mavenLocal()
+        maven {
+            url "${System.env.HOME}/.m2/repository"
+        }
+    }
+}
+
+project.ext {
+    supportPackageVersion = "19.0.+"
+    playServicesVersion = "4.0.+"
+    daggerVersion = "1.1.0"
+    androidAnnotationsVersion = '2.7.1';
+    nineOldAndroidsVersion = "2.4.0"
+    commonsLangVersion = "2.6"
+    commonsIoVersion = "2.4"
+    guavaVersion = "14.0.1"
+    jppVersion = '1.6.+';
+    googleApiClientVersion = "1.16.0-rc"
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.9'
+}

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Android-HankeiN</string>
+    <string name="app_name">半径nキロメートル</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>
