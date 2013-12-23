@@ -3,7 +3,8 @@
 
     <string name="app_name">半径nキロメートル</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">中心を設定する</string>
+    <string name="action_about">このアプリについて</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>
