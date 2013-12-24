@@ -12,7 +12,7 @@
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="49dp"
+        android:layout_marginBottom="48dp"
         android:name="com.google.android.gms.maps.MapFragment"/>
 
     <LinearLayout
@@ -26,6 +26,8 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#cccccc"
+            android:padding="0dp"
+            android:layout_margin="0dp"
             />
 
         <TextView
