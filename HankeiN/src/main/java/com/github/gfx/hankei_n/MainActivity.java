@@ -31,7 +31,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -72,6 +71,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         prefs = new Prefs(this);
 
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        assert mapFragment != null;
         map = mapFragment.getMap();
         map.setMyLocationEnabled(true);
 
@@ -96,7 +96,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         final float pointedLongitude = prefs.get("pointedLongitude", 0.0f);
 
         if (pointedLatitude != 0.0f || pointedLongitude != 0.0) {
-            point(new LatLng(pointedLatitude, pointedLongitude));
+            updatePoint(new LatLng(pointedLatitude, pointedLongitude));
         }
     }
 
@@ -153,18 +153,16 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        Toast.makeText(this, "Point!", Toast.LENGTH_SHORT).show();
-
         final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(100);
 
         prefs.put("pointedLatitude", (float) latLng.latitude);
         prefs.put("pointedLongitude", (float) latLng.longitude);
 
-        point(latLng);
+        updatePoint(latLng);
     }
 
-    private CharSequence getAddrFromLatLng(LatLng latLng) {
+    private String getAddrFromLatLng(LatLng latLng) {
         try {
             final List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             final Address address = addresses.get(0);
@@ -175,16 +173,15 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
             }
 
             return TextUtils.join(" ", names);
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.wtf(TAG, e);
             return String.format("(%.02f, %.02f)", latLng.latitude, latLng.longitude);
         }
     }
 
-    private void point(final LatLng latLng) {
+    private void updatePoint(final LatLng latLng) {
         final MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title("Here"); // TODO: set address name
         if (mapMarker != null) {
             mapMarker.remove();
         }
@@ -196,7 +193,6 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         circleOptions.strokeWidth(1);
         circleOptions.strokeColor(0x990099ee);
         circleOptions.fillColor(0x110099ee);
-        circleOptions.strokeWidth(3);
         if (mapCircle != null) {
             mapCircle.remove();
         }
@@ -206,7 +202,9 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         uiThreadHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                statusView.setText(getAddrFromLatLng(latLng));
+                final String addrName = getAddrFromLatLng(latLng);
+                mapMarker.setTitle(addrName);
+                statusView.setText(addrName);
             }
         }, 10);
     }
@@ -246,6 +244,6 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         prefs.put("radius", radius);
 
         final LatLng latLng = new LatLng(prefs.get("pointedLatitude", 0f), prefs.get("pointedLongitude", 0f));
-        point(latLng);
+        updatePoint(latLng);
     }
 }
