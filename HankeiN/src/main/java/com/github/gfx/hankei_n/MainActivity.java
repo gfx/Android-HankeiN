@@ -8,9 +8,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Vibrator;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -198,15 +197,19 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         }
         mapCircle = map.addCircle(circleOptions);
 
-        final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
-        uiThreadHandler.postDelayed(new Runnable() {
+        // update title and status text
+        new AsyncTask<Void, Void, String>() {
             @Override
-            public void run() {
-                final String addrName = getAddrFromLatLng(latLng);
+            protected String doInBackground(Void... params) {
+                return getAddrFromLatLng(latLng);
+            }
+
+            @Override
+            protected void onPostExecute(String addrName) {
                 mapMarker.setTitle(addrName);
                 statusView.setText(addrName);
             }
-        }, 10);
+        }.execute(null);
     }
 
     @Override
