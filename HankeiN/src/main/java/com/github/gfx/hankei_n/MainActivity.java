@@ -4,14 +4,21 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.text.InputType;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -24,26 +31,44 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 public class MainActivity extends Activity implements GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMapLongClickListener {
+    private static final String TAG = "MainActivity";
+
     private static final String projectUrl = "http://github.com/gfx/Android-HankeiN";
 
     static final float MAP_ZOOM = 14f;
 
     static final float DEFAULT_RADIUS = 1.5f;
 
-    private GoogleMap map;
+    private Geocoder geocoder;
     private Prefs prefs;
 
     private boolean myLocationInitialized = false;
 
+    private GoogleMap map;
+
     private Marker mapMarker;
     private Circle mapCircle;
+
+    @InjectView(R.id.status)
+    TextView statusView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ButterKnife.inject(this);
+
+        geocoder = new Geocoder(this, Locale.JAPAN);
         prefs = new Prefs(this);
 
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -71,7 +96,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         final float pointedLongitude = prefs.get("pointedLongitude", 0.0f);
 
         if (pointedLatitude != 0.0f || pointedLongitude != 0.0) {
-            setCircle(new LatLng(pointedLatitude, pointedLongitude));
+            point(new LatLng(pointedLatitude, pointedLongitude));
         }
     }
 
@@ -129,16 +154,34 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     @Override
     public void onMapLongClick(LatLng latLng) {
         Toast.makeText(this, "Point!", Toast.LENGTH_SHORT).show();
+
         final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(100);
 
         prefs.put("pointedLatitude", (float) latLng.latitude);
         prefs.put("pointedLongitude", (float) latLng.longitude);
 
-        setCircle(latLng);
+        point(latLng);
     }
 
-    private void setCircle(LatLng latLng) {
+    private CharSequence getAddrFromLatLng(LatLng latLng) {
+        try {
+            final List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            final Address address = addresses.get(0);
+
+            final List<String> names = new ArrayList<>();
+            for (int i = Math.min(1, address.getMaxAddressLineIndex()); i <= address.getMaxAddressLineIndex(); i++) {
+                names.add(address.getAddressLine(i));
+            }
+
+            return TextUtils.join(" ", names);
+        } catch (IOException e) {
+            Log.wtf(TAG, e);
+            return String.format("(%.02f, %.02f)", latLng.latitude, latLng.longitude);
+        }
+    }
+
+    private void point(final LatLng latLng) {
         final MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Here"); // TODO: set address name
@@ -158,6 +201,14 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
             mapCircle.remove();
         }
         mapCircle = map.addCircle(circleOptions);
+
+        final Handler uiThreadHandler = new Handler(Looper.getMainLooper());
+        uiThreadHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                statusView.setText(getAddrFromLatLng(latLng));
+            }
+        }, 10);
     }
 
     @Override
@@ -195,6 +246,6 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         prefs.put("radius", radius);
 
         final LatLng latLng = new LatLng(prefs.get("pointedLatitude", 0f), prefs.get("pointedLongitude", 0f));
-        setCircle(latLng);
+        point(latLng);
     }
 }
