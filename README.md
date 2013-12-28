@@ -12,3 +12,7 @@
 
 * [Google Map API for Android](https://developers.google.com/maps/documentation/android/start)
 * [Android Assets Studio](http://android-ui-utils.googlecode.com/hg/asset-studio/dist/index.html)
+
+# AUTHOR
+
+Fuji, Goro (gfx) <g.psy.va@gmail.com>
