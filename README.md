@@ -4,9 +4,11 @@
 
 # RUN
 
+* Make `local.properties` which contains `sdk.dir=/path/to/android-sdk`
 * Obtain Google Maps V2 API from [Google Developer Console](https://cloud.google.com/console?redirected=true#/project)
 * Build the project
 
 # SEE ALSO
 
-* https://developers.google.com/maps/documentation/android/start#install_and_configure_the_google_play_services_sdk
+* [Google Map API for Android](https://developers.google.com/maps/documentation/android/start)
+* [Android Assets Studio](http://android-ui-utils.googlecode.com/hg/asset-studio/dist/index.html)
