@@ -2,7 +2,8 @@
 /local.properties
 /.idea/workspace.xml
 .DS_Store
-gradle.properties
+/gradle.properties
+build
 
 # generated files
 _*.xml

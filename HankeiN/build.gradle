@@ -1,12 +1,12 @@
 apply plugin: 'android'
-apply from: rootProject.file('gradle/apt.gradle')
-apply from: rootProject.file('gradle/androidAnnotations.gradle')
+apply from: rootProject.file("gradle/volley.gradle")
 
 dependencies {
-    compile 'com.jakewharton:butterknife:4.0.+'
-    compile 'com.google.android.gms:play-services:4.0.+'
-    compile "com.android.support:appcompat-v7:${supportPackageVersion}"
-
+    compile "com.jakewharton:butterknife:$butterknifeVersion"
+    compile "com.google.android.gms:play-services:$playServicesVersion"
+    compile "com.android.support:appcompat-v7:$supportPackageVersion"
+    compile "com.google.api-client:google-api-client-android:$googleApiClientVersion"
+    compile project(":libraries:volley")
 }
 
 android {
@@ -41,7 +41,7 @@ def overwriteApiKeys(HashMap<String, String> dict) {
     }
     s += """</resources>\n"""
 
-    def file = file("src/main/res/values/_api_keys.xml")
+    def file = project.file("src/main/res/values/_api_keys.xml")
     logger.info("writing $file ...")
     file.write(s)
 }

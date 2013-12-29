@@ -1,1 +1,2 @@
-include ':HankeiN', ':app'
+include ':HankeiN'
+include ':libraries:volley'
