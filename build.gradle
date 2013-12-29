@@ -37,3 +37,26 @@ project.ext {
 task wrapper(type: Wrapper) {
     gradleVersion = '1.9'
 }
+
+// initialize local.properties
+
+def createLocalProperties() {
+    def localPropFile = file("local.properties")
+
+    if (! localPropFile.exists()) {
+        [
+            System.getenv("ANDROID_HOME"),
+            System.getenv("ANDROID_SDK"),
+            "/usr/local/opt/android-sdk",
+            "/Applications/Android Studio/sdk"
+        ].each { dir ->
+            if (dir != null && file(dir).exists()) {
+                localPropFile.write("sdk.dir=${dir}\n")
+                logger.info("create ${localPropFile} with sdk.dir=${dir}")
+                return;
+            }
+        }
+    }
+}
+
+createLocalProperties();
