@@ -72,4 +72,12 @@ public class Prefs {
     public Set<String> get(String key, Set<String> defValue) {
         return sharedPrefs.getStringSet(key, defValue);
     }
+
+    public void resetAll() {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        for (String key : sharedPrefs.getAll().keySet()) {
+            editor.remove(key);
+        }
+        editor.commit();
+    }
 }

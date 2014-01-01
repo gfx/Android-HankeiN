@@ -138,6 +138,8 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return openSettingView();
+            case R.id.action_reset:
+                 return openResetView();
             case R.id.action_about:
                 return openAboutThisApp();
             default:
@@ -168,6 +170,35 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
         dialog.show();
         return true;
+    }
+
+    private boolean openResetView() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        dialog.setTitle("設定の初期化");
+
+        dialog.setMessage("設定を初期化しますか？");
+
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                reset();
+            }
+        });
+        dialog.setNegativeButton("Cancel", null);
+        dialog.show();
+        return true;
+    }
+
+    private void reset() {
+        prefs.resetAll();
+
+        Toast.makeText(this, "設定を初期化しました", Toast.LENGTH_SHORT).show();
+
+        // restart the app
+        final Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     private boolean openAboutThisApp() {
