@@ -5,8 +5,21 @@ dependencies {
     compile "com.jakewharton:butterknife:$butterknifeVersion"
     compile "com.google.android.gms:play-services:$playServicesVersion"
     compile "com.android.support:appcompat-v7:$supportPackageVersion"
-    compile "com.google.api-client:google-api-client-android:$googleApiClientVersion"
     compile project(":libraries:volley")
+}
+
+
+def overwriteApiKeys(HashMap<String, String> dict) {
+    def s = ""
+    s += """<?xml version="1.0" encoding="utf-8"?>\n<resources>\n"""
+    dict.each { key, value ->
+        s += """<string name="$key">$value</string>\n"""
+    }
+    s += """</resources>\n"""
+
+    def file = project.file("src/main/res/values/_api_keys.xml")
+    logger.info("writing $file ...")
+    file.write(s)
 }
 
 android {
@@ -29,23 +42,12 @@ android {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            overwriteApiKeys("maps_v2_api_key": GoogleApiKey_Release)
+
+        }
+
+        debug {
+            overwriteApiKeys("maps_v2_api_key": GoogleApiKey_Debug)
         }
     }
-}
-
-def overwriteApiKeys(HashMap<String, String> dict) {
-    def s = ""
-    s += """<?xml version="1.0" encoding="utf-8"?>\n<resources>\n"""
-    dict.each { key, value ->
-        s += """<string name="$key">$value</string>\n"""
-    }
-    s += """</resources>\n"""
-
-    def file = project.file("src/main/res/values/_api_keys.xml")
-    logger.info("writing $file ...")
-    file.write(s)
-}
-
-if (project.hasProperty('GoogleMapsV2ApiKey')) {
-    overwriteApiKeys([ "maps_v2_api_key" : GoogleMapsV2ApiKey ])
 }

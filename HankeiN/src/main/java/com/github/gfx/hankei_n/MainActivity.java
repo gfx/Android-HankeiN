@@ -209,7 +209,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
                 mapMarker.setTitle(addrName);
                 statusView.setText(addrName);
             }
-        }.execute(null);
+        }.execute((Void)null);
     }
 
     @Override
