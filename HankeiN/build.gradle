@@ -5,7 +5,6 @@ dependencies {
     compile "com.jakewharton:butterknife:$butterknifeVersion"
     compile "com.google.android.gms:play-services:$playServicesVersion"
     compile "com.android.support:appcompat-v7:$supportPackageVersion"
-    compile project(":libraries:volley")
 }
 
 
