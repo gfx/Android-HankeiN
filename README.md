@@ -1,11 +1,12 @@
+# Hankei-N [![Build Status](https://secure.travis-ci.org/gfx/Android-HankeiN.png)](http://travis-ci.org/gfx/Android-HankeiN)
+
 # DESCRIPTION
 
-ある地点から半径nキロメートルの地域を調べるAndroidアプリです。
+ある地点から半径nキロメートルの地域を調べるAndroidアプリです。引っ越しの際に参考としてお使いください。
 
 # RUN
 
-* Make `local.properties` which contains `sdk.dir=/path/to/android-sdk`
-* Obtain Google Maps V2 API from [Google Developer Console](https://cloud.google.com/console?redirected=true#/project)
+* Obtain **Google API Key** from [Google Developer Console](https://cloud.google.com/console?redirected=true#/project)
 * Build the project
 
 # SEE ALSO
