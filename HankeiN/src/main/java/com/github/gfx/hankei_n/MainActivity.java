@@ -24,6 +24,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -46,10 +47,12 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
     static final float DEFAULT_RADIUS = 1.5f;
 
+    static final int MARKER_COLOR = 0x0099ff;
+
     private Geocoder geocoder;
     private Prefs prefs;
 
-    private boolean myLocationInitialized = false;
+    private boolean cameraInitialized = false;
 
     private GoogleMap map;
 
@@ -71,6 +74,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         assert mapFragment != null;
+
         map = mapFragment.getMap();
         map.setMyLocationEnabled(true);
 
@@ -81,21 +85,45 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        final CameraPosition pos = map.getCameraPosition();
+        prefs.put("prevLatitude", (float) pos.target.latitude);
+        prefs.put("prevLongitude", (float) pos.target.longitude);
+        prefs.put("prevCameraZoom", pos.zoom);
+        cameraInitialized = false;
+    }
+
+    /**
+     * Initialize the camera position.
+     * (1) initial start -> Does nothing. Changes camera position on onMyLocationChange().
+     * (2) resume        -> Starts with the saved position and then moves to my location on onMyLocationChange().
+     */
+    @Override
     protected void onResume() {
         super.onResume();
 
-        final float prevLatitude = prefs.get("prevLatitude", 0.0f);
-        final float prevLongitude = prefs.get("prevLongitude", 0.0f);
-
-        if (prevLatitude != 0.0f || prevLongitude != 0.0) {
-            setMyLocation(prevLatitude, prevLongitude, false);
-        }
-
+        /* marker location */
         final float pointedLatitude = prefs.get("pointedLatitude", 0.0f);
         final float pointedLongitude = prefs.get("pointedLongitude", 0.0f);
 
         if (pointedLatitude != 0.0f || pointedLongitude != 0.0) {
             updatePoint(new LatLng(pointedLatitude, pointedLongitude));
+        }
+
+        /* camera location */
+        final float prevLatitude = prefs.get("prevLatitude", 0.0f);
+        final float prevLongitude = prefs.get("prevLongitude", 0.0f);
+
+        if (prevLatitude != 0.0f || prevLongitude != 0.0) {
+            final float zoom = prefs.get("prevCameraZoom", MAP_ZOOM);
+            setMyLocation(prevLatitude, prevLongitude, false, zoom);
+
+            final String addressName = prefs.get("addressName", (String)null);
+            if (addressName != null) {
+                setStatusText(addressName);
+            }
         }
     }
 
@@ -151,6 +179,18 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     }
 
     @Override
+    public void onMyLocationChange(Location location) {
+        prefs.put("prevLatitude", (float) location.getLatitude());
+        prefs.put("prevLongitude", (float) location.getLongitude());
+
+        if (cameraInitialized) return;
+        cameraInitialized = true;
+
+        setMyLocation(location.getLatitude(), location.getLongitude(), true, MAP_ZOOM);
+    }
+
+
+    @Override
     public void onMapLongClick(LatLng latLng) {
         final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(100);
@@ -190,8 +230,8 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         circleOptions.center(latLng);
         circleOptions.radius(getRadius() * 1000);
         circleOptions.strokeWidth(1);
-        circleOptions.strokeColor(0x990099ee);
-        circleOptions.fillColor(0x110099ee);
+        circleOptions.strokeColor(addColorAlpha(MARKER_COLOR, 0x99));
+        circleOptions.fillColor(addColorAlpha(MARKER_COLOR, 0x11));
         if (mapCircle != null) {
             mapCircle.remove();
         }
@@ -206,26 +246,25 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
             @Override
             protected void onPostExecute(String addrName) {
-                mapMarker.setTitle(addrName);
-                statusView.setText(addrName);
+                setStatusText(addrName);
+                prefs.put("addressName", addrName);
             }
-        }.execute((Void)null);
+        }.execute((Void) null);
     }
 
-    @Override
-    public void onMyLocationChange(Location location) {
-        prefs.put("prevLatitude", (float) location.getLatitude());
-        prefs.put("prevLongitude", (float) location.getLongitude());
-
-        if (myLocationInitialized) return;
-        myLocationInitialized = true;
-
-        setMyLocation(location.getLatitude(), location.getLongitude(), true);
+    private int addColorAlpha(int color, int alpha) {
+        return (color & 0xFFFFFF) | (alpha << 24);
     }
 
-    private void setMyLocation(double lat, double lng, boolean animation) {
+    private void setStatusText(String addressName) {
+        mapMarker.setTitle(addressName);
+        statusView.setText(addressName);
+    }
+
+
+    private void setMyLocation(double lat, double lng, boolean animation, float zoom) {
         final LatLng latlng = new LatLng(lat, lng);
-        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latlng, MAP_ZOOM);
+        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latlng, zoom);
 
         if (animation) {
             map.animateCamera(update);

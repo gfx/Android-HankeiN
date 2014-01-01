@@ -2,6 +2,9 @@ package com.github.gfx.hankei_n;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+
+import java.util.Set;
 
 public class Prefs {
     final private SharedPreferences sharedPrefs;
@@ -30,6 +33,16 @@ public class Prefs {
         return sharedPrefs.getLong(key, defValue);
     }
 
+    public void put(String key, int value) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putInt(key, value);
+        editor.commit();
+    }
+
+    public int get(String key, int defValue) {
+        return sharedPrefs.getInt(key, defValue);
+    }
+
     public void put(String key, float value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putFloat(key, value);
@@ -48,5 +61,15 @@ public class Prefs {
 
     public String get(String key, String defValue) {
         return sharedPrefs.getString(key, defValue);
+    }
+
+    public void put(String key, Set<String> value) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putStringSet(key, value);
+        editor.commit();
+    }
+
+    public Set<String> get(String key, Set<String> defValue) {
+        return sharedPrefs.getStringSet(key, defValue);
     }
 }
