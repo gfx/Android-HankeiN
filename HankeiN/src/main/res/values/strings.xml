@@ -7,6 +7,7 @@
     <string name="action_settings">半径を設定する</string>
     <string name="action_reset">設定を初期化する</string>
     <string name="action_about">このアプリについて</string>
+    <string name="initial_instruction">画面の一点を長押ししてください</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>
