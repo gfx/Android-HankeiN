@@ -65,8 +65,8 @@ writeLocalProperties();
 
 // set dummy properties
 ["GoogleApiKey_Release", "GoogleApiKey_Debug"].each { name ->
-    if (! project.hasProperty(name)) {
+    if (! project.ext.has(name)) {
         logger.log(LogLevel.WARN, "${name} does not exist. Please set it in gradle.properties.")
-        project.setProperty(name, "DUMMY")
+        project.ext.set(name, "DUMMY")
     }
 }
