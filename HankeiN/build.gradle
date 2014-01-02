@@ -7,7 +7,7 @@ dependencies {
 }
 
 
-def overwriteApiKeys(HashMap<String, String> dict) {
+def writeApiKeys(HashMap<String, String> dict) {
     def s = ""
     s += """<?xml version="1.0" encoding="utf-8"?>\n<resources>\n"""
     dict.each { key, value ->
@@ -40,12 +40,24 @@ android {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            overwriteApiKeys("maps_v2_api_key": GoogleApiKey_Release)
-
         }
 
         debug {
-            overwriteApiKeys("maps_v2_api_key": GoogleApiKey_Debug)
+            packageNameSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+    }
+}
+
+android.applicationVariants.all { variant ->
+    variant.mergeResources.dependsOn {
+        switch (variant.buildType.name) {
+            case "release":
+                writeApiKeys("GoogleApiKey" : GoogleApiKey_Release)
+                break
+            case "debug":
+                writeApiKeys("GoogleApiKey" : GoogleApiKey_Debug)
+                break
         }
     }
 }
