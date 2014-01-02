@@ -25,11 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +52,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
     private GoogleMap map;
 
-    private Marker mapMarker;
-    private Circle mapCircle;
+    private SingleMarker marker;
 
     @InjectView(R.id.status)
     TextView statusView;
@@ -81,7 +76,9 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         map.setOnMyLocationChangeListener(this);
         map.setOnMapLongClickListener(this);
 
-        setTitle(getRadius());
+        marker = new SingleMarker(map, getRadius(), MARKER_COLOR);
+
+        setAppTitle(getRadius());
     }
 
     @Override
@@ -250,23 +247,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     }
 
     private void updatePoint(final LatLng latLng) {
-        final MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        if (mapMarker != null) {
-            mapMarker.remove();
-        }
-        mapMarker = map.addMarker(markerOptions);
-
-        final CircleOptions circleOptions = new CircleOptions();
-        circleOptions.center(latLng);
-        circleOptions.radius(getRadius() * 1000);
-        circleOptions.strokeWidth(1);
-        circleOptions.strokeColor(addColorAlpha(MARKER_COLOR, 0x99));
-        circleOptions.fillColor(addColorAlpha(MARKER_COLOR, 0x11));
-        if (mapCircle != null) {
-            mapCircle.remove();
-        }
-        mapCircle = map.addCircle(circleOptions);
+        marker.move(latLng);
 
         // update title and status text
         new AsyncTask<Void, Void, String>() {
@@ -283,12 +264,8 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         }.execute((Void) null);
     }
 
-    private int addColorAlpha(int color, int alpha) {
-        return (color & 0xFFFFFF) | (alpha << 24);
-    }
-
     private void setStatusText(String addressName) {
-        mapMarker.setTitle(addressName);
+        marker.setTitle(addressName);
         statusView.setText(addressName);
     }
 
@@ -304,7 +281,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         }
     }
 
-    private void setTitle(float radius) {
+    private void setAppTitle(float radius) {
         setTitle(getResources().getString(R.string.app_title_template, radius));
     }
 
@@ -313,7 +290,8 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     }
 
     private void setRadius(float radius) {
-        setTitle(radius);
+        setRadius(radius);
+        setAppTitle(radius);
         prefs.put("radius", radius);
 
         final LatLng latLng = new LatLng(prefs.get("pointedLatitude", 0f), prefs.get("pointedLongitude", 0f));
