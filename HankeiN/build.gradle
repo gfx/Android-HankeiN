@@ -47,6 +47,11 @@ android {
             versionNameSuffix "-debug"
         }
     }
+
+    lintOptions {
+        disable 'InvalidPackage'
+        //abortOnError false
+    }
 }
 
 android.applicationVariants.all { variant ->

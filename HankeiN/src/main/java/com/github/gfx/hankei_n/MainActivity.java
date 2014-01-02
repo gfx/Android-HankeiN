@@ -160,7 +160,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 try {
-                    float value = Float.parseFloat(input.getText().toString());
+                    final float value = Float.parseFloat(String.valueOf(input.getText()));
                     setRadius(value);
                 } catch (NumberFormatException e) {
                     Toast.makeText(MainActivity.this, "エラー: 数値を入力してください", Toast.LENGTH_LONG).show();
@@ -245,7 +245,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
             return TextUtils.join(" ", names);
         } catch (Exception e) {
             Log.wtf(TAG, e);
-            return String.format("(%.02f, %.02f)", latLng.latitude, latLng.longitude);
+            return String.format(Locale.getDefault(), "(%.02f, %.02f)", latLng.latitude, latLng.longitude);
         }
     }
 
