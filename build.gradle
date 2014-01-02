@@ -42,7 +42,7 @@ task wrapper(type: Wrapper) {
 
 // initialize local.properties
 
-def createLocalProperties() {
+def writeLocalProperties() {
     def localPropFile = file("local.properties")
 
     if (! localPropFile.exists()) {
@@ -61,5 +61,12 @@ def createLocalProperties() {
     }
 }
 
-createLocalProperties();
+writeLocalProperties();
 
+// set dummy properties
+["GoogleApiKey_Release", "GoogleApiKey_Debug"].each { name ->
+    if (! project.hasProperty(name)) {
+        logger.log(LogLevel.WARN, "${name} does not exist. Please set it in gradle.properties.")
+        project.setProperty(name, "DUMMY")
+    }
+}
