@@ -4,9 +4,11 @@
     <string name="app_name">半径n</string>
     <string name="app_title_template">半径%.01fキロメートル</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">半径を設定する</string>
-    <string name="action_reset">設定を初期化する</string>
+    <string name="action_settings">半径の設定</string>
+    <string name="action_reset">設定の初期化</string>
     <string name="action_about">このアプリについて</string>
+    <string name="message_reset">設定を初期化しますか？</string>
+    <string name="message_reset_done">設定を初期化しました</string>
     <string name="initial_instruction">画面の一点を長押ししてください</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->

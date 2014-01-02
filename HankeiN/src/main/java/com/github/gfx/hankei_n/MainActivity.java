@@ -172,9 +172,9 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     private boolean openResetView() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
-        dialog.setTitle("設定の初期化");
+        dialog.setTitle(R.string.action_reset);
 
-        dialog.setMessage("設定を初期化しますか？");
+        dialog.setMessage(R.string.message_reset);
 
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -190,7 +190,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     private void reset() {
         prefs.resetAll();
 
-        Toast.makeText(this, "設定を初期化しました", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.message_reset_done, Toast.LENGTH_SHORT).show();
 
         // restart the app
         final Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
