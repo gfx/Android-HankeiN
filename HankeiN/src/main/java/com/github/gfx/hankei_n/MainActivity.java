@@ -214,7 +214,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         if (cameraInitialized) return;
         cameraInitialized = true;
 
-        setMyLocation(location.getLatitude(), location.getLongitude(), true, MAP_ZOOM);
+        setMyLocation(location.getLatitude(), location.getLongitude(), true, prefs.get("prevCameraZoom", MAP_ZOOM));
     }
 
 
