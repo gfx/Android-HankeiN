@@ -17,5 +17,11 @@
 # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
 # org.gradle.parallel=true
 
-GoogleMapsV2ApiKey=XXXXX
+GoogleApiKey_Debug=XXXX
+GoogleApiKey_Release=XXXX
+
+ReleaseStoreFile=~/path/to/keystore
+ReleaseStorePassword=store_password
+ReleaseKeyAlias=key_alias
+ReleaseKeyPassword=key_password
 

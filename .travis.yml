@@ -9,6 +9,7 @@ before_install:
     - curl -L https://raw.github.com/embarkmobile/android-sdk-installer/master/android-sdk-installer | bash /dev/stdin --install=$COMPONENTS
     - source ~/.android-sdk-installer/env
     - export TERM=dumb # to get clean gradle output
+    - cp gradle.properties{.sample,}
     # Create and start emulator
     #- android list targets # for debugging
     #- echo no | android create avd --force -n test -t 1
