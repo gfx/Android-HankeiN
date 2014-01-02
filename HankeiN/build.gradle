@@ -39,10 +39,16 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(project.ext.ReleaseStoreFile.replaceAll("~", System.getenv("HOME")))
-            storePassword project.ext.ReleaseStorePassword
-            keyAlias project.ext.ReleaseKeyAlias
-            keyPassword project.ext.ReleaseKeyPassword
+            def keystore = file(project.ext.ReleaseStoreFile.replaceAll("~", System.getenv("HOME")))
+            if (keystore.exists()) {
+                storeFile keystore
+                storePassword project.ext.ReleaseStorePassword
+                keyAlias project.ext.ReleaseKeyAlias
+                keyPassword project.ext.ReleaseKeyPassword
+            }
+            else {
+                logger.log(LogLevel.WARN, "keystore ${keystore} does not exist.")
+            }
         }
     }
 
