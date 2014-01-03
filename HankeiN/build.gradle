@@ -39,16 +39,10 @@ android {
 
     signingConfigs {
         release {
-            def keystore = file(project.ext.ReleaseStoreFile.replaceAll("~", System.getenv("HOME")))
-            if (keystore.exists()) {
-                storeFile keystore
-                storePassword project.ext.ReleaseStorePassword
-                keyAlias project.ext.ReleaseKeyAlias
-                keyPassword project.ext.ReleaseKeyPassword
-            }
-            else {
-                logger.log(LogLevel.WARN, "keystore ${keystore} does not exist.")
-            }
+            storeFile file(project.ext.ReleaseStoreFile.replaceAll("~", System.getenv("HOME")))
+            storePassword project.ext.ReleaseStorePassword
+            keyAlias project.ext.ReleaseKeyAlias
+            keyPassword project.ext.ReleaseKeyPassword
         }
     }
 
@@ -57,7 +51,12 @@ android {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 
-            signingConfig signingConfigs.release
+            if (signingConfigs.release.storeFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+            else {
+                logger.info("keystore ${keystore} does not exist. Release signing is ignored.")
+            }
         }
 
         debug {
@@ -76,10 +75,10 @@ android.applicationVariants.all { variant ->
     variant.mergeResources.dependsOn {
         switch (variant.buildType.name) {
             case "release":
-                writeApiKeys("GoogleApiKey" : GoogleApiKey_Release)
+                writeApiKeys("GoogleApiKey": GoogleApiKey_Release)
                 break
             case "debug":
-                writeApiKeys("GoogleApiKey" : GoogleApiKey_Debug)
+                writeApiKeys("GoogleApiKey": GoogleApiKey_Debug)
                 break
         }
     }

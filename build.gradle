@@ -61,12 +61,22 @@ def writeLocalProperties() {
     }
 }
 
-writeLocalProperties();
+def writeDummyGradleProperties() {
+    def gradlePropsFile = file("gradle.properties")
 
-// set dummy properties
-["GoogleApiKey_Release", "GoogleApiKey_Debug"].each { name ->
-    if (! project.ext.has(name)) {
-        logger.log(LogLevel.WARN, "${name} does not exist. Please set it in gradle.properties.")
-        project.ext.set(name, "DUMMY")
+    if (! gradlePropsFile.exists()) {
+        gradlePropsFile.write(file("gradle.properties.sample").readBytes())
+
+        gradlePropsFile.withInputStream { stream ->
+            def props = new Properties()
+            props.load(stream)
+            props.each { key, value ->
+                project.ext.set(key, value)
+            }
+        }
     }
 }
+
+writeLocalProperties()
+
+writeDummyGradleProperties()
