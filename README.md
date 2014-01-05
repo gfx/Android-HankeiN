@@ -14,7 +14,7 @@
 ## RUN
 
 * Obtain **Google API Key** from [Google Developer Console](https://cloud.google.com/console?redirected=true#/project)
-* Build the project
+* Open the project with [Android Studio](http://developer.android.com/sdk/installing/studio.html)
 
 ## SEE ALSO
 
