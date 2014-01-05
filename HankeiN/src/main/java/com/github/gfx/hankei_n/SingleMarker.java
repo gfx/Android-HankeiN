@@ -29,6 +29,7 @@ class SingleMarker {
 
     public void setRadius(double radius) {
         this.radius = radius;
+        mapCircle.setRadius(radius * 1000);
     }
 
     public void setTitle(String title) {

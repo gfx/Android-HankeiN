@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -192,9 +193,14 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
         Toast.makeText(this, R.string.message_reset_done, Toast.LENGTH_SHORT).show();
 
-        // restart the app
-        final Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        restart();
+    }
+
+    private void restart() {
+        final PackageManager pm = getPackageManager();
+        assert pm != null;
+        final Intent intent = pm.getLaunchIntentForPackage(getPackageName());
+        assert intent != null;
         startActivity(intent);
     }
 
