@@ -4,55 +4,8 @@ dependencies {
     compile "com.jakewharton:butterknife:$butterknifeVersion"
     compile "com.google.android.gms:play-services:$playServicesVersion"
     compile "com.android.support:appcompat-v7:$supportPackageVersion"
-}
 
-
-def writeApiKeys(HashMap<String, String> dict) {
-    def s = ""
-    s += """<?xml version="1.0" encoding="utf-8"?>\n<resources>\n"""
-    dict.each { key, value ->
-        s += """<string name="$key">$value</string>\n"""
-    }
-    s += """</resources>\n"""
-
-    def file = project.file("src/main/res/values/_api_keys.xml")
-    logger.info("writing $file ...")
-    file.write(s)
-}
-
-class Version {
-    public final int major;
-    public final int minor;
-    public final int patchLevel;
-
-    public final String source;
-
-    public Version(String v) {
-        source = v
-
-        def parts = v.split("\\.", 3)
-        major = Integer.valueOf(parts[0])
-        minor = Integer.valueOf(parts[1])
-        patchLevel = Integer.valueOf(parts[2])
-    }
-
-    @Override
-    public String toString() {
-        return Sring.format("%s (%s)", toVesionName(), toVersionCode())
-    }
-
-    public String toVersionName() {
-        return source
-    }
-
-    public int toVersionCode() {
-        return major * (1000 * 1000) + minor * 1000 + patchLevel;
-    }
-}
-
-def readVersion() {
-    def s = new String(project.file("VERSION").readBytes())
-    return new Version(s)
+    compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 android {
@@ -63,7 +16,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
 
-        def version = readVersion()
+        def version = readVersion(file("VERSION"))
         versionCode version.toVersionCode()
         versionName version.toVersionName()
     }
@@ -109,12 +62,13 @@ android {
 
 android.applicationVariants.all { variant ->
     variant.mergeResources.dependsOn {
+        def resourceFile = file("src/main/res/values/_api_keys.xml")
         switch (variant.buildType.name) {
             case "release":
-                writeApiKeys("GoogleApiKey": GoogleApiKey_Release)
+                writeResources(resourceFile, ["GoogleApiKey": GoogleApiKey_Release])
                 break
             case "debug":
-                writeApiKeys("GoogleApiKey": GoogleApiKey_Debug)
+                writeResources(resourceFile, ["GoogleApiKey": GoogleApiKey_Debug])
                 break
         }
     }

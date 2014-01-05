@@ -1,5 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+apply from: 'gradle/gradle-android-utils/build.gradle'
 
 buildscript {
     repositories {
@@ -35,31 +36,7 @@ project.ext {
     googleApiClientVersion = "1.17.0-rc"
 }
 
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.9'
-}
-
-// initialize local.properties
-
-def writeLocalProperties() {
-    def localPropFile = file("local.properties")
-
-    if (! localPropFile.exists()) {
-        [
-            System.getenv("ANDROID_HOME"),
-            System.getenv("ANDROID_SDK"),
-            "/usr/local/opt/android-sdk",
-            "/Applications/Android Studio/sdk"
-        ].each { dir ->
-            if (dir != null && file(dir).exists()) {
-                localPropFile.write("sdk.dir=${dir}\n")
-                logger.info("create ${localPropFile} with sdk.dir=${dir}")
-                return;
-            }
-        }
-    }
-}
+initSdkDir()
 
 def writeDummyGradleProperties() {
     def gradlePropsFile = file("gradle.properties")
@@ -76,7 +53,5 @@ def writeDummyGradleProperties() {
         }
     }
 }
-
-writeLocalProperties()
 
 writeDummyGradleProperties()

@@ -1,3 +1,6 @@
 [submodule "libraries/volley"]
 	path = libraries/volley
 	url = https://android.googlesource.com/platform/frameworks/volley
+[submodule "gradle/gradle-android-utils"]
+	path = gradle/gradle-android-utils
+	url = git@github.com:gfx/gradle-android-utils.git

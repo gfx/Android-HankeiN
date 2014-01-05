@@ -118,7 +118,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
             final float zoom = prefs.get("prevCameraZoom", MAP_ZOOM);
             setMyLocation(prevLatitude, prevLongitude, false, zoom);
 
-            final String addressName = prefs.get("addressName", (String)null);
+            final String addressName = prefs.get("addressName", (String) null);
             if (addressName != null) {
                 setStatusText(addressName);
             }
@@ -137,7 +137,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
             case R.id.action_settings:
                 return openSettingView();
             case R.id.action_reset:
-                 return openResetView();
+                return openResetView();
             case R.id.action_about:
                 return openAboutThisApp();
             default:
