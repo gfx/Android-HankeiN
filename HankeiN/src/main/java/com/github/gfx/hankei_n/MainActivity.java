@@ -290,7 +290,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     }
 
     private void setRadius(float radius) {
-        setRadius(radius);
+        marker.setRadius(radius);
         setAppTitle(radius);
         prefs.put("radius", radius);
 
