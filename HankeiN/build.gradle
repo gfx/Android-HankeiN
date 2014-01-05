@@ -20,6 +20,41 @@ def writeApiKeys(HashMap<String, String> dict) {
     file.write(s)
 }
 
+class Version {
+    public final int major;
+    public final int minor;
+    public final int patchLevel;
+
+    public final String source;
+
+    public Version(String v) {
+        source = v
+
+        def parts = v.split("\\.", 3)
+        major = Integer.valueOf(parts[0])
+        minor = Integer.valueOf(parts[1])
+        patchLevel = Integer.valueOf(parts[2])
+    }
+
+    @Override
+    public String toString() {
+        return Sring.format("%s (%s)", toVesionName(), toVersionCode())
+    }
+
+    public String toVersionName() {
+        return source
+    }
+
+    public int toVersionCode() {
+        return major * (1000 * 1000) + minor * 1000 + patchLevel;
+    }
+}
+
+def readVersion() {
+    def s = new String(project.file("VERSION").readBytes())
+    return new Version(s)
+}
+
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.1"
@@ -27,8 +62,10 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
+
+        def version = readVersion()
+        versionCode version.toVersionCode()
+        versionName version.toVersionName()
     }
 
     compileOptions {
@@ -53,8 +90,7 @@ android {
 
             if (signingConfigs.release.storeFile.exists()) {
                 signingConfig signingConfigs.release
-            }
-            else {
+            } else {
                 logger.info("keystore ${keystore} does not exist. Release signing is ignored.")
             }
         }
