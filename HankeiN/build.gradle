@@ -66,6 +66,8 @@ android {
     }
 }
 
+makeGrayscaleLauncherIcon("ic_launcher.png")
+
 android.applicationVariants.all { variant ->
     variant.mergeResources.dependsOn {
         def resourceFile = file("src/main/res/values/_api_keys.xml")
