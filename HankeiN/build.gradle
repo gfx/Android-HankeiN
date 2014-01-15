@@ -1,5 +1,11 @@
 apply plugin: 'android'
 
+rootProject.ext.properties.each { key, value ->
+    if (!project.ext.has(key)) {
+        project.ext.set(key, value)
+    }
+}
+
 dependencies {
     compile "com.jakewharton:butterknife:$butterknifeVersion"
     compile "com.google.android.gms:play-services:$playServicesVersion"

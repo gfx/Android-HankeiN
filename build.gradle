@@ -42,14 +42,15 @@ def writeDummyGradleProperties() {
     def gradlePropsFile = file("gradle.properties")
 
     if (! gradlePropsFile.exists()) {
-        gradlePropsFile.write(file("gradle.properties.sample").readBytes())
+        def content = file("gradle.properties.sample").readBytes()
+        gradlePropsFile.write(new String(content))
 
-        gradlePropsFile.withInputStream { stream ->
-            def props = new Properties()
-            props.load(stream)
-            props.each { key, value ->
-                project.ext.set(key, value)
-            }
+
+        def props = new Properties()
+        props.load(new ByteArrayInputStream(content))
+        props.each { key, value ->
+            print "$key $value\n"
+            project.ext.set(key, value)
         }
     }
 }
