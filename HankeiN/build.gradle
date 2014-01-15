@@ -66,7 +66,7 @@ android {
     }
 }
 
-makeGrayscaleLauncherIcon("ic_launcher.png")
+makeGrayscaleLauncherIcon(file("src/main"), "ic_launcher.png")
 
 android.applicationVariants.all { variant ->
     variant.mergeResources.dependsOn {
