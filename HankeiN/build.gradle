@@ -7,9 +7,9 @@ rootProject.ext.properties.each { key, value ->
 }
 
 dependencies {
-    compile "com.jakewharton:butterknife:$butterknifeVersion"
-    compile "com.google.android.gms:play-services:$playServicesVersion"
-    compile "com.android.support:appcompat-v7:$supportPackageVersion"
+    compile "com.jakewharton:butterknife:4.0.+"
+    compile "com.google.android.gms:play-services:4.0.+"
+    compile "com.android.support:appcompat-v7:19.0.+"
 
     compile fileTree(dir: 'libs', include: '*.jar')
 }

@@ -22,20 +22,6 @@ subprojects {
     }
 }
 
-project.ext {
-    supportPackageVersion = "19.0.0"
-    playServicesVersion = "4.0.30"
-    daggerVersion = "1.1.0"
-    butterknifeVersion = "4.0.1"
-    androidAnnotationsVersion = '3.0.0';
-    nineOldAndroidsVersion = "2.4.0"
-    commonsLangVersion = "2.6"
-    commonsIoVersion = "2.4"
-    guavaVersion = "16.0-rc1"
-    jppVersion = '1.6.2';
-    googleApiClientVersion = "1.17.0-rc"
-}
-
 initSdkDir()
 
 def writeDummyGradleProperties() {
