@@ -10,6 +10,8 @@
     <string name="message_reset">設定を初期化しますか？</string>
     <string name="message_reset_done">設定を初期化しました</string>
     <string name="initial_instruction">画面の一点を長押ししてください</string>
+    <string name="project_url">http://github.com/gfx/Android-HankeiN</string>
+    <string name="main_setting_radius_km">半径の設定 (km)</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

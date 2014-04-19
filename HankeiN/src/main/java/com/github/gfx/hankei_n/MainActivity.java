@@ -38,8 +38,6 @@ import butterknife.InjectView;
 public class MainActivity extends Activity implements GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMapLongClickListener {
     private static final String TAG = "MainActivity";
 
-    private static final String projectUrl = "http://github.com/gfx/Android-HankeiN";
-
     static final float MAP_ZOOM = 14f;
 
     static final float DEFAULT_RADIUS = 1.5f;
@@ -148,7 +146,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     private boolean openSettingView() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
-        dialog.setTitle("半径の設定 (km)");
+        dialog.setTitle(R.string.main_setting_radius_km);
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
@@ -205,7 +203,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     }
 
     private boolean openAboutThisApp() {
-        final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(projectUrl));
+        final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(getString(R.string.project_url)));
         startActivity(intent);
         overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
 
