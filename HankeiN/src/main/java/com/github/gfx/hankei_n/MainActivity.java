@@ -44,7 +44,7 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
     static final float DEFAULT_RADIUS = 1.5f;
 
-    static final int MARKER_COLOR = 0x0099ff;
+    static final int MARKER_COLOR = 0x00ff66;
 
     private Geocoder geocoder;
     private Prefs prefs;
