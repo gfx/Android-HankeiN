@@ -1,5 +1,8 @@
 package com.github.gfx.hankei_n;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -8,15 +11,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 class SingleMarker {
+    @NonNull
     final private GoogleMap map;
     final private int markerColor;
 
     private double radius;
 
+    @Nullable
     private Marker mapMarker;
+    @Nullable
     private Circle mapCircle;
 
-    public SingleMarker(GoogleMap map, double radiusInMeter, int markerColor) {
+    public SingleMarker(@NonNull GoogleMap map, double radiusInMeter, int markerColor) {
         this.map = map;
         this.radius = radiusInMeter;
         this.markerColor = markerColor;
@@ -32,13 +38,13 @@ class SingleMarker {
         mapCircle.setRadius(radius * 1000);
     }
 
-    public void setTitle(String title) {
+    public void setTitle(@NonNull String title) {
         if (mapMarker != null) {
             mapMarker.setTitle(title);
         }
     }
 
-    public void move(LatLng latLng) {
+    public void move(@NonNull LatLng latLng) {
         final MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         if (mapMarker != null) {

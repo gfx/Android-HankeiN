@@ -68,15 +68,8 @@ android {
         }
     }
 
-    productFlavors {
-        production { }
-        staging { }
-        development { }
-    }
-
     lintOptions {
         disable 'InvalidPackage'
-        //abortOnError false
     }
 }
 
