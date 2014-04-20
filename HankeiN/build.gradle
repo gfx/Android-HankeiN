@@ -58,7 +58,7 @@ android {
             if (signingConfigs.release.storeFile.exists()) {
                 signingConfig signingConfigs.release
             } else {
-                logger.info("keystore ${keystore} does not exist. Release signing is ignored.")
+                logger.info("keystore ${signingConfigs.release.storeFile} does not exist. Release signing is ignored.")
             }
         }
 
