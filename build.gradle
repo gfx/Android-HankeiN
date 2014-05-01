@@ -24,7 +24,7 @@ initSdkDir()
 def writeDummyGradleProperties() {
     def gradlePropsFile = file("gradle.properties")
 
-    if (! gradlePropsFile.exists()) {
+    if (!gradlePropsFile.exists()) {
         def content = file("gradle.properties.sample").readBytes()
         gradlePropsFile.write(new String(content))
 
