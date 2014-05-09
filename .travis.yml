@@ -5,8 +5,7 @@ before_install:
     # Install base Android SDK
     - sudo apt-get update -qq
     - sudo apt-get install -qq libstdc++6:i386 lib32z1 expect
-    - export COMPONENTS=extra
-    - curl -L https://raw.github.com/embarkmobile/android-sdk-installer/master/android-sdk-installer | bash /dev/stdin --install=$COMPONENTS
+    - curl -L https://raw.github.com/embarkmobile/android-sdk-installer/master/android-sdk-installer | bash /dev/stdin
     - source ~/.android-sdk-installer/env
     - export TERM=dumb # to get clean gradle output
     - cp gradle.properties{.sample,}
@@ -17,4 +16,5 @@ before_install:
     #- wait_for_emulator
 script:
     - ./gradlew check
+    - ./gradlew lint
     #- ./gradlew connectedInstrumentTest

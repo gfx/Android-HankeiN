@@ -71,6 +71,7 @@ android {
 
     lintOptions {
         disable 'InvalidPackage'
+        disable 'AppCompatResource'
     }
 }
 

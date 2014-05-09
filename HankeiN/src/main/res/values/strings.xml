@@ -3,7 +3,6 @@
 
     <string name="app_name">半径n</string>
     <string name="app_title_template">半径%.01fキロメートル</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">半径の設定</string>
     <string name="action_reset">設定の初期化</string>
     <string name="action_about">このアプリについて</string>
