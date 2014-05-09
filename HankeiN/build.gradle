@@ -1,5 +1,6 @@
 apply plugin: 'android-sdk-manager'
 apply plugin: 'android'
+apply plugin: 'android-power-assert'
 
 rootProject.ext.properties.each { key, value ->
     if (!project.ext.has(key)) {
@@ -8,7 +9,7 @@ rootProject.ext.properties.each { key, value ->
 }
 
 dependencies {
-    compile "com.jakewharton:butterknife:4.0.+"
+    compile "com.jakewharton:butterknife:5.0.+"
     compile "com.google.android.gms:play-services:4.+"
 
     compile "com.android.support:support-annotations:+"
