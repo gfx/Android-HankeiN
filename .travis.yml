@@ -1,12 +1,5 @@
-# https://github.com/embarkmobile/android-maven-example
-language: java
-jdk: oraclejdk8
+language: android
 before_install:
-    # Install base Android SDK
-    - sudo apt-get update -qq
-    - sudo apt-get install -qq libstdc++6:i386 lib32z1 expect
-    - curl -L https://raw.github.com/embarkmobile/android-sdk-installer/master/android-sdk-installer | bash /dev/stdin
-    - source ~/.android-sdk-installer/env
     - export TERM=dumb # to get clean gradle output
     - cp gradle.properties{.sample,}
     # Create and start emulator
