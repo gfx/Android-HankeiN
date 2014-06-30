@@ -1,5 +1,5 @@
 apply plugin: 'android-sdk-manager'
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 apply plugin: 'android-power-assert'
 
 rootProject.ext.properties.each { key, value ->
@@ -9,22 +9,22 @@ rootProject.ext.properties.each { key, value ->
 }
 
 dependencies {
-    compile "com.jakewharton:butterknife:5.0.+"
-    compile "com.google.android.gms:play-services:4.+"
+    compile "com.jakewharton:butterknife:5.+"
+    compile "com.google.android.gms:play-services:+"
 
     compile "com.android.support:support-annotations:+"
-    compile "com.android.support:appcompat-v7:+"
+    compile "com.android.support:appcompat-v7:20.+"
 
     compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 20
+    buildToolsVersion "20.0.0"
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 19
+        minSdkVersion 16
+        targetSdkVersion 20
 
         def version = readVersion(file("VERSION"))
         versionCode version.toVersionCode()
@@ -35,11 +35,6 @@ android {
         encoding = "UTF-8"
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-
-    dexOptions {
-        preDexLibraries false
     }
 
     signingConfigs {
