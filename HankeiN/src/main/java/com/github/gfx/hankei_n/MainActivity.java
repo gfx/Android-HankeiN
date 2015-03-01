@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,8 +36,8 @@ import java.util.Locale;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class MainActivity extends Activity implements GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMapLongClickListener {
-    private static final String TAG = "MainActivity";
+public class MainActivity extends Activity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     static final float MAP_ZOOM = 14f;
 
@@ -44,13 +45,18 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
 
     static final int MARKER_COLOR = 0x00ff66;
 
+    @NonNull
     private Geocoder geocoder;
+
+    @NonNull
     private Prefs prefs;
 
     private boolean cameraInitialized = false;
 
+    @NonNull
     private GoogleMap map;
 
+    @NonNull
     private SingleMarker marker;
 
     @InjectView(R.id.status)
@@ -72,8 +78,18 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         map = mapFragment.getMap();
         map.setMyLocationEnabled(true);
 
-        map.setOnMyLocationChangeListener(this);
-        map.setOnMapLongClickListener(this);
+        map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                MainActivity.this.onMyLocationChange(location);
+            }
+        });
+        map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                MainActivity.this.onMapLongClick(latLng);
+            }
+        });
 
         marker = new SingleMarker(map, getRadius(), MARKER_COLOR);
 
@@ -210,7 +226,6 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
         return true;
     }
 
-    @Override
     public void onMyLocationChange(Location location) {
         prefs.put("prevLatitude", (float) location.getLatitude());
         prefs.put("prevLongitude", (float) location.getLongitude());
@@ -222,7 +237,6 @@ public class MainActivity extends Activity implements GoogleMap.OnMyLocationChan
     }
 
 
-    @Override
     public void onMapLongClick(LatLng latLng) {
         final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(100);

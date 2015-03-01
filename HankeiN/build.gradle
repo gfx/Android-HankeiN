@@ -9,13 +9,11 @@ rootProject.ext.properties.each { key, value ->
 }
 
 dependencies {
-    compile "com.jakewharton:butterknife:+"
-    compile "com.google.android.gms:play-services:+"
-
-    compile "com.android.support:support-annotations:+"
-    compile "com.android.support:appcompat-v7:+"
-
-    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    compile 'com.jakewharton:butterknife:+'
+    compile 'com.google.android.gms:play-services:+'
+    compile 'com.android.support:support-annotations:+'
+    compile 'com.android.support:appcompat-v7:+'
+    compile 'com.google.code.findbugs:jsr305:+'
 }
 
 android {
