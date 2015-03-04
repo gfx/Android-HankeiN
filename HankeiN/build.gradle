@@ -8,14 +8,6 @@ rootProject.ext.properties.each { key, value ->
     }
 }
 
-dependencies {
-    compile 'com.jakewharton:butterknife:+'
-    compile 'com.google.android.gms:play-services:+'
-    compile 'com.android.support:support-annotations:+'
-    compile 'com.android.support:appcompat-v7:+'
-    compile 'com.google.code.findbugs:jsr305:+'
-}
-
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
@@ -24,7 +16,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 21
 
-        def version = readVersion(file("VERSION"))
+        def version = readVersion(rootProject.file("VERSION"))
         versionCode version.toVersionCode()
         versionName version.toVersionName()
     }
@@ -66,6 +58,15 @@ android {
         disable 'InvalidPackage'
         disable 'AppCompatResource'
     }
+}
+
+
+dependencies {
+    compile 'com.jakewharton:butterknife:+'
+    compile 'com.google.android.gms:play-services:+'
+    compile 'com.android.support:support-annotations:+'
+    compile 'com.android.support:appcompat-v7:+'
+    compile 'com.google.code.findbugs:jsr305:+'
 }
 
 makeGrayscaleLauncherIcon(file("src/main"), "ic_launcher.png")
