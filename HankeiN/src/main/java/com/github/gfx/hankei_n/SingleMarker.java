@@ -14,14 +14,17 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 class SingleMarker {
+
     @NonNull
     final private GoogleMap map;
+
     final private int markerColor;
 
     private double radius;
 
     @Nullable
     private Marker mapMarker;
+
     @Nullable
     private Circle mapCircle;
 
@@ -38,7 +41,7 @@ class SingleMarker {
 
     public void setRadius(double radius) {
         this.radius = radius;
-        if(mapCircle != null) {
+        if (mapCircle != null) {
             mapCircle.setRadius(radius * 1000);
         }
     }
