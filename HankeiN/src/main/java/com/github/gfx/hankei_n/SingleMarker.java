@@ -1,14 +1,14 @@
 package com.github.gfx.hankei_n;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -60,9 +60,9 @@ class SingleMarker {
         final CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(latLng);
         circleOptions.radius(radius * 1000);
-        circleOptions.strokeWidth(1);
-        circleOptions.strokeColor(addColorAlpha(markerColor, 0x99));
-        circleOptions.fillColor(addColorAlpha(markerColor, 0x11));
+        circleOptions.strokeWidth(2);
+        circleOptions.strokeColor(addColorAlpha(markerColor, 0xdd));
+        circleOptions.fillColor(addColorAlpha(markerColor, 0x1f));
         if (mapCircle != null) {
             mapCircle.remove();
         }
