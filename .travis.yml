@@ -1,4 +1,6 @@
 language: android
+jdk:
+    - oraclejdk8
 before_install:
     - export TERM=dumb # to get clean gradle output
     - cp gradle.properties{.sample,}
