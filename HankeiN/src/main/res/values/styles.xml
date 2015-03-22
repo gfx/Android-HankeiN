@@ -1,8 +1,9 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">#eeeeee</item>
+        <item name="colorPrimaryDark">#999999</item>
+        <item name="colorAccent">#666666</item>
     </style>
 
 </resources>
