@@ -14,7 +14,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
@@ -28,12 +27,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -242,39 +248,74 @@ public class MainActivity extends AppCompatActivity {
         updatePoint(latLng);
     }
 
-    private String getAddrFromLatLng(LatLng latLng) {
-        try {
-            final List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            final Address address = addresses.get(0);
+    private String defaultPlaceName(LatLng latLng) {
+        return String.format(Locale.getDefault(), "(%.02f, %.02f)", latLng.latitude, latLng.longitude);
+    }
 
-            final List<String> names = new ArrayList<>();
-            for (int i = Math.min(1, address.getMaxAddressLineIndex()); i <= address.getMaxAddressLineIndex(); i++) {
-                names.add(address.getAddressLine(i));
+    private Observable<String> getAddrFromLatLng(final LatLng latLng) {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                final List<Address> addresses;
+                try {
+                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                    return;
+                }
+
+                if (addresses.isEmpty()) {
+                    subscriber.onNext(defaultPlaceName(latLng));
+                } else {
+                    final Address address = addresses.get(0);
+
+                    final List<String> names = new ArrayList<>();
+                    for (int i = Math.min(1, address.getMaxAddressLineIndex()); i <= address.getMaxAddressLineIndex(); i++) {
+                        names.add(address.getAddressLine(i));
+                    }
+
+                    subscriber.onNext(TextUtils.join(" ", names));
+                }
+
+                subscriber.onCompleted();
             }
-
-            return TextUtils.join(" ", names);
-        } catch (Exception e) {
-            Log.wtf(TAG, e);
-            return String.format(Locale.getDefault(), "(%.02f, %.02f)", latLng.latitude, latLng.longitude);
-        }
+        });
     }
 
     private void updatePoint(final LatLng latLng) {
         marker.move(latLng);
 
-        // update title and status text
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                return getAddrFromLatLng(latLng);
-            }
+        getAddrFromLatLng(latLng)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
+                    @Override
+                    public Observable<? extends String> call(Throwable throwable) {
+                        return getAddrFromLatLng(latLng);
+                    }
+                })
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onNext(String s) {
+                        setStatusText(s);
+                        prefs.put("addressName", s);
+                    }
 
-            @Override
-            protected void onPostExecute(String addrName) {
-                setStatusText(addrName);
-                prefs.put("addressName", addrName);
-            }
-        }.execute((Void) null);
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.wtf(TAG, e);
+
+                        String s = defaultPlaceName(latLng);
+                        setStatusText(s);
+                        prefs.put("addressName", s);
+                    }
+
+                });
     }
 
     private void setStatusText(String addressName) {
