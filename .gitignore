@@ -1,9 +1,9 @@
 .gradle
-/local.properties
-/.idea/workspace.xml
-.DS_Store
-/gradle.properties
-build
+local.properties
+.idea/*
+*.iml
 
-# generated files
-_*.xml
+.DS_Store
+gradle.properties
+build/
+
