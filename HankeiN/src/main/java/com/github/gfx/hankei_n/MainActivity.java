@@ -4,6 +4,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -73,39 +74,35 @@ public class MainActivity extends AppCompatActivity {
         geocoder = new Geocoder(this, Locale.JAPAN);
         prefs = new Prefs(this);
 
+        setAppTitle(getRadius());
+
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         assert mapFragment != null;
 
-        map = mapFragment.getMap();
-        map.setMyLocationEnabled(true);
-
-        map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMyLocationChange(Location location) {
-                MainActivity.this.onMyLocationChange(location);
+            public void onMapReady(GoogleMap googleMap) {
+                map = googleMap;
+                map.setMyLocationEnabled(true);
+
+                map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+                    @Override
+                    public void onMyLocationChange(Location location) {
+                        MainActivity.this.onMyLocationChange(location);
+                    }
+                });
+                map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(LatLng latLng) {
+                        MainActivity.this.onMapLongClick(latLng);
+                    }
+                });
+
+                marker = new SingleMarker(map, getRadius(), MARKER_COLOR);
+
+                load();
             }
         });
-        map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                MainActivity.this.onMapLongClick(latLng);
-            }
-        });
-
-        marker = new SingleMarker(map, getRadius(), MARKER_COLOR);
-
-        setAppTitle(getRadius());
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        final CameraPosition pos = map.getCameraPosition();
-        prefs.put("prevLatitude", (float) pos.target.latitude);
-        prefs.put("prevLongitude", (float) pos.target.longitude);
-        prefs.put("prevCameraZoom", pos.zoom);
-        cameraInitialized = false;
     }
 
     /**
@@ -117,7 +114,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        /* marker location */
+        if (map != null) {
+            load();
+        }
+    }
+
+    void load() {
         final float pointedLatitude = prefs.get("pointedLatitude", 0.0f);
         final float pointedLongitude = prefs.get("pointedLongitude", 0.0f);
 
@@ -125,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
             updatePoint(new LatLng(pointedLatitude, pointedLongitude));
         }
 
-        /* camera location */
         final float prevLatitude = prefs.get("prevLatitude", 0.0f);
         final float prevLongitude = prefs.get("prevLongitude", 0.0f);
 
@@ -138,6 +139,18 @@ public class MainActivity extends AppCompatActivity {
                 setStatusText(addressName);
             }
         }
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        final CameraPosition pos = map.getCameraPosition();
+        prefs.put("prevLatitude", (float) pos.target.latitude);
+        prefs.put("prevLongitude", (float) pos.target.longitude);
+        prefs.put("prevCameraZoom", pos.zoom);
+        cameraInitialized = false;
     }
 
     @Override
