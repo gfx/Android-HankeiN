@@ -1,5 +1,7 @@
-package com.github.gfx.hankei_n;
+package com.github.gfx.hankei_n.dependency;
 
+
+import com.github.gfx.hankei_n.MainActivity;
 
 import dagger.Component;
 

@@ -1,24 +1,36 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="com.github.gfx.hankei_n.MainActivity">
+      tools:context="com.github.gfx.hankei_n.MainActivity"
+        >
 
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never"/>
+            android:id="@+id/action_memo"
+            android:icon="@android:drawable/ic_menu_add"
+            android:orderInCategory="100"
+            android:showAsAction="never"
+            android:title="@string/ad_memo"
+            />
 
     <item
-        android:id="@+id/action_reset"
-        android:title="@string/action_reset"
-        android:orderInCategory="100"
-        android:showAsAction="never"/>
+            android:id="@+id/action_settings"
+            android:orderInCategory="100"
+            android:showAsAction="never"
+            android:title="@string/action_settings"
+            />
+
+    <item
+            android:id="@+id/action_reset"
+            android:orderInCategory="100"
+            android:showAsAction="never"
+            android:title="@string/action_reset"
+            />
 
 
     <item
-        android:id="@+id/action_about"
-        android:title="@string/action_about"
-        android:orderInCategory="100"
-        android:showAsAction="never"/>
+            android:id="@+id/action_about"
+            android:orderInCategory="100"
+            android:showAsAction="never"
+            android:title="@string/action_about"
+            />
 
 </menu>

@@ -1,4 +1,4 @@
-package com.github.gfx.hankei_n;
+package com.github.gfx.hankei_n.model;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Circle;
@@ -13,7 +13,7 @@ import android.support.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-class SingleMarker {
+public class SingleMarker {
 
     @NonNull
     final private GoogleMap map;

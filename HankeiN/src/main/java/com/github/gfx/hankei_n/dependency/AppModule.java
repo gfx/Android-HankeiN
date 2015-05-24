@@ -1,7 +1,10 @@
-package com.github.gfx.hankei_n;
+package com.github.gfx.hankei_n.dependency;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+
+import com.github.gfx.hankei_n.Prefs;
+import com.github.gfx.hankei_n.R;
 
 import android.app.Application;
 import android.content.Context;

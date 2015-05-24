@@ -1,5 +1,9 @@
 package com.github.gfx.hankei_n;
 
+import com.github.gfx.hankei_n.dependency.AppComponent;
+import com.github.gfx.hankei_n.dependency.AppModule;
+import com.github.gfx.hankei_n.dependency.DaggerAppComponent;
+
 import android.app.Application;
 
 public class HankeiNApplication extends Application {

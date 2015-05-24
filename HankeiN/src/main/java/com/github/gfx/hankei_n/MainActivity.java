@@ -8,6 +8,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import com.github.gfx.hankei_n.model.SingleMarker;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -168,6 +170,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_memo:
+                addMemo();
+                return true;
             case R.id.action_settings:
                 return openSettingView();
             case R.id.action_reset:
@@ -177,6 +182,10 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    void addMemo() {
+
     }
 
     private boolean openSettingView() {
