@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-power-assert'
+apply plugin: 'com.neenbedankt.android-apt'
 
 rootProject.ext.properties.each { key, value ->
     if (!project.ext.has(key)) {
@@ -40,10 +41,12 @@ android {
             debuggable true
 
             resValue "string", "google_api_key", GoogleApiKey_Debug
+            resValue "string", "ga_tracking_id", GA_TrackingId_Debug
         }
 
         release {
             resValue "string", "google_api_key", GoogleApiKey_Release
+            resValue "string", "ga_tracking_id", GA_TrackingId_Release
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -79,4 +82,8 @@ dependencies {
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     compile 'io.reactivex:rxjava:1.0.11'
     compile 'io.reactivex:rxandroid:0.24.0'
+
+    compile 'com.google.dagger:dagger:2.0'
+    apt 'com.google.dagger:dagger-compiler:2.0'
+    provided 'javax.annotation:jsr250-api:1.0'
 }

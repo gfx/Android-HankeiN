@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Observable;
@@ -51,9 +53,14 @@ public class MainActivity extends AppCompatActivity {
 
     static final int MARKER_COLOR = 0x00ff66;
 
-    private Geocoder geocoder;
+    @Inject
+    Geocoder geocoder;
 
-    private Prefs prefs;
+    @Inject
+    Prefs prefs;
+
+    @Inject
+    Vibrator vibrator;
 
     private boolean cameraInitialized = false;
 
@@ -71,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.inject(this);
 
-        geocoder = new Geocoder(this, Locale.JAPAN);
-        prefs = new Prefs(this);
+        HankeiNApplication.component.inject(this);
 
         setAppTitle(getRadius());
 
@@ -233,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean openAboutThisApp() {
-        final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(getString(R.string.project_url)));
+        final Intent intent = new Intent(Intent.ACTION_VIEW)
+                .setData(Uri.parse(getString(R.string.project_url)));
         startActivity(intent);
         overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
 
@@ -250,9 +257,7 @@ public class MainActivity extends AppCompatActivity {
         setMyLocation(location.getLatitude(), location.getLongitude(), true, prefs.get("prevCameraZoom", MAP_ZOOM));
     }
 
-
     public void onMapLongClick(LatLng latLng) {
-        final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(100);
 
         prefs.put("pointedLatitude", (float) latLng.latitude);
