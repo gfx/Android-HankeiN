@@ -1,5 +1,7 @@
 package com.github.gfx.hankei_n.activity;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -72,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     Vibrator vibrator;
 
+    @Inject
+    Tracker tracker;
+
     private boolean cameraInitialized = false;
 
     private GoogleMap map;
@@ -91,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        long t0 = System.currentTimeMillis();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -102,6 +109,12 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawer();
         setupMap();
+
+        tracker.send(
+                new HitBuilders.TimingBuilder()
+                        .setLabel("MainActivity#onCreate")
+                        .setValue(System.currentTimeMillis() - t0)
+                        .build());
     }
 
     void setupDrawer() {

@@ -39,7 +39,7 @@ public class AppModule {
 
     @Singleton
     @Provides
-    GoogleAnalytics getGoogleAnalytics(Application application) {
+    GoogleAnalytics getGoogleAnalytics() {
         GoogleAnalytics ga = GoogleAnalytics.getInstance(application);
         ga.enableAutoActivityReports(application);
         return ga;
@@ -48,7 +48,7 @@ public class AppModule {
     @Singleton
     @Provides
     Tracker getTracker(GoogleAnalytics ga) {
-        Tracker tracker = ga.newTracker(R.string.ga_tracking_id);
+        Tracker tracker = ga.newTracker(application.getString(R.string.ga_tracking_id));
         tracker.enableExceptionReporting(true);
         return tracker;
     }
