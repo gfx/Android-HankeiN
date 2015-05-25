@@ -17,8 +17,11 @@
 # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
 # org.gradle.parallel=true
 
-GoogleApiKey_Debug=XXXX
-GoogleApiKey_Release=XXXX
+GoogleApiKey_Debug=AIzaSyXXXX
+GoogleApiKey_Release=AIzaSyYYYY
+
+GA_TrackingId_Debug=UA-00000-1
+GA_TrackingId_Release=UA-00000-2
 
 ReleaseStoreFile=~/path/to/keystore
 ReleaseStorePassword=store_password
