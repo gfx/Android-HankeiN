@@ -2,6 +2,7 @@ package com.github.gfx.hankei_n.dependency;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
@@ -66,5 +67,10 @@ public class AppModule {
     @Provides
     Vibrator getVibrator(Context context) {
         return (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+    }
+
+    @Provides
+    GoogleApiAvailability getGoogleApiAvailability() {
+        return GoogleApiAvailability.getInstance();
     }
 }

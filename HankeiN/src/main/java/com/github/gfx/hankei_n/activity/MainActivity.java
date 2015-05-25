@@ -2,6 +2,7 @@ package com.github.gfx.hankei_n.activity;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -77,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     Tracker tracker;
 
+    @Inject
+    GoogleApiAvailability googleApiAvailability;
+
     private boolean cameraInitialized = false;
 
     private GoogleMap map;
@@ -109,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawer();
         setupMap();
+        checkGooglePlayServices();
 
         tracker.send(
                 new HitBuilders.TimingBuilder()
@@ -161,7 +166,11 @@ public class MainActivity extends AppCompatActivity {
                 load();
             }
         });
+    }
 
+    void checkGooglePlayServices() {
+        int errorCode = googleApiAvailability.isGooglePlayServicesAvailable(this);
+        googleApiAvailability.showErrorDialogFragment(this, errorCode, 0);
     }
 
     /**
