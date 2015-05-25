@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.model.Memo;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
 import android.content.DialogInterface;
@@ -98,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
     @InjectView(R.id.drawer)
     DrawerLayout drawer;
 
+    List<Memo> memos = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         long t0 = System.currentTimeMillis();
@@ -106,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ButterKnife.inject(this);
-
         HankeiNApplication.component.inject(this);
 
         setAppTitle(getRadius());
@@ -132,7 +134,8 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
 
-        drawerToggle = new ActionBarDrawerToggle(this, drawer,
+        drawerToggle = new ActionBarDrawerToggle(this,
+                drawer,
                 R.string.drawer_open,
                 R.string.drawer_close);
         drawer.setDrawerListener(drawerToggle);
@@ -234,9 +237,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         switch (item.getItemId()) {
-            case R.id.action_memo:
-                addMemo();
-                return true;
             case R.id.action_settings:
                 return openSettingView();
             case R.id.action_reset:
@@ -246,10 +246,6 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    void addMemo() {
-
     }
 
     private boolean openSettingView() {
@@ -384,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
                 .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
                     @Override
                     public Observable<? extends String> call(Throwable throwable) {
-                        return getAddrFromLatLng(latLng);
+                        return getAddrFromLatLng(latLng); // retry once
                     }
                 })
                 .subscribe(new Observer<String>() {
@@ -415,7 +411,6 @@ public class MainActivity extends AppCompatActivity {
         marker.setTitle(addressName);
         statusView.setText(addressName);
     }
-
 
     private void setMyLocation(double lat, double lng, boolean animation, float zoom) {
         final LatLng latlng = new LatLng(lat, lng);
