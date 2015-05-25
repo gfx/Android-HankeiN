@@ -1,4 +1,4 @@
-package com.github.gfx.hankei_n;
+package com.github.gfx.hankei_n.activity;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -8,6 +8,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import com.github.gfx.hankei_n.HankeiNApplication;
+import com.github.gfx.hankei_n.Prefs;
+import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
 import android.content.DialogInterface;
@@ -19,8 +22,12 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -47,6 +54,7 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     static final float MAP_ZOOM = 14f;
@@ -70,13 +78,21 @@ public class MainActivity extends AppCompatActivity {
 
     private SingleMarker marker;
 
+    ActionBarDrawerToggle drawerToggle;
+
+    @InjectView(R.id.toolbar)
+    Toolbar toolbar;
+
     @InjectView(R.id.status)
     TextView statusView;
+
+    @InjectView(R.id.drawer)
+    DrawerLayout drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.drawer);
 
         ButterKnife.inject(this);
 
@@ -84,6 +100,27 @@ public class MainActivity extends AppCompatActivity {
 
         setAppTitle(getRadius());
 
+        setupDrawer();
+        setupMap();
+    }
+
+    void setupDrawer() {
+        toolbar.setNavigationIcon(R.drawable.ic_drawer);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+
+        drawerToggle = new ActionBarDrawerToggle(this, drawer,
+                R.string.drawer_open,
+                R.string.drawer_close);
+        drawer.setDrawerListener(drawerToggle);
+    }
+
+    void setupMap() {
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         assert mapFragment != null;
 
@@ -111,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 load();
             }
         });
+
     }
 
     /**
@@ -169,6 +207,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
         switch (item.getItemId()) {
             case R.id.action_memo:
                 addMemo();
@@ -260,7 +302,9 @@ public class MainActivity extends AppCompatActivity {
         prefs.put("prevLatitude", (float) location.getLatitude());
         prefs.put("prevLongitude", (float) location.getLongitude());
 
-        if (cameraInitialized) return;
+        if (cameraInitialized) {
+            return;
+        }
         cameraInitialized = true;
 
         setMyLocation(location.getLatitude(), location.getLongitude(), true, prefs.get("prevCameraZoom", MAP_ZOOM));

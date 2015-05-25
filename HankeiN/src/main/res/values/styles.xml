@@ -1,9 +1,13 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">#eeeeee</item>
         <item name="colorPrimaryDark">#999999</item>
         <item name="colorAccent">#666666</item>
+    </style>
+
+    <style name="Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:background">?attr/colorPrimary</item>
     </style>
 
 </resources>

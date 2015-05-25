@@ -3,8 +3,17 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              tools:context="com.github.gfx.hankei_n.MainActivity"
+              tools:context="com.github.gfx.hankei_n.activity.MainActivity"
         >
+
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="4dp"
+            android:theme="@style/Toolbar"
+            tools:ignore="UnusedAttribute"
+            />
 
     <fragment
             android:id="@+id/map"

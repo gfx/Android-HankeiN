@@ -21,7 +21,7 @@ import dagger.Provides;
 @Module
 public class AppModule {
 
-    Application application;
+    final Application application;
 
     public AppModule(Application application) {
         this.application = application;
