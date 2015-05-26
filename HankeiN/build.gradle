@@ -13,7 +13,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 22
 
         def version = readVersion(rootProject.file("VERSION"))

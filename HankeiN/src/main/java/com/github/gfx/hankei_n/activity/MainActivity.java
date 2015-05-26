@@ -20,6 +20,7 @@ import com.github.gfx.hankei_n.model.SingleMarker;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 drawer,
                 R.string.drawer_open,
                 R.string.drawer_close);
+        drawerToggle.setDrawerIndicatorEnabled(true);
         drawer.setDrawerListener(drawerToggle);
     }
 
@@ -174,6 +176,18 @@ public class MainActivity extends AppCompatActivity {
     void checkGooglePlayServices() {
         int errorCode = googleApiAvailability.isGooglePlayServicesAvailable(this);
         googleApiAvailability.showErrorDialogFragment(this, errorCode, 0);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 
     /**
