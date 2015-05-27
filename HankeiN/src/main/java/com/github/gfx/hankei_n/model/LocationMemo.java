@@ -8,13 +8,13 @@ import android.support.annotation.NonNull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public class Memo {
+public class LocationMemo {
 
     LatLng latLng;
 
     String title;
 
-    public Memo(@NonNull String title, @NonNull LatLng latLng) {
+    public LocationMemo(@NonNull String title, @NonNull LatLng latLng) {
         this.latLng = latLng;
         this.title = title;
     }

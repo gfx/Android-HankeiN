@@ -14,7 +14,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.model.Memo;
+import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
+import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
 import android.content.DialogInterface;
@@ -27,6 +28,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -39,6 +41,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +54,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -83,13 +87,8 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     GoogleApiAvailability googleApiAvailability;
 
-    private boolean cameraInitialized = false;
-
-    private GoogleMap map;
-
-    private SingleMarker marker;
-
-    ActionBarDrawerToggle drawerToggle;
+    @Inject
+    LocationMemoList memos;
 
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
@@ -100,7 +99,17 @@ public class MainActivity extends AppCompatActivity {
     @InjectView(R.id.drawer)
     DrawerLayout drawer;
 
-    List<Memo> memos = new ArrayList<>();
+    @InjectView(R.id.list_location_memos)
+    ListView memosListView;
+
+    boolean cameraInitialized = false;
+
+    GoogleMap map;
+
+    SingleMarker marker;
+
+    ActionBarDrawerToggle drawerToggle;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ButterKnife.inject(this);
-        HankeiNApplication.component.inject(this);
+        HankeiNApplication.getAppComponent(this).inject(this);
 
         setAppTitle(getRadius());
 
@@ -260,6 +269,14 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @OnClick(R.id.add_location_memo)
+    void onAddLocationMemo() {
+        FragmentManager fm = getSupportFragmentManager();
+
+        EditLocationMemoFragment.newInstance()
+                .show(fm, "edit_location_memo");
     }
 
     private boolean openSettingView() {

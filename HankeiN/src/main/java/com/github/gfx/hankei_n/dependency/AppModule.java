@@ -6,6 +6,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.model.LocationMemoList;
 
 import android.app.Application;
 import android.content.Context;
@@ -72,5 +73,10 @@ public class AppModule {
     @Provides
     GoogleApiAvailability getGoogleApiAvailability() {
         return GoogleApiAvailability.getInstance();
+    }
+
+    @Provides
+    LocationMemoList getMemoList() {
+        return new LocationMemoList();
     }
 }

@@ -5,4 +5,5 @@
 
     <dimen name="sidemenu_space_start">16dp</dimen>
     <dimen name="sidemenu_space_end">16dp</dimen>
+    <dimen name="sidemenu_space_top">24dp</dimen>
 </resources>
