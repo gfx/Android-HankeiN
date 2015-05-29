@@ -14,9 +14,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.event.MyLocationChanged;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.SingleMarker;
+import com.squareup.otto.Bus;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -88,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
     GoogleApiAvailability googleApiAvailability;
 
     @Inject
+    Bus bus;
+
+    @Inject
     LocationMemoList memos;
 
     @InjectView(R.id.toolbar)
@@ -110,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
     ActionBarDrawerToggle drawerToggle;
 
+    LatLng myLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -275,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
     void onAddLocationMemo() {
         FragmentManager fm = getSupportFragmentManager();
 
-        EditLocationMemoFragment.newInstance()
+        EditLocationMemoFragment.newInstance(myLocation)
                 .show(fm, "edit_location_memo");
     }
 
@@ -444,14 +450,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setMyLocation(double lat, double lng, boolean animation, float zoom) {
-        final LatLng latlng = new LatLng(lat, lng);
-        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latlng, zoom);
+        myLocation = new LatLng(lat, lng);
+        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(myLocation, zoom);
 
         if (animation) {
             map.animateCamera(update);
         } else {
             map.moveCamera(update);
         }
+
+        bus.post(new MyLocationChanged(myLocation));
     }
 
     private void setAppTitle(float radius) {

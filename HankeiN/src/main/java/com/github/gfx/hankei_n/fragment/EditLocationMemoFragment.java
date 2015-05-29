@@ -1,11 +1,15 @@
 package com.github.gfx.hankei_n.fragment;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
+import com.github.gfx.hankei_n.model.AddressAutocompleteEngine;
+import com.squareup.otto.Bus;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -21,12 +25,22 @@ import butterknife.InjectView;
 
 public class EditLocationMemoFragment extends DialogFragment {
 
-    public static EditLocationMemoFragment newInstance() {
-        return new EditLocationMemoFragment();
+    static final String kLocation = "location";
+
+    public static EditLocationMemoFragment newInstance(LatLng location) {
+        EditLocationMemoFragment fragment = new EditLocationMemoFragment();
+
+        Bundle args = new Bundle();
+        args.putParcelable(kLocation, location);
+        fragment.setArguments(args);
+
+        return fragment;
     }
 
+    AddressAutocompleteEngine autocompleteEngine;
+
     @Inject
-    Geocoder geocoder;
+    Bus bus;
 
     @InjectView(R.id.edit_address)
     AutoCompleteTextView editAddress;
@@ -39,14 +53,19 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 
         HankeiNApplication.getAppComponent(getActivity()).inject(this);
+
+        LatLng location = getArguments().getParcelable(kLocation);
+        assert location != null;
+        autocompleteEngine = new AddressAutocompleteEngine(getActivity(), bus, location);
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = View.inflate(getActivity(), R.layout.fragment_edit_location_memo, null);
-
         ButterKnife.inject(this, view);
+
+        editAddress.setAdapter(new AddressAutocompleAdapter(getActivity(), autocompleteEngine));
 
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.add_location_memo)
@@ -59,5 +78,19 @@ public class EditLocationMemoFragment extends DialogFragment {
                 })
                 .setNegativeButton(R.string.dialog_button_cancel, null)
                 .create();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        autocompleteEngine.start();
+    }
+
+    @Override
+    public void onPause() {
+        autocompleteEngine.stop();
+
+        super.onPause();
     }
 }
