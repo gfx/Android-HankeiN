@@ -14,7 +14,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChanged;
-import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
@@ -29,7 +28,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -55,7 +53,6 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -282,18 +279,6 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @OnClick(R.id.add_location_memo)
-    void onAddLocationMemo() {
-        FragmentManager fm = getSupportFragmentManager();
-
-        LatLng location = marker.getLocation();
-        if (location == null) {
-            location = myLocation;
-        }
-        EditLocationMemoFragment.newInstance(location)
-                .show(fm, "edit_location_memo");
     }
 
     private boolean openSettingView() {

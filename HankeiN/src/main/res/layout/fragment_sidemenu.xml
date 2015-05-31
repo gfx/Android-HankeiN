@@ -2,12 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="wrap_content"
               android:layout_height="match_parent"
-              android:layout_gravity="start"
-              android:orientation="vertical"
-              android:paddingTop="@dimen/sidemenu_space_top"
-              android:paddingStart="@dimen/sidemenu_space_start"
-              android:paddingEnd="@dimen/sidemenu_space_end"
               android:background="?attr/colorPrimary"
+              android:orientation="vertical"
+              android:paddingEnd="@dimen/sidemenu_space_end"
+              android:paddingStart="@dimen/sidemenu_space_start"
+              android:paddingTop="@dimen/sidemenu_space_top"
         >
 
     <TextView
@@ -15,8 +14,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:maxWidth="120dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:text="@string/about_add_location_memo"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             />
 
     <Button
@@ -24,8 +23,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableStart="@android:drawable/ic_input_add"
-            android:textAppearance="@style/TextAppearance.AppCompat.Button"
             android:text="@string/add_location_memo"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
             />
 
     <ListView

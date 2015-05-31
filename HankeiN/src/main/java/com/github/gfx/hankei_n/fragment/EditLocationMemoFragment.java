@@ -1,7 +1,5 @@
 package com.github.gfx.hankei_n.fragment;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChanged;
@@ -27,13 +25,10 @@ import timber.log.Timber;
 
 public class EditLocationMemoFragment extends DialogFragment {
 
-    static final String kLocation = "location";
-
-    public static EditLocationMemoFragment newInstance(LatLng location) {
+    public static EditLocationMemoFragment newInstance() {
         EditLocationMemoFragment fragment = new EditLocationMemoFragment();
 
         Bundle args = new Bundle();
-        args.putParcelable(kLocation, location);
         fragment.setArguments(args);
 
         return fragment;
@@ -57,8 +52,6 @@ public class EditLocationMemoFragment extends DialogFragment {
 
         HankeiNApplication.getAppComponent(getActivity()).inject(this);
 
-        LatLng location = getArguments().getParcelable(kLocation);
-        assert location != null;
         autocompleteEngine = new AddressAutocompleteEngine(getActivity(), locationChangedSubject);
     }
 
