@@ -19,6 +19,8 @@
     <string name="add_location_memo">住所メモを追加する</string>
     <string name="label_address">住所</string>
     <string name="label_note">ノート</string>
+    <string name="attribution_powered_by_google">Powered by Google</string>
+    <string name="errro_it_must_be_a_number">エラー: 数値を入力してください</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

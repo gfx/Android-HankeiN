@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!-- used as a completionHintView, which must be a TextView -->
 <TextView
         android:id="@android:id/text1"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="end"
-        android:text="Powered by Google"
+        android:text="@string/attribution_powered_by_google"
         android:padding="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Widget.DropDownItem"
         />

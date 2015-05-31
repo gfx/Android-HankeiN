@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                     final float value = Float.parseFloat(String.valueOf(input.getText()));
                     setRadius(value);
                 } catch (NumberFormatException e) {
-                    Toast.makeText(MainActivity.this, "エラー: 数値を入力してください", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, R.string.errro_it_must_be_a_number, Toast.LENGTH_LONG).show();
                 }
             }
         });
