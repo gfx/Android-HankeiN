@@ -14,11 +14,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.event.MyLocationChanged;
+import com.github.gfx.hankei_n.event.MyLocationChangedEvent;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.SingleMarker;
-import com.squareup.otto.Bus;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -63,6 +62,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     GoogleApiAvailability googleApiAvailability;
 
     @Inject
-    Bus bus;
+    BehaviorSubject<MyLocationChangedEvent> myLocationChangedSubject;
 
     @Inject
     LocationMemoList memos;
@@ -459,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
             map.moveCamera(update);
         }
 
-        bus.post(new MyLocationChanged(myLocation));
+        myLocationChangedSubject.onNext(new MyLocationChangedEvent(myLocation));
     }
 
     private void setAppTitle(float radius) {

@@ -2,6 +2,8 @@ package com.github.gfx.hankei_n.model;
 
 import com.google.android.gms.location.places.AutocompletePrediction;
 
+import com.github.gfx.hankei_n.R;
+
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
@@ -28,11 +30,11 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
     final AddressAutocompleteEngine autocompleteEngine;
 
     public AddressAutocompleAdapter(Context context, AddressAutocompleteEngine autocompleteEngine) {
-        super(context, android.R.layout.simple_dropdown_item_1line);
+        super(context, R.layout.abc_simple_dropdown_hint);
         this.autocompleteEngine = autocompleteEngine;
     }
 
-    List<Spanned> convertToSpannableStringList(Iterable<AutocompletePrediction> predictions) {
+    List<Spanned> convertToSpannedList(Iterable<AutocompletePrediction> predictions) {
         List<Spanned> list = new ArrayList<>();
 
         for (AutocompletePrediction prediction : predictions) {
@@ -85,7 +87,7 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
                     @Override
                     public void onNext(Iterable<AutocompletePrediction> predictions) {
                         clear();
-                        addAll(convertToSpannableStringList(predictions));
+                        addAll(convertToSpannedList(predictions));
                     }
                 });
 

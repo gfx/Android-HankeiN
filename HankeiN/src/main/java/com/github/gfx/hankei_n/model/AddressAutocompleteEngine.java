@@ -11,9 +11,7 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import com.github.gfx.hankei_n.event.MyLocationChanged;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
+import com.github.gfx.hankei_n.event.MyLocationChangedEvent;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -23,6 +21,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
+import rx.functions.Action1;
 
 @ParametersAreNonnullByDefault
 public class AddressAutocompleteEngine {
@@ -31,29 +31,40 @@ public class AddressAutocompleteEngine {
 
     final GoogleApiClient googleApiClient;
 
-    final Bus bus;
+    final Observable<MyLocationChangedEvent> myLocationChangedObservable;
+
+    Subscription subscription;
 
     LatLng location;
 
-    public AddressAutocompleteEngine(Context context, Bus bus, LatLng initialLocation) {
+    public AddressAutocompleteEngine(Context context, Observable<MyLocationChangedEvent> myLocationChangedObservable) {
         ConnectionHandler handler = new ConnectionHandler();
 
-        googleApiClient = new GoogleApiClient.Builder(context)
+        this.googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Places.GEO_DATA_API)
                 .addConnectionCallbacks(handler)
                 .addOnConnectionFailedListener(handler)
                 .build();
 
-        location = initialLocation;
-        this.bus = bus;
+        this.myLocationChangedObservable = myLocationChangedObservable;
     }
 
     public void start() {
         googleApiClient.connect();
+
+        subscription = myLocationChangedObservable.subscribe(new Action1<MyLocationChangedEvent>() {
+            @Override
+            public void call(MyLocationChangedEvent myLocationChanged) {
+                setLocation(myLocationChanged.location);
+            }
+        });
     }
 
     public void stop() {
         googleApiClient.disconnect();
+
+        subscription.unsubscribe();
+        subscription = null;
     }
 
     public void setLocation(LatLng latLng) {
@@ -92,12 +103,6 @@ public class AddressAutocompleteEngine {
                 });
             }
         });
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe
-    void onMyLocationChanged(MyLocationChanged event) {
-        location = event.location;
     }
 
     class ConnectionHandler implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {

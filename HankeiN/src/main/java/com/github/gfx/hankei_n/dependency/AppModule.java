@@ -6,8 +6,8 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.event.MyLocationChangedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoList;
-import com.squareup.otto.Bus;
 
 import android.app.Application;
 import android.content.Context;
@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import rx.subjects.BehaviorSubject;
 
 @Module
 public class AppModule {
@@ -76,14 +77,14 @@ public class AppModule {
         return GoogleApiAvailability.getInstance();
     }
 
-    @Singleton
-    @Provides
-    Bus getBus() {
-        return new Bus();
-    }
-
     @Provides
     LocationMemoList getMemoList() {
         return new LocationMemoList();
+    }
+
+    @Singleton
+    @Provides
+    BehaviorSubject<MyLocationChangedEvent> getOnMyLocationChangedSubject() {
+        return BehaviorSubject.create();
     }
 }
