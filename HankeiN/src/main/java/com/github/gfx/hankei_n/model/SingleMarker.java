@@ -34,6 +34,14 @@ public class SingleMarker {
         this.markerColor = markerColor;
     }
 
+    @Nullable
+    public LatLng getLocation() {
+        if (mapMarker == null) {
+            return null;
+        }
+
+        return mapMarker.getPosition();
+    }
 
     public double getRadius() {
         return radius;

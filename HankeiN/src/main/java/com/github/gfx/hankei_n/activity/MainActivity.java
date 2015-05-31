@@ -12,11 +12,11 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
-import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.event.MyLocationChangedEvent;
+import com.github.gfx.hankei_n.event.LocationChanged;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
 import android.content.DialogInterface;
@@ -63,6 +63,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,8 +90,11 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     GoogleApiAvailability googleApiAvailability;
 
+    /**
+     * An event stream to tell where the location marker is.
+     */
     @Inject
-    BehaviorSubject<MyLocationChangedEvent> myLocationChangedSubject;
+    BehaviorSubject<LocationChanged> locationChangedSubject;
 
     @Inject
     LocationMemoList memos;
@@ -130,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         setAppTitle(getRadius());
 
         setupDrawer();
-        setupMap();
         checkGooglePlayServices();
 
         tracker.send(
@@ -165,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
+                Timber.d("onMapReady");
+
                 map = googleMap;
                 map.setMyLocationEnabled(true);
 
@@ -211,21 +216,14 @@ public class MainActivity extends AppCompatActivity {
      * (2) resume        -> Starts with the saved position and then moves to my location on onMyLocationChange().
      */
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
 
-        if (map != null) {
-            load();
-        }
+        setupMap();
     }
 
     void load() {
-        final float pointedLatitude = prefs.get("pointedLatitude", 0.0f);
-        final float pointedLongitude = prefs.get("pointedLongitude", 0.0f);
-
-        if (pointedLatitude != 0.0f || pointedLongitude != 0.0) {
-            updatePoint(new LatLng(pointedLatitude, pointedLongitude));
-        }
+        assert map != null;
 
         final float prevLatitude = prefs.get("prevLatitude", 0.0f);
         final float prevLongitude = prefs.get("prevLongitude", 0.0f);
@@ -238,6 +236,15 @@ public class MainActivity extends AppCompatActivity {
             if (addressName != null) {
                 setStatusText(addressName);
             }
+
+            locationChangedSubject.onNext(new LocationChanged(prevLatitude, prevLongitude));
+        }
+
+        final float pointedLatitude = prefs.get("pointedLatitude", 0.0f);
+        final float pointedLongitude = prefs.get("pointedLongitude", 0.0f);
+
+        if (pointedLatitude != 0.0f || pointedLongitude != 0.0) {
+            updatePoint(new LatLng(pointedLatitude, pointedLongitude));
         }
     }
 
@@ -281,7 +288,11 @@ public class MainActivity extends AppCompatActivity {
     void onAddLocationMemo() {
         FragmentManager fm = getSupportFragmentManager();
 
-        EditLocationMemoFragment.newInstance(myLocation)
+        LatLng location = marker.getLocation();
+        if (location == null) {
+            location = myLocation;
+        }
+        EditLocationMemoFragment.newInstance(location)
                 .show(fm, "edit_location_memo");
     }
 
@@ -362,7 +373,8 @@ public class MainActivity extends AppCompatActivity {
         }
         cameraInitialized = true;
 
-        setMyLocation(location.getLatitude(), location.getLongitude(), true, prefs.get("prevCameraZoom", MAP_ZOOM));
+        float prevCameraZoom = prefs.get("prevCameraZoom", MAP_ZOOM);
+        setMyLocation(location.getLatitude(), location.getLongitude(), true, prevCameraZoom);
     }
 
     public void onMapLongClick(LatLng latLng) {
@@ -442,6 +454,8 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 });
+
+        locationChangedSubject.onNext(new LocationChanged(myLocation));
     }
 
     private void setStatusText(String addressName) {
@@ -458,8 +472,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             map.moveCamera(update);
         }
-
-        myLocationChangedSubject.onNext(new MyLocationChangedEvent(myLocation));
     }
 
     private void setAppTitle(float radius) {

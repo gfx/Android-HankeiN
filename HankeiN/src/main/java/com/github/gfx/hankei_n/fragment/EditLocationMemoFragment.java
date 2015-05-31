@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.event.MyLocationChangedEvent;
+import com.github.gfx.hankei_n.event.LocationChanged;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.AddressAutocompleteEngine;
 
@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.subjects.BehaviorSubject;
+import timber.log.Timber;
 
 public class EditLocationMemoFragment extends DialogFragment {
 
@@ -41,7 +42,7 @@ public class EditLocationMemoFragment extends DialogFragment {
     AddressAutocompleteEngine autocompleteEngine;
 
     @Inject
-    BehaviorSubject<MyLocationChangedEvent> myLocationChangedSubject;
+    BehaviorSubject<LocationChanged> locationChangedSubject;
 
     @InjectView(R.id.edit_address)
     AutoCompleteTextView editAddress;
@@ -51,18 +52,22 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Timber.v("onCreate");
         super.onCreate(savedInstanceState);
 
         HankeiNApplication.getAppComponent(getActivity()).inject(this);
 
         LatLng location = getArguments().getParcelable(kLocation);
         assert location != null;
-        autocompleteEngine = new AddressAutocompleteEngine(getActivity(), myLocationChangedSubject);
+        autocompleteEngine = new AddressAutocompleteEngine(getActivity(), locationChangedSubject);
     }
+
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Timber.v("onCreateDialog");
+
         View view = View.inflate(getActivity(), R.layout.dialog_edit_location_memo, null);
         ButterKnife.inject(this, view);
 
@@ -83,6 +88,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @Override
     public void onResume() {
+        Timber.v("onResume");
         super.onResume();
 
         autocompleteEngine.start();

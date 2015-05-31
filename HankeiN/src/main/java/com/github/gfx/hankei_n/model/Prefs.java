@@ -1,4 +1,4 @@
-package com.github.gfx.hankei_n;
+package com.github.gfx.hankei_n.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +10,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class Prefs {
+
     final private SharedPreferences sharedPrefs;
 
     public Prefs(Context context) {

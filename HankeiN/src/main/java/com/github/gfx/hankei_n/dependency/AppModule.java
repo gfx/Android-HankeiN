@@ -4,10 +4,10 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import com.github.gfx.hankei_n.Prefs;
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.event.MyLocationChangedEvent;
+import com.github.gfx.hankei_n.event.LocationChanged;
 import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.Prefs;
 
 import android.app.Application;
 import android.content.Context;
@@ -84,7 +84,7 @@ public class AppModule {
 
     @Singleton
     @Provides
-    BehaviorSubject<MyLocationChangedEvent> getOnMyLocationChangedSubject() {
+    BehaviorSubject<LocationChanged> getOnMyLocationChangedSubject() {
         return BehaviorSubject.create();
     }
 }

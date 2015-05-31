@@ -11,11 +11,10 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import com.github.gfx.hankei_n.event.MyLocationChangedEvent;
+import com.github.gfx.hankei_n.event.LocationChanged;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -23,21 +22,20 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Action1;
+import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class AddressAutocompleteEngine {
 
-    static final String TAG = AddressAutocompleteEngine.class.getSimpleName();
-
     final GoogleApiClient googleApiClient;
 
-    final Observable<MyLocationChangedEvent> myLocationChangedObservable;
+    final Observable<LocationChanged> locationChangedObservable;
 
     Subscription subscription;
 
     LatLng location;
 
-    public AddressAutocompleteEngine(Context context, Observable<MyLocationChangedEvent> myLocationChangedObservable) {
+    public AddressAutocompleteEngine(Context context, Observable<LocationChanged> locationChangedObservable) {
         ConnectionHandler handler = new ConnectionHandler();
 
         this.googleApiClient = new GoogleApiClient.Builder(context)
@@ -46,15 +44,15 @@ public class AddressAutocompleteEngine {
                 .addOnConnectionFailedListener(handler)
                 .build();
 
-        this.myLocationChangedObservable = myLocationChangedObservable;
+        this.locationChangedObservable = locationChangedObservable;
     }
 
     public void start() {
         googleApiClient.connect();
 
-        subscription = myLocationChangedObservable.subscribe(new Action1<MyLocationChangedEvent>() {
+        subscription = locationChangedObservable.subscribe(new Action1<LocationChanged>() {
             @Override
-            public void call(MyLocationChangedEvent myLocationChanged) {
+            public void call(LocationChanged myLocationChanged) {
                 setLocation(myLocationChanged.location);
             }
         });
@@ -72,10 +70,13 @@ public class AddressAutocompleteEngine {
     }
 
     public Observable<Iterable<AutocompletePrediction>> query(final String s) {
-        assert location != null;
+        if (location == null) {
+            Timber.w("no location set");
+            return Observable.empty();
+        }
 
         if (!googleApiClient.isConnected()) {
-            Log.d(TAG, "not connected");
+            Timber.w("not connected");
             return Observable.empty();
         }
 
