@@ -2,15 +2,15 @@ package com.github.gfx.hankei_n.event;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class LocationChanged {
+public class LocationChangedEvent {
 
     public final LatLng location;
 
-    public LocationChanged(LatLng latLng) {
+    public LocationChangedEvent(LatLng latLng) {
         location = latLng;
     }
 
-    public LocationChanged(double latitude, double longitude) {
+    public LocationChangedEvent(double latitude, double longitude) {
         location = new LatLng(latitude, longitude);
     }
 }

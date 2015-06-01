@@ -2,9 +2,11 @@ package com.github.gfx.hankei_n.fragment;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.event.LocationChanged;
+import com.github.gfx.hankei_n.event.LocationChangedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
-import com.github.gfx.hankei_n.model.AddressAutocompleteEngine;
+import com.github.gfx.hankei_n.model.LocationMemo;
+import com.github.gfx.hankei_n.model.PlacesEngine;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -34,10 +36,13 @@ public class EditLocationMemoFragment extends DialogFragment {
         return fragment;
     }
 
-    AddressAutocompleteEngine autocompleteEngine;
+    PlacesEngine autocompleteEngine;
 
     @Inject
-    BehaviorSubject<LocationChanged> locationChangedSubject;
+    BehaviorSubject<LocationChangedEvent> locationChangedSubject;
+
+    @Inject
+    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
     @InjectView(R.id.edit_address)
     AutoCompleteTextView editAddress;
@@ -52,7 +57,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
         HankeiNApplication.getAppComponent(getActivity()).inject(this);
 
-        autocompleteEngine = new AddressAutocompleteEngine(getActivity(), locationChangedSubject);
+        autocompleteEngine = new PlacesEngine(getActivity(), locationChangedSubject);
     }
 
 
@@ -72,7 +77,7 @@ public class EditLocationMemoFragment extends DialogFragment {
                 .setPositiveButton(R.string.dialog_button_add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        locationMemoAddedSubject.onNext(createLocationMemoAddedEvent());
                     }
                 })
                 .setNegativeButton(R.string.dialog_button_cancel, null)
@@ -92,5 +97,13 @@ public class EditLocationMemoFragment extends DialogFragment {
         autocompleteEngine.stop();
 
         super.onPause();
+    }
+
+    LocationMemoAddedEvent createLocationMemoAddedEvent() {
+        LocationMemo memo = new LocationMemo(
+                editAddress.getText().toString(),
+                editNote.getText().toString(),
+                null);
+        return new LocationMemoAddedEvent(memo);
     }
 }

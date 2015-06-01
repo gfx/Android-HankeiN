@@ -11,7 +11,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 
@@ -21,17 +20,16 @@ import java.util.List;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import rx.Subscriber;
+import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
 
-    static final String TAG = AddressAutocompleAdapter.class.getSimpleName();
+    final PlacesEngine placesEngine;
 
-    final AddressAutocompleteEngine autocompleteEngine;
-
-    public AddressAutocompleAdapter(Context context, AddressAutocompleteEngine autocompleteEngine) {
+    public AddressAutocompleAdapter(Context context, PlacesEngine placesEngine) {
         super(context, R.layout.abc_simple_dropdown_hint);
-        this.autocompleteEngine = autocompleteEngine;
+        this.placesEngine = placesEngine;
     }
 
     List<Spanned> convertToSpannedList(Iterable<AutocompletePrediction> predictions) {
@@ -62,7 +60,7 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
         }
         for (int i = 0, length = s.length(); i < length; i++) {
             char c = s.charAt(i);
-            if (c >= 'ａ' && c <= 'ｚ') {
+            if (c >= 'ａ' && c <= 'ｚ') { // zenkaku alphabet
                 return false;
             }
         }
@@ -70,9 +68,9 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
     }
 
     void performQuery(final String query) {
-        Log.d(TAG, "performQuery: " + query);
+        Timber.d("performQuery: %s", query);
 
-        autocompleteEngine.query(query)
+        placesEngine.queryAutocompletion(query)
                 .subscribe(new Subscriber<Iterable<AutocompletePrediction>>() {
                     @Override
                     public void onCompleted() {
@@ -81,7 +79,7 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.w(TAG, "failed to query autocompletion for: " + query);
+                        Timber.w(e, "failed to queryAutocompletion queryAutocompletion for: %s", query);
                     }
 
                     @Override

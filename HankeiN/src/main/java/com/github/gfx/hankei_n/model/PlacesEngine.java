@@ -11,7 +11,7 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import com.github.gfx.hankei_n.event.LocationChanged;
+import com.github.gfx.hankei_n.event.LocationChangedEvent;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -25,17 +25,17 @@ import rx.functions.Action1;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
-public class AddressAutocompleteEngine {
+public class PlacesEngine {
 
     final GoogleApiClient googleApiClient;
 
-    final Observable<LocationChanged> locationChangedObservable;
+    final Observable<LocationChangedEvent> locationChangedObservable;
 
     Subscription subscription;
 
     LatLng location;
 
-    public AddressAutocompleteEngine(Context context, Observable<LocationChanged> locationChangedObservable) {
+    public PlacesEngine(Context context, Observable<LocationChangedEvent> locationChangedObservable) {
         ConnectionHandler handler = new ConnectionHandler();
 
         this.googleApiClient = new GoogleApiClient.Builder(context)
@@ -50,9 +50,9 @@ public class AddressAutocompleteEngine {
     public void start() {
         googleApiClient.connect();
 
-        subscription = locationChangedObservable.subscribe(new Action1<LocationChanged>() {
+        subscription = locationChangedObservable.subscribe(new Action1<LocationChangedEvent>() {
             @Override
-            public void call(LocationChanged myLocationChanged) {
+            public void call(LocationChangedEvent myLocationChanged) {
                 setLocation(myLocationChanged.location);
             }
         });
@@ -69,7 +69,7 @@ public class AddressAutocompleteEngine {
         this.location = latLng;
     }
 
-    public Observable<Iterable<AutocompletePrediction>> query(final String s) {
+    public Observable<Iterable<AutocompletePrediction>> queryAutocompletion(final String s) {
         if (location == null) {
             Timber.w("no location set");
             return Observable.empty();

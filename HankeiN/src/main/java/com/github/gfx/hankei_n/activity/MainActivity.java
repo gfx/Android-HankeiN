@@ -13,7 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.event.LocationChanged;
+import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
      * An event stream to tell where the location marker is.
      */
     @Inject
-    BehaviorSubject<LocationChanged> locationChangedSubject;
+    BehaviorSubject<LocationChangedEvent> locationChangedSubject;
 
     @Inject
     LocationMemoList memos;
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                 setStatusText(addressName);
             }
 
-            locationChangedSubject.onNext(new LocationChanged(prevLatitude, prevLongitude));
+            locationChangedSubject.onNext(new LocationChangedEvent(prevLatitude, prevLongitude));
         }
 
         final float pointedLatitude = prefs.get("pointedLatitude", 0.0f);
@@ -440,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
 
                 });
 
-        locationChangedSubject.onNext(new LocationChanged(myLocation));
+        locationChangedSubject.onNext(new LocationChangedEvent(myLocation));
     }
 
     private void setStatusText(String addressName) {
