@@ -15,6 +15,7 @@ import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.PlacesEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
@@ -22,8 +23,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,7 +34,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,9 +42,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -55,7 +50,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -73,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     static final int MARKER_COLOR = 0x00ff66;
 
     @Inject
-    Geocoder geocoder;
+    PlacesEngine placesEngine;
 
     @Inject
     Prefs prefs;
@@ -375,46 +369,16 @@ public class MainActivity extends AppCompatActivity {
         return String.format(Locale.getDefault(), "(%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
 
-    private Observable<String> getAddrFromLatLng(final LatLng latLng) {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(Subscriber<? super String> subscriber) {
-                final List<Address> addresses;
-                try {
-                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                } catch (IOException e) {
-                    subscriber.onError(e);
-                    return;
-                }
-
-                if (addresses.isEmpty()) {
-                    subscriber.onNext(defaultPlaceName(latLng));
-                } else {
-                    final Address address = addresses.get(0);
-
-                    final List<String> names = new ArrayList<>();
-                    for (int i = Math.min(1, address.getMaxAddressLineIndex()); i <= address.getMaxAddressLineIndex(); i++) {
-                        names.add(address.getAddressLine(i));
-                    }
-
-                    subscriber.onNext(TextUtils.join(" ", names));
-                }
-
-                subscriber.onCompleted();
-            }
-        });
-    }
-
     private void updatePoint(final LatLng latLng) {
         marker.move(latLng);
 
-        getAddrFromLatLng(latLng)
+        placesEngine.getAddrFromLatLng(latLng)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
                     @Override
                     public Observable<? extends String> call(Throwable throwable) {
-                        return getAddrFromLatLng(latLng); // retry once
+                        return placesEngine.getAddrFromLatLng(latLng); // retry once
                     }
                 })
                 .subscribe(new Observer<String>() {

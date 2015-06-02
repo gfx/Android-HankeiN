@@ -36,6 +36,7 @@ public class EditLocationMemoFragment extends DialogFragment {
         return fragment;
     }
 
+    @Inject
     PlacesEngine autocompleteEngine;
 
     @Inject
@@ -56,8 +57,6 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 
         HankeiNApplication.getAppComponent(getActivity()).inject(this);
-
-        autocompleteEngine = new PlacesEngine(getActivity(), locationChangedSubject);
     }
 
 

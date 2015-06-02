@@ -8,6 +8,7 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.PlacesEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 
 import android.app.Application;
@@ -44,7 +45,7 @@ public class AppModule {
 
     @Singleton
     @Provides
-    GoogleAnalytics getGoogleAnalytics() {
+    GoogleAnalytics getGoogleAnalytics(Application application) {
         GoogleAnalytics ga = GoogleAnalytics.getInstance(application);
         ga.enableAutoActivityReports(application);
         return ga;
@@ -52,8 +53,8 @@ public class AppModule {
 
     @Singleton
     @Provides
-    Tracker getTracker(GoogleAnalytics ga) {
-        Tracker tracker = ga.newTracker(application.getString(R.string.ga_tracking_id));
+    Tracker getTracker(Context context, GoogleAnalytics ga) {
+        Tracker tracker = ga.newTracker(context.getString(R.string.ga_tracking_id));
         tracker.enableExceptionReporting(true);
         return tracker;
     }
@@ -66,6 +67,13 @@ public class AppModule {
     @Provides
     Geocoder getGeocoder(Context context) {
         return new Geocoder(context, Locale.getDefault());
+    }
+
+    @Singleton
+    @Provides
+    PlacesEngine getPlacesEngine(Context context, Geocoder geocoder,
+            BehaviorSubject<LocationChangedEvent> locationChangedEventObservable) {
+        return new PlacesEngine(context, geocoder, locationChangedEventObservable);
     }
 
     @Provides

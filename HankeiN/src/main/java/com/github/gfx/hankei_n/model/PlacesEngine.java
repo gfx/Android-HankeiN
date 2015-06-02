@@ -14,7 +14,14 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.text.TextUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -31,20 +38,23 @@ public class PlacesEngine {
 
     final Observable<LocationChangedEvent> locationChangedObservable;
 
+    final Geocoder geocoder;
+
     Subscription subscription;
 
     LatLng location;
 
-    public PlacesEngine(Context context, Observable<LocationChangedEvent> locationChangedObservable) {
+    public PlacesEngine(Context context, Geocoder geocoder, Observable<LocationChangedEvent> locationChangedEventObservable) {
+        this.geocoder = geocoder;
+        this.locationChangedObservable = locationChangedEventObservable;
+
         ConnectionHandler handler = new ConnectionHandler();
 
-        this.googleApiClient = new GoogleApiClient.Builder(context)
+        googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Places.GEO_DATA_API)
                 .addConnectionCallbacks(handler)
                 .addOnConnectionFailedListener(handler)
                 .build();
-
-        this.locationChangedObservable = locationChangedObservable;
     }
 
     public void start() {
@@ -110,17 +120,61 @@ public class PlacesEngine {
 
         @Override
         public void onConnected(Bundle bundle) {
-
+            Timber.d("onConnected");
         }
 
         @Override
         public void onConnectionSuspended(int i) {
-
+            Timber.d("onConnectionSuspended");
         }
 
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
+            Timber.d("onConnectionFailed");
+        }
+    }
 
+    // Geocoder
+
+    public Observable<String> getAddrFromLatLng(final LatLng latLng) {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                final List<Address> addresses;
+                try {
+                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                } catch (IOException e) {
+                    subscriber.onError(new GeocodingException(e));
+                    return;
+                }
+
+                if (addresses.isEmpty()) {
+                    subscriber.onError(new GeocodingException("No addresses"));
+                    return;
+                } else {
+                    final Address address = addresses.get(0);
+
+                    final List<String> names = new ArrayList<>();
+                    for (int i = Math.min(1, address.getMaxAddressLineIndex()); i <= address.getMaxAddressLineIndex(); i++) {
+                        names.add(address.getAddressLine(i));
+                    }
+
+                    subscriber.onNext(TextUtils.join(" ", names));
+                }
+
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    public static class GeocodingException extends Exception {
+
+        public GeocodingException(String detailMessage) {
+            super(detailMessage);
+        }
+
+        public GeocodingException(Throwable throwable) {
+            super(throwable);
         }
     }
 }
