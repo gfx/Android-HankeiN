@@ -4,11 +4,7 @@ jdk:
 before_install:
     - export TERM=dumb # to get clean gradle output
     - cp gradle.properties{.sample,}
-    # Create and start emulator
-    #- android list targets # for debugging
-    #- echo no | android create avd --force -n test -t 1
-    #- emulator -avd test -no-skin -no-audio -no-window &
-    #- wait_for_emulator
+    - echo yes | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-22.0.1,android-22,extra-android-m2repository,extra-google-m2repository
 script:
     - ./gradlew check
     - ./gradlew lint
