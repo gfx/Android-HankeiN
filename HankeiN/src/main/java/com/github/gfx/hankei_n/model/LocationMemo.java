@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 
@@ -12,22 +13,17 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
-    long order = 0;
+    @NonNull
+    public final String address; // primary key
 
-    LatLng location;
+    public final String note;
 
-    String address;
-
-    String note;
+    public final LatLng location;
 
     public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location) {
-        this.location = location;
         this.address = address;
         this.note = note;
-    }
-
-    public void setOrder(long order) {
-        this.order = order;
+        this.location = location;
     }
 
     public MarkerOptions buildMarkerOptions() {
@@ -37,11 +33,26 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     }
 
     @Override
-    public int compareTo(LocationMemo another) {
-        if (this.order != another.order) {
-            return this.order > another.order ? -1 : 1;
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
         }
 
+        LocationMemo that = (LocationMemo) o;
+
+        return address.equals(that.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return address.hashCode();
+    }
+
+    @Override
+    public int compareTo(LocationMemo another) {
         return another.address.compareTo(this.address);
     }
 }

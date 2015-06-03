@@ -1,7 +1,12 @@
 package com.github.gfx.hankei_n.model;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import com.github.gfx.hankei_n.model.gson.LatLngTypeAdapter;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -18,16 +23,53 @@ public class LocationMemoList implements Iterable<LocationMemo> {
         memos.add(memo);
     }
 
+    public int size() {
+        return memos.size();
+    }
+
+    public LocationMemo get(int index) {
+        return memos.get(index);
+    }
+
     @Override
     public Iterator<LocationMemo> iterator() {
         return memos.iterator();
     }
 
-    public void save(final Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(STORAGE_NAME, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
+    @SuppressLint("CommitPrefEdits")
+    public void save(Context context) {
+        Gson gson = createGson();
 
-        prefs.edit().putString("", "").apply();
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
 
+        for (LocationMemo memo : this) {
+            editor.putString(memo.address, gson.toJson(memo));
+        }
+
+        editor.commit();
+    }
+
+    public static LocationMemoList load(Context context) {
+        Gson gson = createGson();
+
+        LocationMemoList memos = new LocationMemoList();
+
+        for (Object value : getSharedPreferences(context).getAll().values()) {
+            String json = (String) value;
+            memos.add(gson.fromJson(json, LocationMemo.class));
+        }
+
+        return memos;
+    }
+
+    static SharedPreferences getSharedPreferences(Context context) {
+        return context.getSharedPreferences(STORAGE_NAME, Context.MODE_PRIVATE);
+    }
+
+    static Gson createGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
+                .create();
     }
 }
+

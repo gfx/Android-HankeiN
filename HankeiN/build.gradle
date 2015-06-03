@@ -19,6 +19,8 @@ android {
         def version = readVersion(rootProject.file("VERSION"))
         versionCode version.toVersionCode()
         versionName version.toVersionName()
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -69,6 +71,10 @@ android {
         disable 'InvalidPackage'
         disable 'AppCompatResource'
     }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
 }
 
 
@@ -88,7 +94,12 @@ dependencies {
     compile 'com.jakewharton.timber:timber:3.1.0'
 
     // dagger
-    compile 'com.google.dagger:dagger:2.0'
-    apt 'com.google.dagger:dagger-compiler:2.0'
+    compile 'com.google.dagger:dagger:2.0.1'
+    apt 'com.google.dagger:dagger-compiler:2.0.1'
     provided 'javax.annotation:jsr250-api:1.0'
+
+    // tests
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.0') {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
 }
