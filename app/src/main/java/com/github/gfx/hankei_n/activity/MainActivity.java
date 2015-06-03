@@ -35,6 +35,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 R.string.drawer_close);
         drawerToggle.setDrawerIndicatorEnabled(true);
         drawer.setDrawerListener(drawerToggle);
+        drawer.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
     }
 
     void setupMap() {

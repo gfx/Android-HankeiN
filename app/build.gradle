@@ -69,7 +69,7 @@ android {
 
     lintOptions {
         disable 'InvalidPackage'
-        disable 'AppCompatResource'
+        disable 'TypographyDashes'
     }
 
     packagingOptions {
