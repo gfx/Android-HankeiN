@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -51,6 +53,8 @@ public class EditLocationMemoFragment extends DialogFragment {
     @InjectView(R.id.edit_note)
     EditText editNote;
 
+    AlertDialog dialog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Timber.v("onCreate");
@@ -69,8 +73,22 @@ public class EditLocationMemoFragment extends DialogFragment {
         ButterKnife.inject(this, view);
 
         editAddress.setAdapter(new AddressAutocompleAdapter(getActivity(), autocompleteEngine));
+        editAddress.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-        return new AlertDialog.Builder(getActivity())
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
+            }
+        });
+
+        dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.add_location_memo)
                 .setView(view)
                 .setPositiveButton(R.string.dialog_button_add, new DialogInterface.OnClickListener() {
@@ -81,6 +99,15 @@ public class EditLocationMemoFragment extends DialogFragment {
                 })
                 .setNegativeButton(R.string.dialog_button_cancel, null)
                 .create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            }
+        });
+
+        return dialog;
     }
 
     @Override
