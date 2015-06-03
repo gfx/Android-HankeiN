@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,10 +19,43 @@ public class LocationMemoListTest {
 
     Context context;
 
+    LocationMemoList memos;
+
     @Before
     public void setUp() throws Exception {
         context = InstrumentationRegistry.getTargetContext();
+        memos = LocationMemoList.load(context);
     }
+
+    @After
+    public void tearDown() throws Exception {
+        memos.clear();
+        memos.save(context);
+    }
+
+    @Test
+    public void testAdd() throws Exception {
+        memos.add(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
+        memos.add(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
+
+        assertThat(memos.size(), is(2));
+
+        assertThat(memos.get(0).address, is("foo"));
+        assertThat(memos.get(1).address, is("bar"));
+    }
+
+    @Test
+    public void testRemove() throws Exception {
+        memos.add(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
+        memos.add(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
+
+        memos.remove(0);
+
+        assertThat(memos.size(), is(1));
+
+        assertThat(memos.get(0).address, is("bar"));
+    }
+
 
     @Test
     public void testSaveAndLoad() throws Exception {

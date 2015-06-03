@@ -17,6 +17,8 @@ public class LocationMemoList implements Iterable<LocationMemo> {
 
     static final String STORAGE_NAME = LocationMemoList.class.getSimpleName();
 
+    static final String ENTITY_NAME = "LocationMemoList.entity";
+
     final ArrayList<LocationMemo> memos = new ArrayList<>();
 
     public void add(LocationMemo memo) {
@@ -31,6 +33,14 @@ public class LocationMemoList implements Iterable<LocationMemo> {
         return memos.get(index);
     }
 
+    public void remove(int index) {
+        memos.remove(index);
+    }
+
+    public void clear() {
+        memos.clear();
+    }
+
     @Override
     public Iterator<LocationMemo> iterator() {
         return memos.iterator();
@@ -41,25 +51,18 @@ public class LocationMemoList implements Iterable<LocationMemo> {
         Gson gson = createGson();
 
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-
-        for (LocationMemo memo : this) {
-            editor.putString(memo.address, gson.toJson(memo));
-        }
-
-        editor.commit();
+        editor.putString(ENTITY_NAME, gson.toJson(this)).commit();
     }
 
     public static LocationMemoList load(Context context) {
         Gson gson = createGson();
 
-        LocationMemoList memos = new LocationMemoList();
-
-        for (Object value : getSharedPreferences(context).getAll().values()) {
-            String json = (String) value;
-            memos.add(gson.fromJson(json, LocationMemo.class));
+        String json = getSharedPreferences(context).getString(ENTITY_NAME, null);
+        if (json != null) {
+            return gson.fromJson(json, LocationMemoList.class);
+        } else {
+            return new LocationMemoList();
         }
-
-        return memos;
     }
 
     static SharedPreferences getSharedPreferences(Context context) {
