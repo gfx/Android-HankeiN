@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
     void checkGooglePlayServices() {
         int errorCode = googleApiAvailability.isGooglePlayServicesAvailable(this);
-        googleApiAvailability.showErrorDialogFragment(this, errorCode, 0);
+        googleApiAvailability.showErrorNotification(this, errorCode);
     }
 
     @Override
