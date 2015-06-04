@@ -15,7 +15,7 @@ import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoList;
-import com.github.gfx.hankei_n.model.PlacesEngine;
+import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     static final int MARKER_COLOR = 0x00ff66;
 
     @Inject
-    PlacesEngine placesEngine;
+    PlaceEngine placeEngine;
 
     @Inject
     Prefs prefs;
@@ -374,13 +374,13 @@ public class MainActivity extends AppCompatActivity {
     private void updatePoint(final LatLng latLng) {
         marker.move(latLng);
 
-        placesEngine.getAddrFromLatLng(latLng)
+        placeEngine.getAddrFromLatLng(latLng)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
                     @Override
                     public Observable<? extends String> call(Throwable throwable) {
-                        return placesEngine.getAddrFromLatLng(latLng); // retry once
+                        return placeEngine.getAddrFromLatLng(latLng); // retry once
                     }
                 })
                 .subscribe(new Observer<String>() {

@@ -6,7 +6,7 @@ import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
-import com.github.gfx.hankei_n.model.PlacesEngine;
+import com.github.gfx.hankei_n.model.PlaceEngine;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -39,7 +39,7 @@ public class EditLocationMemoFragment extends DialogFragment {
     }
 
     @Inject
-    PlacesEngine autocompleteEngine;
+    PlaceEngine autocompleteEngine;
 
     @Inject
     BehaviorSubject<LocationChangedEvent> locationChangedSubject;
@@ -72,21 +72,10 @@ public class EditLocationMemoFragment extends DialogFragment {
         View view = View.inflate(getActivity(), R.layout.dialog_edit_location_memo, null);
         ButterKnife.inject(this, view);
 
+        DialogWatcher dialogWatcher = new DialogWatcher();
+
         editAddress.setAdapter(new AddressAutocompleAdapter(getActivity(), autocompleteEngine));
-        editAddress.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
-            }
-        });
+        editAddress.addTextChangedListener(dialogWatcher);
 
         dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.add_location_memo)
@@ -100,14 +89,31 @@ public class EditLocationMemoFragment extends DialogFragment {
                 .setNegativeButton(R.string.dialog_button_cancel, null)
                 .create();
 
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-            }
-        });
+        dialog.setOnShowListener(dialogWatcher);
 
         return dialog;
+    }
+
+    class DialogWatcher implements TextWatcher, AlertDialog.OnShowListener {
+
+        @Override
+        public void onShow(DialogInterface dialogInterface) {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
     }
 
     @Override

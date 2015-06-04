@@ -25,11 +25,11 @@ import timber.log.Timber;
 @ParametersAreNonnullByDefault
 public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
 
-    final PlacesEngine placesEngine;
+    final PlaceEngine placeEngine;
 
-    public AddressAutocompleAdapter(Context context, PlacesEngine placesEngine) {
+    public AddressAutocompleAdapter(Context context, PlaceEngine placeEngine) {
         super(context, R.layout.abc_simple_dropdown_hint);
-        this.placesEngine = placesEngine;
+        this.placeEngine = placeEngine;
     }
 
     List<Spanned> convertToSpannedList(Iterable<AutocompletePrediction> predictions) {
@@ -70,7 +70,7 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
     void performQuery(final String query) {
         Timber.d("performQuery: %s", query);
 
-        placesEngine.queryAutocompletion(query)
+        placeEngine.queryAutocompletion(query)
                 .subscribe(new Subscriber<Iterable<AutocompletePrediction>>() {
                     @Override
                     public void onCompleted() {

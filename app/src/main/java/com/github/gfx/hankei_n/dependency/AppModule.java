@@ -8,7 +8,7 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoList;
-import com.github.gfx.hankei_n.model.PlacesEngine;
+import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 
 import android.app.Application;
@@ -27,25 +27,25 @@ import rx.subjects.BehaviorSubject;
 @Module
 public class AppModule {
 
-    final Application application;
+    final Context context;
 
-    public AppModule(Application application) {
-        this.application = application;
+    public AppModule(Context context) {
+        this.context = context;
     }
 
     @Provides
-    Application getApplication() {
-        return application;
+    Application provideApplication() {
+        return (Application) context.getApplicationContext();
     }
 
     @Provides
-    Context getContext() {
-        return application;
+    Context provideContext() {
+        return context;
     }
 
     @Singleton
     @Provides
-    GoogleAnalytics getGoogleAnalytics(Application application) {
+    GoogleAnalytics provideGoogleAnalytics(Application application) {
         GoogleAnalytics ga = GoogleAnalytics.getInstance(application);
         ga.enableAutoActivityReports(application);
         return ga;
@@ -53,53 +53,53 @@ public class AppModule {
 
     @Singleton
     @Provides
-    Tracker getTracker(Context context, GoogleAnalytics ga) {
+    Tracker provideTracker(Context context, GoogleAnalytics ga) {
         Tracker tracker = ga.newTracker(context.getString(R.string.ga_tracking_id));
         tracker.enableExceptionReporting(true);
         return tracker;
     }
 
     @Provides
-    Prefs getPrefs(Context context) {
+    Prefs providePrefs(Context context) {
         return new Prefs(context);
     }
 
     @Provides
-    Geocoder getGeocoder(Context context) {
+    Geocoder provideGeocoder(Context context) {
         return new Geocoder(context, Locale.getDefault());
     }
 
     @Singleton
     @Provides
-    PlacesEngine getPlacesEngine(Context context, Geocoder geocoder,
+    PlaceEngine providePlacesEngine(Context context, Geocoder geocoder,
             BehaviorSubject<LocationChangedEvent> locationChangedEventObservable) {
-        return new PlacesEngine(context, geocoder, locationChangedEventObservable);
+        return new PlaceEngine(context, geocoder, locationChangedEventObservable);
     }
 
     @Provides
-    Vibrator getVibrator(Context context) {
+    Vibrator provideVibrator(Context context) {
         return (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     @Provides
-    GoogleApiAvailability getGoogleApiAvailability() {
+    GoogleApiAvailability provideGoogleApiAvailability() {
         return GoogleApiAvailability.getInstance();
     }
 
     @Provides
-    LocationMemoList getMemoList() {
-        return new LocationMemoList();
+    LocationMemoList provideLocationMemoList(Context context) {
+        return LocationMemoList.load(context);
     }
 
     @Singleton
     @Provides
-    BehaviorSubject<LocationChangedEvent> getOnMyLocationChangedSubject() {
+    BehaviorSubject<LocationChangedEvent> provideLocationChangedEventSubject() {
         return BehaviorSubject.create();
     }
 
     @Singleton
     @Provides
-    BehaviorSubject<LocationMemoAddedEvent> getOnLocationMemoChangedSubject() {
+    BehaviorSubject<LocationMemoAddedEvent> provideLocationMemoAddedEventSubject() {
         return BehaviorSubject.create();
     }
 }

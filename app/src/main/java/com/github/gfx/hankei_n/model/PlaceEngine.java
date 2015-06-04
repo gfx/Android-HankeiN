@@ -32,7 +32,7 @@ import rx.functions.Action1;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
-public class PlacesEngine {
+public class PlaceEngine {
 
     final GoogleApiClient googleApiClient;
 
@@ -44,7 +44,7 @@ public class PlacesEngine {
 
     LatLng location;
 
-    public PlacesEngine(Context context, Geocoder geocoder, Observable<LocationChangedEvent> locationChangedEventObservable) {
+    public PlaceEngine(Context context, Geocoder geocoder, Observable<LocationChangedEvent> locationChangedEventObservable) {
         this.geocoder = geocoder;
         this.locationChangedObservable = locationChangedEventObservable;
 
