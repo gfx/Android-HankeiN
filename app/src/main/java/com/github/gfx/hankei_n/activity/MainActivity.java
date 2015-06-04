@@ -26,6 +26,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -43,6 +44,7 @@ import android.widget.Toast;
 
 import java.util.Locale;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
@@ -55,6 +57,7 @@ import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
+@ParametersAreNonnullByDefault
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -106,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
     LatLng myLocation;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         long t0 = System.currentTimeMillis();
 
         super.onCreate(savedInstanceState);
@@ -183,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         drawerToggle.syncState();
     }

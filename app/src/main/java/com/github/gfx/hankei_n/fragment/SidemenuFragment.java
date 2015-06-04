@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
@@ -25,6 +26,7 @@ import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 
+@ParametersAreNonnullByDefault
 public class SidemenuFragment extends Fragment {
 
     @Inject
@@ -40,7 +42,7 @@ public class SidemenuFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sidemenu, container, false);
         ButterKnife.inject(this, view);
         HankeiNApplication.getAppComponent(getActivity()).inject(this);
@@ -89,7 +91,7 @@ public class SidemenuFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, @Nullable View convertView, ViewGroup parent) {
             if (convertView == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 convertView = inflater.inflate(R.layout.widget_location_memo, parent, false);

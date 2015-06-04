@@ -7,10 +7,12 @@ import com.github.gfx.hankei_n.dependency.DaggerAppComponent;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.NonNull;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import timber.log.Timber;
 
+@ParametersAreNonnullByDefault
 public class HankeiNApplication extends Application {
 
     AppComponent component;
@@ -34,7 +36,7 @@ public class HankeiNApplication extends Application {
         return component;
     }
 
-    public static AppComponent getAppComponent(@NonNull Context context) {
+    public static AppComponent getAppComponent(Context context) {
         HankeiNApplication application = (HankeiNApplication) context.getApplicationContext();
         return application.getAppComponent();
     }

@@ -14,14 +14,17 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
@@ -29,6 +32,7 @@ import butterknife.InjectView;
 import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
+@ParametersAreNonnullByDefault
 public class EditLocationMemoFragment extends DialogFragment {
 
     public static EditLocationMemoFragment newInstance() {
@@ -58,7 +62,7 @@ public class EditLocationMemoFragment extends DialogFragment {
     AlertDialog dialog;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         Timber.v("onCreate");
         super.onCreate(savedInstanceState);
 
@@ -68,39 +72,42 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         Timber.v("onCreateDialog");
 
         View view = View.inflate(getActivity(), R.layout.dialog_edit_location_memo, null);
         ButterKnife.inject(this, view);
 
-        DialogWatcher dialogWatcher = new DialogWatcher();
+        DialogHandler dialogHandler = new DialogHandler();
 
         editAddress.setAdapter(new AddressAutocompleAdapter(getActivity(), autocompleteEngine));
-        editAddress.addTextChangedListener(dialogWatcher);
+        editAddress.addTextChangedListener(dialogHandler);
 
         dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.add_location_memo)
                 .setView(view)
-                .setPositiveButton(R.string.dialog_button_add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        sendLocationMemoAddedEvent();
-                    }
-                })
+                .setPositiveButton(R.string.dialog_button_add, null /* will be overridden in dialogHandler */)
                 .setNegativeButton(R.string.dialog_button_cancel, null)
                 .create();
 
-        dialog.setOnShowListener(dialogWatcher);
+        dialog.setOnShowListener(dialogHandler);
 
         return dialog;
     }
 
-    class DialogWatcher implements TextWatcher, AlertDialog.OnShowListener {
+    class DialogHandler implements TextWatcher, AlertDialog.OnShowListener {
 
         @Override
         public void onShow(DialogInterface dialogInterface) {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setEnabled(false);
+
+            positiveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sendLocationMemoAddedEventAndDismiss();
+                }
+            });
         }
 
         @Override
@@ -133,13 +140,15 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onPause();
     }
 
-    void sendLocationMemoAddedEvent() {
+    void sendLocationMemoAddedEventAndDismiss() {
         LocationMemo memo = new LocationMemo(
                 editAddress.getText().toString(),
                 editNote.getText().toString(),
                 new LatLng(0, 0));
 
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
+
+        dialog.dismiss();
     }
 
 }

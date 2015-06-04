@@ -13,6 +13,9 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
 public class LocationMemoList implements Iterable<LocationMemo> {
 
     static final String STORAGE_NAME = LocationMemoList.class.getSimpleName();
