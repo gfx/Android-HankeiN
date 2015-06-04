@@ -14,7 +14,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
-import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
@@ -39,7 +38,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,9 +86,6 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     BehaviorSubject<LocationChangedEvent> locationChangedSubject;
 
-    @Inject
-    LocationMemoList memos;
-
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -99,9 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
     @InjectView(R.id.drawer)
     DrawerLayout drawer;
-
-    @InjectView(R.id.list_location_memos)
-    ListView memosListView;
 
     boolean cameraInitialized = false;
 
@@ -136,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupDrawer() {
-        toolbar.setNavigationIcon(R.drawable.ic_drawer);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();

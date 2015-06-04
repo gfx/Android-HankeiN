@@ -19,7 +19,7 @@
             />
 
     <Button
-            android:id="@+id/add_location_memo"
+            android:id="@+id/button_add_location_memo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableStart="@android:drawable/ic_input_add"

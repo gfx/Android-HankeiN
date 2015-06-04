@@ -1,5 +1,7 @@
 package com.github.gfx.hankei_n.fragment;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
@@ -83,7 +85,7 @@ public class EditLocationMemoFragment extends DialogFragment {
                 .setPositiveButton(R.string.dialog_button_add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        locationMemoAddedSubject.onNext(createLocationMemoAddedEvent());
+                        sendLocationMemoAddedEvent();
                     }
                 })
                 .setNegativeButton(R.string.dialog_button_cancel, null)
@@ -131,11 +133,13 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onPause();
     }
 
-    LocationMemoAddedEvent createLocationMemoAddedEvent() {
+    void sendLocationMemoAddedEvent() {
         LocationMemo memo = new LocationMemo(
                 editAddress.getText().toString(),
                 editNote.getText().toString(),
-                null);
-        return new LocationMemoAddedEvent(memo);
+                new LatLng(0, 0));
+
+        locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
     }
+
 }
