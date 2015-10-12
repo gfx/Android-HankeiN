@@ -29,23 +29,15 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.Subscriber;
 import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class EditLocationMemoFragment extends DialogFragment {
 
-    public static EditLocationMemoFragment newInstance() {
-        EditLocationMemoFragment fragment = new EditLocationMemoFragment();
-
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-
-        return fragment;
-    }
-
     @Inject
-    PlaceEngine autocompleteEngine;
+    PlaceEngine placeEngine;
 
     @Inject
     BehaviorSubject<LocationChangedEvent> locationChangedSubject;
@@ -60,6 +52,15 @@ public class EditLocationMemoFragment extends DialogFragment {
     EditText editNote;
 
     AlertDialog dialog;
+
+    public static EditLocationMemoFragment newInstance() {
+        EditLocationMemoFragment fragment = new EditLocationMemoFragment();
+
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,7 +81,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
         DialogHandler dialogHandler = new DialogHandler();
 
-        editAddress.setAdapter(new AddressAutocompleAdapter(getActivity(), autocompleteEngine));
+        editAddress.setAdapter(new AddressAutocompleAdapter(getActivity(), placeEngine));
         editAddress.addTextChangedListener(dialogHandler);
 
         dialog = new AlertDialog.Builder(getActivity())
@@ -93,6 +94,54 @@ public class EditLocationMemoFragment extends DialogFragment {
         dialog.setOnShowListener(dialogHandler);
 
         return dialog;
+    }
+
+    @Override
+    public void onResume() {
+        Timber.v("onResume");
+        super.onResume();
+
+        placeEngine.start();
+    }
+
+    @Override
+    public void onPause() {
+        placeEngine.stop();
+
+        super.onPause();
+    }
+
+    void sendLocationMemoAddedEventAndDismiss() {
+        final String address = editAddress.getText().toString();
+        final String note = editNote.getText().toString();
+
+        placeEngine.getLocationFromAddress(address)
+                .subscribe(new Subscriber<LatLng>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LocationMemo memo = new LocationMemo(
+                                address,
+                                note,
+                                new LatLng(0, 0));
+                        locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onNext(LatLng latLng) {
+                        LocationMemo memo = new LocationMemo(
+                                address,
+                                note,
+                                latLng);
+                        locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
+                        dialog.dismiss();
+                    }
+                });
     }
 
     class DialogHandler implements TextWatcher, AlertDialog.OnShowListener {
@@ -124,31 +173,4 @@ public class EditLocationMemoFragment extends DialogFragment {
         }
 
     }
-
-    @Override
-    public void onResume() {
-        Timber.v("onResume");
-        super.onResume();
-
-        autocompleteEngine.start();
-    }
-
-    @Override
-    public void onPause() {
-        autocompleteEngine.stop();
-
-        super.onPause();
-    }
-
-    void sendLocationMemoAddedEventAndDismiss() {
-        LocationMemo memo = new LocationMemo(
-                editAddress.getText().toString(),
-                editNote.getText().toString(),
-                new LatLng(0, 0));
-
-        locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-
-        dialog.dismiss();
-    }
-
 }

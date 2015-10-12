@@ -19,3 +19,4 @@ public interface AppComponent {
 
     void inject(SidemenuFragment fragment);
 }
+

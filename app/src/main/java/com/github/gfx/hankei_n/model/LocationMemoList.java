@@ -24,6 +24,27 @@ public class LocationMemoList implements Iterable<LocationMemo> {
 
     final ArrayList<LocationMemo> memos = new ArrayList<>();
 
+    public static LocationMemoList load(Context context) {
+        Gson gson = createGson();
+
+        String json = getSharedPreferences(context).getString(ENTITY_NAME, null);
+        if (json != null) {
+            return gson.fromJson(json, LocationMemoList.class);
+        } else {
+            return new LocationMemoList();
+        }
+    }
+
+    static SharedPreferences getSharedPreferences(Context context) {
+        return context.getSharedPreferences(STORAGE_NAME, Context.MODE_PRIVATE);
+    }
+
+    static Gson createGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
+                .create();
+    }
+
     public void add(LocationMemo memo) {
         memos.add(memo);
     }
@@ -55,27 +76,6 @@ public class LocationMemoList implements Iterable<LocationMemo> {
 
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(ENTITY_NAME, gson.toJson(this)).commit();
-    }
-
-    public static LocationMemoList load(Context context) {
-        Gson gson = createGson();
-
-        String json = getSharedPreferences(context).getString(ENTITY_NAME, null);
-        if (json != null) {
-            return gson.fromJson(json, LocationMemoList.class);
-        } else {
-            return new LocationMemoList();
-        }
-    }
-
-    static SharedPreferences getSharedPreferences(Context context) {
-        return context.getSharedPreferences(STORAGE_NAME, Context.MODE_PRIVATE);
-    }
-
-    static Gson createGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
-                .create();
     }
 }
 

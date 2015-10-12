@@ -1,19 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawer"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".activity.MainActivity"
         >
 
-    <include layout="@layout/widget_main" />
-
-    <fragment
-            android:id="@+id/fragment_sidemenu"
-            android:name="com.github.gfx.hankei_n.fragment.SidemenuFragment"
-            android:layout_width="wrap_content"
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            />
+            android:orientation="vertical"
+            >
 
-</android.support.v4.widget.DrawerLayout>
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:elevation="4dp"
+                android:theme="@style/Toolbar"
+                tools:ignore="UnusedAttribute"
+                />
+
+        <android.support.v4.widget.DrawerLayout
+                android:id="@+id/drawer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                >
+
+            <include layout="@layout/widget_main" />
+
+            <fragment
+                    android:id="@+id/fragment_sidemenu"
+                    android:name="com.github.gfx.hankei_n.fragment.SidemenuFragment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start"
+                    />
+
+        </android.support.v4.widget.DrawerLayout>
+
+    </LinearLayout>
+</layout>

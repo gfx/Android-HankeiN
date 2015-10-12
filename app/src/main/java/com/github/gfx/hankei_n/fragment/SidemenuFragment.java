@@ -29,6 +29,8 @@ import rx.subjects.BehaviorSubject;
 @ParametersAreNonnullByDefault
 public class SidemenuFragment extends Fragment {
 
+    final Adapter adapter = new Adapter();
+
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
@@ -37,8 +39,6 @@ public class SidemenuFragment extends Fragment {
 
     @Inject
     LocationMemoList memos;
-
-    final Adapter adapter = new Adapter();
 
     @Nullable
     @Override
@@ -67,6 +67,20 @@ public class SidemenuFragment extends Fragment {
                 .show(fm, "edit_location_memo");
     }
 
+    static class ViewHolder {
+
+        @InjectView(R.id.text_address)
+        TextView address;
+
+        @InjectView(R.id.text_note)
+        TextView note;
+
+        ViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
+
+    }
+
     class Adapter extends BaseAdapter {
 
         public void addItem(LocationMemo memo) {
@@ -91,7 +105,7 @@ public class SidemenuFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, @Nullable View convertView, ViewGroup parent) {
+        public View getView(final int position, @Nullable View convertView, ViewGroup parent) {
             if (convertView == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 convertView = inflater.inflate(R.layout.widget_location_memo, parent, false);
@@ -102,21 +116,19 @@ public class SidemenuFragment extends Fragment {
             viewHolder.address.setText(getItem(position).address);
             viewHolder.note.setText(getItem(position).note);
 
+            convertView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    memos.remove(position);
+                    memos.save(getActivity());
+
+                    notifyDataSetChanged();
+
+                    return true;
+                }
+            });
+
             return convertView;
         }
-    }
-
-    static class ViewHolder {
-
-        @InjectView(R.id.text_address)
-        TextView address;
-
-        @InjectView(R.id.text_note)
-        TextView note;
-
-        ViewHolder(View view) {
-            ButterKnife.inject(this, view);
-        }
-
     }
 }

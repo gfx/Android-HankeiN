@@ -1,5 +1,7 @@
 package com.github.gfx.hankei_n.model;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -27,9 +29,13 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     }
 
     public MarkerOptions buildMarkerOptions() {
+        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+
         return new MarkerOptions()
                 .title(address)
-                .position(location);
+                .snippet(note)
+                .position(location)
+                .icon(icon);
     }
 
     @Override

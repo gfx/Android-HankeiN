@@ -116,6 +116,72 @@ public class PlaceEngine {
         });
     }
 
+    public Observable<String> getAddressFromLocation(final LatLng latLng) {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                final List<Address> addresses;
+                try {
+                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                } catch (IOException e) {
+                    subscriber.onError(new GeocodingException(e));
+                    return;
+                }
+
+                if (addresses.isEmpty()) {
+                    subscriber.onError(new GeocodingException("No addresses found"));
+                } else {
+                    final Address address = addresses.get(0);
+
+                    final List<String> names = new ArrayList<>();
+                    for (int i = Math.min(1, address.getMaxAddressLineIndex()); i <= address.getMaxAddressLineIndex(); i++) {
+                        names.add(address.getAddressLine(i));
+                    }
+
+                    subscriber.onNext(TextUtils.join(" ", names));
+                    subscriber.onCompleted();
+                }
+            }
+        });
+    }
+
+    // Geocoding
+
+    public Observable<LatLng> getLocationFromAddress(final String address) {
+        return Observable.create(new Observable.OnSubscribe<LatLng>() {
+            @Override
+            public void call(Subscriber<? super LatLng> subscriber) {
+                final List<Address> addresses;
+                try {
+                    addresses = geocoder.getFromLocationName(address, 1);
+                } catch (IOException e) {
+                    subscriber.onError(new GeocodingException(e));
+                    return;
+                }
+
+                if (addresses.isEmpty()) {
+                    subscriber.onError(new GeocodingException("No addresses found"));
+                } else {
+                    final Address address = addresses.get(0);
+
+                    subscriber.onNext(new LatLng(address.getLatitude(), address.getLongitude()));
+                    subscriber.onCompleted();
+                }
+            }
+        });
+    }
+
+    public static class GeocodingException extends Exception {
+
+        public GeocodingException(String detailMessage) {
+            super(detailMessage);
+        }
+
+        public GeocodingException(Throwable throwable) {
+            super(throwable);
+        }
+    }
+
     class ConnectionHandler implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
         @Override
@@ -131,50 +197,6 @@ public class PlaceEngine {
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
             Timber.d("onConnectionFailed");
-        }
-    }
-
-    // Geocoder
-
-    public Observable<String> getAddrFromLatLng(final LatLng latLng) {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(Subscriber<? super String> subscriber) {
-                final List<Address> addresses;
-                try {
-                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                } catch (IOException e) {
-                    subscriber.onError(new GeocodingException(e));
-                    return;
-                }
-
-                if (addresses.isEmpty()) {
-                    subscriber.onError(new GeocodingException("No addresses"));
-                    return;
-                } else {
-                    final Address address = addresses.get(0);
-
-                    final List<String> names = new ArrayList<>();
-                    for (int i = Math.min(1, address.getMaxAddressLineIndex()); i <= address.getMaxAddressLineIndex(); i++) {
-                        names.add(address.getAddressLine(i));
-                    }
-
-                    subscriber.onNext(TextUtils.join(" ", names));
-                }
-
-                subscriber.onCompleted();
-            }
-        });
-    }
-
-    public static class GeocodingException extends Exception {
-
-        public GeocodingException(String detailMessage) {
-            super(detailMessage);
-        }
-
-        public GeocodingException(Throwable throwable) {
-            super(throwable);
         }
     }
 }

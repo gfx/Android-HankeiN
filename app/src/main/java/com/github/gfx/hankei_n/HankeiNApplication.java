@@ -17,6 +17,11 @@ public class HankeiNApplication extends Application {
 
     AppComponent component;
 
+    public static AppComponent getAppComponent(Context context) {
+        HankeiNApplication application = (HankeiNApplication) context.getApplicationContext();
+        return application.getAppComponent();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -34,10 +39,5 @@ public class HankeiNApplication extends Application {
 
     public AppComponent getAppComponent() {
         return component;
-    }
-
-    public static AppComponent getAppComponent(Context context) {
-        HankeiNApplication application = (HankeiNApplication) context.getApplicationContext();
-        return application.getAppComponent();
     }
 }

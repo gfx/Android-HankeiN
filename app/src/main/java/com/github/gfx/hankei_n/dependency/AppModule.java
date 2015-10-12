@@ -7,6 +7,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
@@ -86,6 +87,7 @@ public class AppModule {
         return GoogleApiAvailability.getInstance();
     }
 
+    @Singleton
     @Provides
     LocationMemoList provideLocationMemoList(Context context) {
         return LocationMemoList.load(context);
@@ -100,6 +102,12 @@ public class AppModule {
     @Singleton
     @Provides
     BehaviorSubject<LocationMemoAddedEvent> provideLocationMemoAddedEventSubject() {
+        return BehaviorSubject.create();
+    }
+
+    @Singleton
+    @Provides
+    BehaviorSubject<LocationMemoRemovedEvent> provideLocationMemoRemovedEventSubject() {
         return BehaviorSubject.create();
     }
 }

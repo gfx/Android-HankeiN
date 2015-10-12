@@ -2,6 +2,7 @@ package com.github.gfx.hankei_n.activity;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -11,11 +12,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.model.LocationMemo;
+import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
+import com.github.gfx.hankei_n.model.ReusableCompositeSubscription;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
 import android.content.DialogInterface;
@@ -27,6 +33,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -35,7 +42,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -51,7 +57,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Observable;
 import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
+import rx.Subscriber;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
@@ -60,13 +66,15 @@ import timber.log.Timber;
 @ParametersAreNonnullByDefault
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
-
     static final float MAP_ZOOM = 14f;
 
     static final float DEFAULT_RADIUS = 1.5f;
 
     static final int MARKER_COLOR = 0x00ff66;
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    final ReusableCompositeSubscription subscription = new ReusableCompositeSubscription();
 
     @Inject
     PlaceEngine placeEngine;
@@ -88,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
      */
     @Inject
     BehaviorSubject<LocationChangedEvent> locationChangedSubject;
+
+    @Inject
+    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+
+    @Inject
+    LocationMemoList locationMemos;
 
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
@@ -145,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 R.string.drawer_close);
         drawerToggle.setDrawerIndicatorEnabled(true);
         drawer.setDrawerListener(drawerToggle);
-        drawer.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
+        drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
     }
 
     void setupMap() {
@@ -182,7 +196,9 @@ public class MainActivity extends AppCompatActivity {
 
     void checkGooglePlayServices() {
         int errorCode = googleApiAvailability.isGooglePlayServicesAvailable(this);
-        googleApiAvailability.showErrorNotification(this, errorCode);
+        if (errorCode != ConnectionResult.SUCCESS) {
+            googleApiAvailability.showErrorNotification(this, errorCode);
+        }
     }
 
     @Override
@@ -233,8 +249,35 @@ public class MainActivity extends AppCompatActivity {
         if (pointedLatitude != 0.0f || pointedLongitude != 0.0) {
             updatePoint(new LatLng(pointedLatitude, pointedLongitude));
         }
+
+        for (LocationMemo memo : locationMemos) {
+            addLocationMemo(memo);
+        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        subscription.add(locationMemoAddedSubject.subscribe(new Subscriber<LocationMemoAddedEvent>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(LocationMemoAddedEvent locationMemoAddedEvent) {
+                LocationMemo memo = locationMemoAddedEvent.memo;
+                addLocationMemo(memo);
+            }
+        }));
+
+    }
 
     @Override
     protected void onPause() {
@@ -245,6 +288,8 @@ public class MainActivity extends AppCompatActivity {
         prefs.put("prevLongitude", (float) pos.target.longitude);
         prefs.put("prevCameraZoom", pos.zoom);
         cameraInitialized = false;
+
+        subscription.unsubscribe();
     }
 
     @Override
@@ -368,13 +413,13 @@ public class MainActivity extends AppCompatActivity {
     private void updatePoint(final LatLng latLng) {
         marker.move(latLng);
 
-        placeEngine.getAddrFromLatLng(latLng)
+        placeEngine.getAddressFromLocation(latLng)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
                     @Override
                     public Observable<? extends String> call(Throwable throwable) {
-                        return placeEngine.getAddrFromLatLng(latLng); // retry once
+                        return placeEngine.getAddressFromLocation(latLng); // retry once
                     }
                 })
                 .subscribe(new Observer<String>() {
@@ -434,5 +479,9 @@ public class MainActivity extends AppCompatActivity {
 
         final LatLng latLng = new LatLng(prefs.get("pointedLatitude", 0f), prefs.get("pointedLongitude", 0f));
         updatePoint(latLng);
+    }
+
+    void addLocationMemo(LocationMemo memo) {
+        map.addMarker(memo.buildMarkerOptions());
     }
 }
