@@ -28,7 +28,7 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
     final PlaceEngine placeEngine;
 
     public AddressAutocompleAdapter(Context context, PlaceEngine placeEngine) {
-        super(context, R.layout.support_simple_spinner_dropdown_item);
+        super(context, R.layout.widget_autocomplete, android.R.id.text1);
         this.placeEngine = placeEngine;
     }
 

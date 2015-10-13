@@ -1,61 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:orientation="vertical"
               android:padding="@dimen/abc_dialog_padding_material"
         >
 
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             >
 
         <TextView
-                android:labelFor="@+id/edit_address"
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:gravity="center_horizontal"
+                android:gravity="start"
+                android:labelFor="@+id/edit_address"
                 android:text="@string/label_address"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 />
 
         <AutoCompleteTextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:inputType="textPostalAddress"
                 android:id="@+id/edit_address"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:completionHint="@string/attribution_powered_by_google"
                 android:completionHintView="@layout/widget_powered_by_google"
-                android:completionHint="Powered By Google"
                 android:completionThreshold="3"
+                android:inputType="textPostalAddress"
                 />
     </LinearLayout>
 
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
             >
 
         <TextView
-                android:labelFor="@+id/edit_note"
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:gravity="center_horizontal"
-                android:maxLength="512"
+                android:gravity="start"
+                android:labelFor="@+id/edit_note"
                 android:text="@string/label_note"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 />
 
         <EditText
                 android:id="@+id/edit_note"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:maxLength="512"
-                android:layout_weight="1"
                 />
     </LinearLayout>
 
