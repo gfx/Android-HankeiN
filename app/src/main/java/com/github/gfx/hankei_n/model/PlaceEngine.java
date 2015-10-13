@@ -11,6 +11,8 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
+import com.cookpad.android.rxt4a.subscriptions.AndroidCompositeSubscription;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 
 import android.content.Context;
@@ -27,7 +29,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.Subscription;
 import rx.functions.Action1;
 import timber.log.Timber;
 
@@ -40,7 +41,7 @@ public class PlaceEngine {
 
     final Geocoder geocoder;
 
-    Subscription subscription;
+    final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
 
     LatLng location;
 
@@ -60,19 +61,20 @@ public class PlaceEngine {
     public void start() {
         googleApiClient.connect();
 
-        subscription = locationChangedObservable.subscribe(new Action1<LocationChangedEvent>() {
-            @Override
-            public void call(LocationChangedEvent myLocationChanged) {
-                setLocation(myLocationChanged.location);
-            }
-        });
+        locationChangedObservable
+                .lift(new OperatorAddToCompositeSubscription<LocationChangedEvent>(subscription))
+                .subscribe(new Action1<LocationChangedEvent>() {
+                    @Override
+                    public void call(LocationChangedEvent myLocationChanged) {
+                        setLocation(myLocationChanged.location);
+                    }
+                });
     }
 
     public void stop() {
         googleApiClient.disconnect();
 
         subscription.unsubscribe();
-        subscription = null;
     }
 
     public void setLocation(LatLng latLng) {

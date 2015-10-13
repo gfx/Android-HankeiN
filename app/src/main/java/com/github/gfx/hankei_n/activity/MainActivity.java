@@ -12,7 +12,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
+import com.cookpad.android.rxt4a.subscriptions.AndroidCompositeSubscription;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
@@ -21,7 +23,6 @@ import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
-import com.github.gfx.hankei_n.model.ReusableCompositeSubscription;
 import com.github.gfx.hankei_n.model.SingleMarker;
 
 import android.content.DialogInterface;
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    final ReusableCompositeSubscription subscription = new ReusableCompositeSubscription();
+    final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
 
     @Inject
     PlaceEngine placeEngine;
@@ -259,23 +260,25 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        subscription.add(locationMemoAddedSubject.subscribe(new Subscriber<LocationMemoAddedEvent>() {
-            @Override
-            public void onCompleted() {
+        locationMemoAddedSubject
+                .lift(new OperatorAddToCompositeSubscription<LocationMemoAddedEvent>(subscription))
+                .subscribe(new Subscriber<LocationMemoAddedEvent>() {
+                    @Override
+                    public void onCompleted() {
 
-            }
+                    }
 
-            @Override
-            public void onError(Throwable e) {
+                    @Override
+                    public void onError(Throwable e) {
 
-            }
+                    }
 
-            @Override
-            public void onNext(LocationMemoAddedEvent locationMemoAddedEvent) {
-                LocationMemo memo = locationMemoAddedEvent.memo;
-                addLocationMemo(memo);
-            }
-        }));
+                    @Override
+                    public void onNext(LocationMemoAddedEvent locationMemoAddedEvent) {
+                        LocationMemo memo = locationMemoAddedEvent.memo;
+                        addLocationMemo(memo);
+                    }
+                });
 
     }
 
