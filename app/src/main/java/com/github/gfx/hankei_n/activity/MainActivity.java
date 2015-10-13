@@ -138,9 +138,12 @@ public class MainActivity extends AppCompatActivity {
         setupDrawer();
         checkGooglePlayServices();
 
+        tracker.setScreenName(TAG);
+        tracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         tracker.send(
                 new HitBuilders.TimingBuilder()
-                        .setLabel("MainActivity#onCreate")
+                        .setLabel(TAG)
                         .setValue(System.currentTimeMillis() - t0)
                         .build());
     }
