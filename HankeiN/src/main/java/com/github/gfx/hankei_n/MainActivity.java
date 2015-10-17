@@ -1,5 +1,6 @@
 package com.github.gfx.hankei_n;
 
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -61,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     Vibrator vibrator;
+
+    @Inject
+    Tracker tracker;
 
     private boolean cameraInitialized = false;
 

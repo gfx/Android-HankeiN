@@ -47,6 +47,7 @@ public class AppModule {
     Tracker getTracker(GoogleAnalytics ga) {
         Tracker tracker = ga.newTracker(R.string.ga_tracking_id);
         tracker.enableExceptionReporting(true);
+        tracker.enableAutoActivityTracking(true);
         return tracker;
     }
 
