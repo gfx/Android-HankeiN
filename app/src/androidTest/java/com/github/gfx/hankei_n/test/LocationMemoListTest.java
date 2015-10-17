@@ -30,13 +30,13 @@ public class LocationMemoListTest {
     @After
     public void tearDown() throws Exception {
         memos.clear();
-        memos.save(context);
+        memos.save();
     }
 
     @Test
     public void testAdd() throws Exception {
-        memos.add(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
-        memos.add(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
+        memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
+        memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
 
         assertThat(memos.size(), is(2));
 
@@ -46,8 +46,8 @@ public class LocationMemoListTest {
 
     @Test
     public void testRemove() throws Exception {
-        memos.add(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
-        memos.add(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
+        memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
+        memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
 
         memos.remove(0);
 
@@ -59,12 +59,14 @@ public class LocationMemoListTest {
 
     @Test
     public void testSaveAndLoad() throws Exception {
-        LocationMemoList memos = new LocationMemoList();
+        LocationMemoList memos  = LocationMemoList.load(context);
+        memos.clear();
+        memos.save();
 
-        memos.add(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
-        memos.add(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
+        memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0)));
+        memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0)));
 
-        memos.save(context);
+        memos.save();
 
         memos = LocationMemoList.load(context);
 

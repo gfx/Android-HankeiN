@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.annotations.SerializedName;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,21 +16,32 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
-    @NonNull
-    public final String address; // primary key
+    @SerializedName("id")
+    public final long id;
 
+    @SerializedName("address")
+    @NonNull
+    public final String address;
+
+    @SerializedName("note")
     public final String note;
 
+    @SerializedName("location")
     public final LatLng location;
 
-    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location) {
+    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location) {
+        this.id = id;
         this.address = address;
         this.note = note;
         this.location = location;
     }
 
+    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location) {
+        this(0, address, note, location);
+    }
+
     public MarkerOptions buildMarkerOptions() {
-        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
 
         return new MarkerOptions()
                 .title(address)
@@ -49,12 +61,12 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
         LocationMemo that = (LocationMemo) o;
 
-        return address.equals(that.address);
+        return id == that.id;
     }
 
     @Override
     public int hashCode() {
-        return address.hashCode();
+        return (int) (id % Integer.MAX_VALUE);
     }
 
     @Override

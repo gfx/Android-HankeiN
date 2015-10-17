@@ -6,10 +6,12 @@ import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 
+import android.app.Application;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +32,9 @@ import rx.subjects.BehaviorSubject;
 public class SidemenuFragment extends Fragment {
 
     final Adapter adapter = new Adapter();
+
+    @Inject
+    Application context;
 
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
@@ -61,10 +66,8 @@ public class SidemenuFragment extends Fragment {
     @SuppressWarnings("unused")
     @OnClick(R.id.button_add_location_memo)
     void onAddLocationMemoButton() {
-        FragmentManager fm = getFragmentManager();
-
         EditLocationMemoFragment.newInstance()
-                .show(fm, "edit_location_memo");
+                .show(getFragmentManager(), "edit_location_memo");
     }
 
     static class ViewHolder {
@@ -81,11 +84,11 @@ public class SidemenuFragment extends Fragment {
 
     }
 
-    class Adapter extends BaseAdapter {
+    private class Adapter extends BaseAdapter {
 
         public void addItem(LocationMemo memo) {
-            memos.add(memo);
-            memos.save(getActivity());
+            memos.upsert(memo);
+            memos.save();
             notifyDataSetChanged();
         }
 
@@ -112,23 +115,51 @@ public class SidemenuFragment extends Fragment {
                 convertView.setTag(new ViewHolder(convertView));
             }
 
+            final LocationMemo memo = getItem(position);
+
             ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.address.setText(getItem(position).address);
-            viewHolder.note.setText(getItem(position).note);
+            viewHolder.address.setText(memo.address);
+            viewHolder.note.setText(memo.note);
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showEditDialog(memo);
+                }
+            });
 
             convertView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    memos.remove(position);
-                    memos.save(getActivity());
-
-                    notifyDataSetChanged();
-
+                    askToRemove(memo);
                     return true;
                 }
             });
 
             return convertView;
+        }
+
+        void showEditDialog(LocationMemo memo) {
+            EditLocationMemoFragment.newInstance(memo)
+                    .show(getFragmentManager(), "edit_location_memo");
+        }
+
+        void askToRemove(final LocationMemo memo) {
+            new AlertDialog.Builder(getContext())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("メモを削除しますか？")
+                    .setPositiveButton("はい", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            memos.removeItem(memo);
+                            memos.save();
+
+                            notifyDataSetChanged();
+                        }
+                    })
+                    .setNegativeButton("いいえ", null)
+                    .show();
         }
     }
 }

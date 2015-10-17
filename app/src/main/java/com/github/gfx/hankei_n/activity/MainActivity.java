@@ -314,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 return openSettingView();
             case R.id.action_reset:
-                return openResetView();
+                return openResetDialog();
             case R.id.action_about:
                 return openAboutThisApp();
             default:
@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean openResetView() {
+    private boolean openResetDialog() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         dialog.setTitle(R.string.action_reset);
@@ -385,7 +385,6 @@ public class MainActivity extends AppCompatActivity {
         final Intent intent = new Intent(Intent.ACTION_VIEW)
                 .setData(Uri.parse(getString(R.string.project_url)));
         startActivity(intent);
-        overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
 
         return true;
     }
