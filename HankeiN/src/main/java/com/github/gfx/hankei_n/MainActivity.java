@@ -1,5 +1,6 @@
 package com.github.gfx.hankei_n;
 
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -46,6 +47,7 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     static final float MAP_ZOOM = 14f;
@@ -77,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final long t0 = System.currentTimeMillis();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -111,6 +114,12 @@ public class MainActivity extends AppCompatActivity {
                 marker = new SingleMarker(map, getRadius(), MARKER_COLOR);
 
                 load();
+
+                tracker.send(new HitBuilders.TimingBuilder()
+                        .setCategory(TAG)
+                        .setVariable("onCreate")
+                        .setValue(System.currentTimeMillis() - t0)
+                        .build());
             }
         });
     }
@@ -255,7 +264,9 @@ public class MainActivity extends AppCompatActivity {
         prefs.put("prevLatitude", (float) location.getLatitude());
         prefs.put("prevLongitude", (float) location.getLongitude());
 
-        if (cameraInitialized) return;
+        if (cameraInitialized) {
+            return;
+        }
         cameraInitialized = true;
 
         setMyLocation(location.getLatitude(), location.getLongitude(), true, prefs.get("prevCameraZoom", MAP_ZOOM));
