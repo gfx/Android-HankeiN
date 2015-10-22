@@ -17,6 +17,7 @@ import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
 import com.cookpad.android.rxt4a.subscriptions.AndroidCompositeSubscription;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
@@ -29,24 +30,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Locale;
@@ -54,8 +53,6 @@ import java.util.Locale;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
@@ -104,14 +101,8 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     LocationMemoList locationMemos;
 
-    @InjectView(R.id.toolbar)
-    Toolbar toolbar;
 
-    @InjectView(R.id.status)
-    TextView statusView;
-
-    @InjectView(R.id.drawer)
-    DrawerLayout drawer;
+    ActivityMainBinding binding;
 
     boolean cameraInitialized = false;
 
@@ -128,18 +119,14 @@ public class MainActivity extends AppCompatActivity {
         long t0 = System.currentTimeMillis();
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        ButterKnife.inject(this);
         HankeiNApplication.getAppComponent(this).inject(this);
 
         setAppTitle(getRadius());
 
         setupDrawer();
         checkGooglePlayServices();
-
-        tracker.setScreenName(TAG);
-        tracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         tracker.send(
                 new HitBuilders.TimingBuilder()
@@ -149,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupDrawer() {
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
 
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
@@ -158,12 +145,12 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
 
         drawerToggle = new ActionBarDrawerToggle(this,
-                drawer,
+                binding.drawer,
                 R.string.drawer_open,
                 R.string.drawer_close);
         drawerToggle.setDrawerIndicatorEnabled(true);
-        drawer.setDrawerListener(drawerToggle);
-        drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        binding.drawer.setDrawerListener(drawerToggle);
+        binding.drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
     }
 
     void setupMap() {
@@ -455,7 +442,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setStatusText(String addressName) {
         marker.setTitle(addressName);
-        statusView.setText(addressName);
+        binding.status.setText(addressName);
     }
 
     private void setMyLocation(double lat, double lng, boolean animation, float zoom) {

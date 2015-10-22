@@ -2,12 +2,15 @@ package com.github.gfx.hankei_n.fragment;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
+import com.github.gfx.hankei_n.databinding.WidgetLocationMemoBinding;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 
 import android.app.Application;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,15 +19,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
 import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 
@@ -39,20 +37,26 @@ public class SidemenuFragment extends Fragment {
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
-    @InjectView(R.id.list_location_memos)
-    ListView memosListView;
-
     @Inject
     LocationMemoList memos;
+
+    FragmentSidemenuBinding binding;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_sidemenu, container, false);
-        ButterKnife.inject(this, view);
+        binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(), R.layout.fragment_sidemenu, container, false);
         HankeiNApplication.getAppComponent(getActivity()).inject(this);
 
-        memosListView.setAdapter(adapter);
+        binding.listLocationMemos.setAdapter(adapter);
+
+        binding.buttonAddLocationMemo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditLocationMemoFragment.newInstance()
+                        .show(getFragmentManager(), "edit_location_memo");
+            }
+        });
 
         locationMemoAddedSubject.subscribe(new Action1<LocationMemoAddedEvent>() {
             @Override
@@ -60,28 +64,7 @@ public class SidemenuFragment extends Fragment {
                 adapter.addItem(locationMemoAddedEvent.memo);
             }
         });
-        return view;
-    }
-
-    @SuppressWarnings("unused")
-    @OnClick(R.id.button_add_location_memo)
-    void onAddLocationMemoButton() {
-        EditLocationMemoFragment.newInstance()
-                .show(getFragmentManager(), "edit_location_memo");
-    }
-
-    static class ViewHolder {
-
-        @InjectView(R.id.text_address)
-        TextView address;
-
-        @InjectView(R.id.text_note)
-        TextView note;
-
-        ViewHolder(View view) {
-            ButterKnife.inject(this, view);
-        }
-
+        return binding.getRoot();
     }
 
     private class Adapter extends BaseAdapter {
@@ -111,15 +94,15 @@ public class SidemenuFragment extends Fragment {
         public View getView(final int position, @Nullable View convertView, ViewGroup parent) {
             if (convertView == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                convertView = inflater.inflate(R.layout.widget_location_memo, parent, false);
-                convertView.setTag(new ViewHolder(convertView));
+                WidgetLocationMemoBinding binding = DataBindingUtil.inflate(inflater, R.layout.widget_location_memo, parent, false);
+                convertView = binding.getRoot();
             }
 
             final LocationMemo memo = getItem(position);
 
-            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.address.setText(memo.address);
-            viewHolder.note.setText(memo.note);
+            WidgetLocationMemoBinding binding = DataBindingUtil.getBinding(convertView);
+            binding.textAddress.setText(memo.address);
+            binding.textNote.setText(memo.note);
 
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -56,6 +56,7 @@ public class AppModule {
     @Provides
     Tracker provideTracker(Context context, GoogleAnalytics ga) {
         Tracker tracker = ga.newTracker(context.getString(R.string.ga_tracking_id));
+        tracker.enableAutoActivityTracking(true);
         tracker.enableExceptionReporting(true);
         return tracker;
     }
