@@ -10,7 +10,6 @@ import com.github.gfx.hankei_n.model.gson.LatLngTypeAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -78,11 +77,9 @@ public class LocationMemoList implements Iterable<LocationMemo> {
 
     public void upsert(LocationMemo memo) {
         int index = memos.indexOf(memo);
-        if (index == -1) {
-            Log.d("XXX", "add location memo for " + memo.address);
+        if (index == -1 || memo.id == 0) {
             memos.add(new LocationMemo(generateNextId(), memo.address, memo.note, memo.location));
         } else {
-            Log.d("XXX", "update location memo for " + memo.address);
             long id = memos.get(index).id;
             memos.set(index, new LocationMemo(id, memo.address, memo.note, memo.location));
         }
