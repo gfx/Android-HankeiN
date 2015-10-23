@@ -1,5 +1,8 @@
 package com.github.gfx.hankei_n.fragment;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
@@ -8,7 +11,6 @@ import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 
-import android.app.Application;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -29,13 +31,17 @@ import rx.subjects.BehaviorSubject;
 @ParametersAreNonnullByDefault
 public class SidemenuFragment extends Fragment {
 
+    static final String TAG = SidemenuFragment.class.getSimpleName();
+
+    static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
+
     final Adapter adapter = new Adapter();
 
     @Inject
-    Application context;
+    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+    Tracker tracker;
 
     @Inject
     LocationMemoList memos;
@@ -61,17 +67,68 @@ public class SidemenuFragment extends Fragment {
         locationMemoAddedSubject.subscribe(new Action1<LocationMemoAddedEvent>() {
             @Override
             public void call(LocationMemoAddedEvent locationMemoAddedEvent) {
-                adapter.addItem(locationMemoAddedEvent.memo);
+                addMemo(locationMemoAddedEvent.memo);
             }
         });
         return binding.getRoot();
     }
+
+
+    void showEditDialog(LocationMemo memo) {
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(CATEGORY_LOCATION_MEMO)
+                .setAction("showEditDialog")
+                .build());
+
+        EditLocationMemoFragment.newInstance(memo)
+                .show(getFragmentManager(), "edit_location_memo");
+    }
+
+    void addMemo(LocationMemo memo) {
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(CATEGORY_LOCATION_MEMO)
+                .setAction("add")
+                .build());
+
+        adapter.addItem(memo);
+    }
+
+    void askToRemove(final LocationMemo memo) {
+        new AlertDialog.Builder(getActivity())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("メモを削除しますか？")
+                .setPositiveButton("はい", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeMemo(memo);
+                    }
+                })
+                .setNegativeButton("いいえ", null)
+                .show();
+    }
+
+    void removeMemo(LocationMemo memo) {
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(CATEGORY_LOCATION_MEMO)
+                .setAction("remove")
+                .build());
+
+        adapter.removeItem(memo);
+    }
+
 
     private class Adapter extends BaseAdapter {
 
         public void addItem(LocationMemo memo) {
             memos.upsert(memo);
             memos.save();
+            notifyDataSetChanged();
+        }
+
+        public void removeItem(LocationMemo memo) {
+            memos.removeItem(memo);
+            memos.save();
+
             notifyDataSetChanged();
         }
 
@@ -94,7 +151,8 @@ public class SidemenuFragment extends Fragment {
         public View getView(final int position, @Nullable View convertView, ViewGroup parent) {
             if (convertView == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
-                WidgetLocationMemoBinding binding = DataBindingUtil.inflate(inflater, R.layout.widget_location_memo, parent, false);
+                WidgetLocationMemoBinding binding = DataBindingUtil
+                        .inflate(inflater, R.layout.widget_location_memo, parent, false);
                 convertView = binding.getRoot();
             }
 
@@ -120,29 +178,6 @@ public class SidemenuFragment extends Fragment {
             });
 
             return convertView;
-        }
-
-        void showEditDialog(LocationMemo memo) {
-            EditLocationMemoFragment.newInstance(memo)
-                    .show(getFragmentManager(), "edit_location_memo");
-        }
-
-        void askToRemove(final LocationMemo memo) {
-            new AlertDialog.Builder(getContext())
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle("メモを削除しますか？")
-                    .setPositiveButton("はい", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            memos.removeItem(memo);
-                            memos.save();
-
-                            notifyDataSetChanged();
-                        }
-                    })
-                    .setNegativeButton("いいえ", null)
-                    .show();
         }
     }
 }
