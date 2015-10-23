@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingBottom="2dp"
+              android:paddingEnd="8dp"
+              android:paddingStart="8dp"
+              android:paddingTop="2dp"
+        >
+
+    <TextView
+            android:id="@android:id/text1"
+            style="@style/TextAppearance.AppCompat.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            tools:text="東京都千代田区千代田1-1"
+            />
+</LinearLayout>

@@ -8,10 +8,11 @@ buildscript {
     }
     dependencies {
         classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.0'
-        classpath "com.android.tools.build:gradle:1.2.3"
-        classpath 'com.github.gfx:android-power-assert-plugin:1.1.0'
-        classpath 'com.github.gfx.ribbonizer:plugin:0.3.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath "com.android.tools.build:gradle:1.3.1"
+        classpath "com.android.databinding:dataBinder:1.0-rc2"
+        classpath 'com.github.gfx.android.powerassert:plugin:1.1.1'
+        classpath 'com.github.gfx.ribbonizer:plugin:0.4.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
@@ -19,9 +20,6 @@ subprojects {
     repositories {
         jcenter()
     }
-
-    apply plugin: 'android-sdk-manager'
-    apply plugin: 'com.github.gfx.ribbonizer'
 }
 
 initSdkDir()

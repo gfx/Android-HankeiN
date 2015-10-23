@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+ Google Places API requires Google logo: https://developers.google.com/places/web-service/policies
+ --><!--
+ This is used as a completionHintView, which must be a TextView
+-->
+<TextView
+        android:id="@android:id/text1"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="2dp"
+        android:text="@string/attribution_powered_by_google"
+        android:textColor="@android:color/transparent"
+        android:background="@drawable/powered_by_google"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.DropDownItem"
+        />
