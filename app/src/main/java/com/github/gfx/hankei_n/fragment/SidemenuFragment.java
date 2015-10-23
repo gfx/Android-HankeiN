@@ -96,14 +96,14 @@ public class SidemenuFragment extends Fragment {
     void askToRemove(final LocationMemo memo) {
         new AlertDialog.Builder(getActivity())
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("メモを削除しますか？")
-                .setPositiveButton("はい", new DialogInterface.OnClickListener() {
+                .setTitle(R.string.ask_to_remove_memo)
+                .setPositiveButton(R.string.affirmative, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         removeMemo(memo);
                     }
                 })
-                .setNegativeButton("いいえ", null)
+                .setNegativeButton(R.string.negative, null)
                 .show();
     }
 
