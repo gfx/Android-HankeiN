@@ -130,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
 
         tracker.send(
                 new HitBuilders.TimingBuilder()
-                        .setLabel(TAG)
+                        .setCategory(TAG)
+                        .setVariable("onCreate")
                         .setValue(System.currentTimeMillis() - t0)
                         .build());
     }
