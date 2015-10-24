@@ -74,12 +74,10 @@ public class LocationMemoListTest {
 
         assertThat(memos.get(0).address, is("foo"));
         assertThat(memos.get(0).note, is("note 1"));
-        assertThat(memos.get(0).location.latitude, is(1.0));
-        assertThat(memos.get(0).location.longitude, is(2.0));
+        assertThat(memos.get(0).location, is(new LatLng(1.0, 2.0)));
 
         assertThat(memos.get(1).address, is("bar"));
         assertThat(memos.get(1).note, is("note 2"));
-        assertThat(memos.get(1).location.latitude, is(3.0));
-        assertThat(memos.get(1).location.longitude, is(4.0));
+        assertThat(memos.get(1).location, is(new LatLng(3.0, 4.0)));
     }
 }
