@@ -74,6 +74,7 @@ android {
     lintOptions {
         disable 'InvalidPackage'
         disable 'TypographyDashes'
+        disable 'MissingTranslation'
     }
 
     packagingOptions {
