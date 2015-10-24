@@ -1,6 +1,7 @@
 package com.github.gfx.hankei_n;
 
 import com.github.gfx.hankei_n.debug.ActivityLifecycleLogger;
+import com.github.gfx.hankei_n.debug.ExtDebugTree;
 import com.github.gfx.hankei_n.dependency.AppComponent;
 import com.github.gfx.hankei_n.dependency.AppModule;
 import com.github.gfx.hankei_n.dependency.DaggerAppComponent;
@@ -30,10 +31,10 @@ public class HankeiNApplication extends Application {
                 .appModule(new AppModule(this))
                 .build();
 
-        registerActivityLifecycleCallbacks(new ActivityLifecycleLogger());
-
         if (BuildConfig.DEBUG) {
-            Timber.plant(new Timber.DebugTree());
+            registerActivityLifecycleCallbacks(new ActivityLifecycleLogger());
+            Timber.plant(new ExtDebugTree());
+            Timber.d("start application");
         }
     }
 

@@ -25,6 +25,10 @@ public class LocationMemoList implements Iterable<LocationMemo> {
 
     static final String kLocationMemoId = "id";
 
+    static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
+            .create();
+
     transient SharedPreferences preferences;
 
     @SerializedName("memos")
@@ -36,7 +40,6 @@ public class LocationMemoList implements Iterable<LocationMemo> {
 
     public static LocationMemoList load(Context context) {
         SharedPreferences preferences = getSharedPreferences(context);
-        Gson gson = createGson();
 
         String json = preferences.getString(kEntity, null);
         LocationMemoList instance;
@@ -58,17 +61,11 @@ public class LocationMemoList implements Iterable<LocationMemo> {
     }
 
     public synchronized long generateNextId() {
-        long id = preferences.getLong(kLocationMemoId, 1L) + 1;
+        long nextId = getCurrentId() + 1;
         preferences.edit()
-                .putLong(kLocationMemoId, id)
+                .putLong(kLocationMemoId, nextId)
                 .apply();
-        return id;
-    }
-
-    static Gson createGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
-                .create();
+        return nextId;
     }
 
     public boolean contains(LocationMemo memo) {
@@ -112,8 +109,6 @@ public class LocationMemoList implements Iterable<LocationMemo> {
 
     @SuppressLint("CommitPrefEdits")
     public void save() {
-        Gson gson = createGson();
-
         preferences.edit()
                 .putString(kEntity, gson.toJson(this))
                 .commit();
