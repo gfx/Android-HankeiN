@@ -184,7 +184,7 @@ public class PlaceEngine {
         }
     }
 
-    class ConnectionHandler implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    static class ConnectionHandler implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
         @Override
         public void onConnected(Bundle bundle) {
