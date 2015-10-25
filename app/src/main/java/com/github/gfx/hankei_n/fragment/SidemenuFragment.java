@@ -11,6 +11,7 @@ import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -35,7 +38,7 @@ public class SidemenuFragment extends Fragment {
 
     static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
 
-    final Adapter adapter = new Adapter();
+    Adapter adapter;
 
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
@@ -48,12 +51,19 @@ public class SidemenuFragment extends Fragment {
 
     FragmentSidemenuBinding binding;
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        HankeiNApplication.getAppComponent(context).inject(this);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(), R.layout.fragment_sidemenu, container, false);
-        HankeiNApplication.getAppComponent(getActivity()).inject(this);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_sidemenu, container, false);
 
+        adapter = new Adapter(); // it depends on memos
         binding.listLocationMemos.setAdapter(adapter);
 
         binding.buttonAddLocationMemo.setOnClickListener(new View.OnClickListener() {
@@ -129,25 +139,24 @@ public class SidemenuFragment extends Fragment {
 
     private class Adapter extends RecyclerView.Adapter<VH> {
 
-
-
+        List<LocationMemo> list = memos.all();
 
         public void addItem(LocationMemo memo) {
             memos.upsert(memo);
-            memos.save();
+            list = memos.all();
             notifyDataSetChanged();
         }
 
         public void removeItem(LocationMemo memo) {
-            memos.removeItem(memo);
-            memos.save();
+            memos.remove(memo);
+            list = memos.all();
 
             notifyDataSetChanged();
         }
 
 
         public LocationMemo getItem(int position) {
-            return memos.get(position);
+            return list.get(position);
         }
 
 
@@ -158,12 +167,12 @@ public class SidemenuFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return memos.size();
+            return list.size();
         }
 
         @Override
         public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+            LayoutInflater inflater = LayoutInflater.from(getContext());
             CardLocationMemoBinding binding = DataBindingUtil.inflate(inflater, R.layout.card_location_memo, parent, false);
             return new VH(binding);
         }

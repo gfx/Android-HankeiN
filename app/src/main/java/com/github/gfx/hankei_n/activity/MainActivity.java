@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
             updatePoint(new LatLng(pointedLatitude, pointedLongitude));
         }
 
-        for (LocationMemo memo : locationMemos) {
+        for (LocationMemo memo : locationMemos.all()) {
             addLocationMemo(memo);
         }
     }

@@ -16,6 +16,7 @@ import android.app.Application;
 import android.content.Context;
 import android.location.Geocoder;
 import android.os.Vibrator;
+import android.view.LayoutInflater;
 
 import java.util.Locale;
 
@@ -27,6 +28,8 @@ import rx.subjects.BehaviorSubject;
 
 @Module
 public class AppModule {
+
+    static final String DB_NAME = "main.db";
 
     final Context context;
 
@@ -42,6 +45,11 @@ public class AppModule {
     @Provides
     Context provideContext() {
         return context;
+    }
+
+    @Provides
+    LayoutInflater getLayoutInflater(Context context) {
+        return LayoutInflater.from(context);
     }
 
     @Singleton
@@ -91,7 +99,7 @@ public class AppModule {
     @Singleton
     @Provides
     LocationMemoList provideLocationMemoList(Context context) {
-        return LocationMemoList.load(context);
+        return new LocationMemoList(context, DB_NAME);
     }
 
     @Singleton

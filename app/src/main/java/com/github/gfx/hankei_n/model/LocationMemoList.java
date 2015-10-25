@@ -3,115 +3,158 @@ package com.github.gfx.hankei_n.model;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import com.github.gfx.hankei_n.model.gson.LatLngTypeAdapter;
 
-import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import timber.log.Timber;
+
 @ParametersAreNonnullByDefault
-public class LocationMemoList implements Iterable<LocationMemo> {
+public class LocationMemoList extends SQLiteOpenHelper {
 
-    static final String STORAGE_NAME = LocationMemoList.class.getSimpleName();
+    static final int VERSION = 1;
 
-    static final String kEntity = "entity";
+    static final String TABLE_NAME = "addresses";
 
-    static final String kLocationMemoId = "id";
+    static final String[] columns = {
+            "id",
+            "address",
+            "note",
+            "latitude",
+            "longitude",
+            "radius",
+            "marker_hue",
+    };
 
-    static final Gson gson = new GsonBuilder()
+    static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(\n"
+            + "    id INTEGER PRIMARY KEY,\n"
+            + "\n"
+            + "    address TEXT NOT NULL,\n"
+            + "    note TEXT NOT NULL,\n"
+            + "\n"
+            + "    latitude DOUBLE NOT NULL,\n"
+            + "    longitude DOUBLE NOT NULL,\n"
+            + "\n"
+            + "    radius DOUBLE NOT NULL,\n"
+            + "\n"
+            + "    marker_hue DOUBLE NOT NULL\n"
+            + ")";
+
+    static final String DROP_TABLE = "DROP TABLE " + TABLE_NAME;
+
+    static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
             .create();
 
-    transient SharedPreferences preferences;
-
-    @SerializedName("memos")
-    final ArrayList<LocationMemo> memos = new ArrayList<>();
-
-    private LocationMemoList(SharedPreferences preferences) {
-        this.preferences = preferences;
+    public LocationMemoList(Context context, String name) {
+        super(context.getApplicationContext(), name, null, VERSION);
     }
 
-    public static LocationMemoList load(Context context) {
-        SharedPreferences preferences = getSharedPreferences(context);
+    public int count() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, columns, null, null, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+        return count;
+    }
 
-        String json = preferences.getString(kEntity, null);
-        LocationMemoList instance;
-        if (json != null) {
-            instance = gson.fromJson(json, LocationMemoList.class);
-            instance.preferences = preferences;
-        } else {
-            instance = new LocationMemoList(preferences);
+    public List<LocationMemo> all() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        List<LocationMemo> list = new ArrayList<>();
+
+        Cursor cursor = db.query(TABLE_NAME, columns, null, null, null, null, "id ASC");
+        for (boolean hasNext = cursor.moveToFirst(); hasNext; hasNext = cursor.moveToNext()) {
+            JsonObject object = new JsonObject();
+
+            for (int i = 0; i < cursor.getColumnCount(); i++) {
+                String name = cursor.getColumnName(i);
+                String value = cursor.getString(i);
+
+                object.addProperty(name, value);
+            }
+
+            list.add(GSON.fromJson(object, LocationMemo.class));
         }
-        return instance;
-    }
+        cursor.close();
+        db.close();
 
-    static SharedPreferences getSharedPreferences(Context context) {
-        return context.getSharedPreferences(STORAGE_NAME, Context.MODE_PRIVATE);
-    }
-
-    public long getCurrentId() {
-        return preferences.getLong(kLocationMemoId, 1L);
-    }
-
-    public synchronized long generateNextId() {
-        long nextId = getCurrentId() + 1;
-        preferences.edit()
-                .putLong(kLocationMemoId, nextId)
-                .apply();
-        return nextId;
-    }
-
-    public boolean contains(LocationMemo memo) {
-        return memos.contains(memo);
+        return list;
     }
 
     public void upsert(LocationMemo memo) {
-        int index = memos.indexOf(memo);
-        if (index == -1 || memo.id == 0) {
-            memos.add(new LocationMemo(generateNextId(), memo.address, memo.note, memo.location));
-        } else {
-            long id = memos.get(index).id;
-            memos.set(index, new LocationMemo(id, memo.address, memo.note, memo.location));
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        JsonObject object = (JsonObject)GSON.toJsonTree(memo);
+
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            if (!entry.getKey().equals("id")) {
+                values.put(entry.getKey(), entry.getValue().getAsString());
+            }
         }
+
+        if (memo.id != 0) {
+            int result = db.update(TABLE_NAME, values, "id = ?", new String[]{ String.valueOf(memo.id) });
+            if (result != 1) {
+                throw new RuntimeException("UPDATE changes " + result + " rows, but it must be 1.");
+            }
+        } else {
+            long rowId = db.insert(TABLE_NAME, null, values);
+            if (rowId == -1) {
+                throw new RuntimeException("INSERT failed");
+            }
+            memo.id = rowId;
+        }
+
+        db.close();
     }
 
-    public int size() {
-        return memos.size();
-    }
+    public boolean remove(LocationMemo memo) {
+        SQLiteDatabase db = getWritableDatabase();
 
-    public LocationMemo get(int index) {
-        return memos.get(index);
-    }
+        int result = db.delete(TABLE_NAME, "id = ?", new String[]{String.valueOf(memo.id)});
 
-    public void remove(int index) {
-        memos.remove(index);
-    }
+        db.close();
 
-    public void removeItem(LocationMemo memo) {
-        memos.remove(memo);
+        return result == 1;
     }
 
     public void clear() {
-        memos.clear();
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLE_NAME, null, null);
+        db.close();
     }
 
     @Override
-    public Iterator<LocationMemo> iterator() {
-        return memos.iterator();
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(CREATE_TABLE);
     }
 
-    @SuppressLint("CommitPrefEdits")
-    public void save() {
-        preferences.edit()
-                .putString(kEntity, gson.toJson(this))
-                .commit();
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Timber.d("upgrade databases from " + oldVersion + " " + newVersion);
+        db.execSQL(DROP_TABLE);
+        db.execSQL(CREATE_TABLE);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        close();
+        super.finalize();
     }
 }
-
