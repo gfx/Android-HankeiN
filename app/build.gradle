@@ -101,6 +101,7 @@ dependencies {
     apt 'com.google.dagger:dagger-compiler:2.0.1'
     provided 'javax.annotation:jsr250-api:1.0'
     apt 'com.android.databinding:compiler:1.0-rc2'
+    debugCompile 'com.facebook.stetho:stetho:1.2.0'
     testCompile 'org.robolectric:robolectric:3.0'
     testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-library:1.3'

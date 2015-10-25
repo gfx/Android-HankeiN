@@ -8,7 +8,7 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
-import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 
@@ -16,6 +16,7 @@ import android.app.Application;
 import android.content.Context;
 import android.location.Geocoder;
 import android.os.Vibrator;
+import android.view.LayoutInflater;
 
 import java.util.Locale;
 
@@ -27,6 +28,8 @@ import rx.subjects.BehaviorSubject;
 
 @Module
 public class AppModule {
+
+    static final String DB_NAME = "main.db";
 
     final Context context;
 
@@ -42,6 +45,11 @@ public class AppModule {
     @Provides
     Context provideContext() {
         return context;
+    }
+
+    @Provides
+    LayoutInflater getLayoutInflater(Context context) {
+        return LayoutInflater.from(context);
     }
 
     @Singleton
@@ -90,8 +98,8 @@ public class AppModule {
 
     @Singleton
     @Provides
-    LocationMemoList provideLocationMemoList(Context context) {
-        return LocationMemoList.load(context);
+    LocationMemoManager provideLocationMemoList(Context context) {
+        return new LocationMemoManager(context, DB_NAME);
     }
 
     @Singleton

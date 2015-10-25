@@ -17,36 +17,53 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
     @SerializedName("id")
-    public final long id;
+    public long id;
 
     @SerializedName("address")
     @NonNull
-    public final String address;
+    public String address;
 
     @SerializedName("note")
-    public final String note;
+    public String note;
 
-    @SerializedName("location")
-    public final LatLng location;
+    @SerializedName("latitude")
+    public double latitude;
+
+    @SerializedName("longitude")
+    public double longitude;
+
+    @SerializedName("radius")
+    public double radius;
+
+    @SerializedName("marker_hue")
+    public double markerHue;
 
     public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location) {
         this.id = id;
         this.address = address;
         this.note = note;
-        this.location = location;
+        this.latitude = location.latitude;
+        this.longitude = location.longitude;
+
+        this.radius = 1.5;
+        this.markerHue = BitmapDescriptorFactory.HUE_GREEN;
     }
 
     public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location) {
         this(0, address, note, location);
     }
 
+    public LatLng buildLocation() {
+        return new LatLng(latitude, longitude);
+    }
+
     public MarkerOptions buildMarkerOptions() {
-        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN);
+        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker((float) markerHue);
 
         return new MarkerOptions()
                 .title(address)
                 .snippet(note)
-                .position(location)
+                .position(buildLocation())
                 .icon(icon);
     }
 
