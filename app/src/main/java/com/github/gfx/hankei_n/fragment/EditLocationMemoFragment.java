@@ -11,24 +11,27 @@ import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import rx.Subscriber;
 import rx.subjects.BehaviorSubject;
-import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class EditLocationMemoFragment extends DialogFragment {
@@ -40,6 +43,9 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+
+    @Inject
+    Vibrator vibrator;
 
     DialogEditLocationMemoBinding binding;
 
@@ -66,22 +72,19 @@ public class EditLocationMemoFragment extends DialogFragment {
         return fragment;
     }
 
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        Timber.v("onCreate");
-        super.onCreate(savedInstanceState);
-
-        HankeiNApplication.getAppComponent(getActivity()).inject(this);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        HankeiNApplication.getAppComponent(context).inject(this);
     }
-
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        Timber.v("onCreateDialog");
+        vibrator.vibrate(100);
 
-        binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(), R.layout.dialog_edit_location_memo, null, false);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        binding = DataBindingUtil.inflate(inflater, R.layout.dialog_edit_location_memo, null, false);
 
         LocationMemo memo = (LocationMemo) getArguments().getSerializable(kLocationMemo);
         if (memo != null) {
@@ -90,7 +93,7 @@ public class EditLocationMemoFragment extends DialogFragment {
             binding.editNote.setText(memo.note);
         }
 
-        binding.editAddress.setAdapter(new AddressAutocompleAdapter(getActivity(), placeEngine));
+        binding.editAddress.setAdapter(new AddressAutocompleAdapter(getContext(), placeEngine));
         binding.editAddress.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -108,7 +111,14 @@ public class EditLocationMemoFragment extends DialogFragment {
             }
         });
 
-        dialog = new AlertDialog.Builder(getActivity())
+        binding.checkboxCircle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                binding.editRadius.setEnabled(isChecked);
+            }
+        });
+
+        dialog = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.add_location_memo)
                 .setView(binding.getRoot())
                 .setPositiveButton(R.string.dialog_button_add, null /* will be overridden in dialogHandler */)
@@ -136,7 +146,6 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @Override
     public void onResume() {
-        Timber.v("onResume");
         super.onResume();
 
         placeEngine.start();
@@ -149,15 +158,28 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onPause();
     }
 
-    void sendLocationMemoAddedEventAndDismiss() {
-        final String address = binding.editAddress.getText().toString();
-        final String note = binding.editNote.getText().toString();
+    String getAddress () {
+        return binding.editAddress.getText().toString();
+    }
 
-        placeEngine.getLocationFromAddress(address)
+    String getNote() {
+        return binding.editNote.getText().toString();
+    }
+
+    double getRadius() {
+        if (binding.checkboxCircle.isChecked()) {
+            return Double.parseDouble(binding.editRadius.toString());
+        } else {
+            return 0;
+        }
+    }
+
+    void sendLocationMemoAddedEventAndDismiss() {
+        placeEngine.getLocationFromAddress(getAddress())
                 .subscribe(new Subscriber<LatLng>() {
                     @Override
                     public void onCompleted() {
-
+                        dialog.dismiss();
                     }
 
                     @Override
@@ -169,11 +191,12 @@ public class EditLocationMemoFragment extends DialogFragment {
                     public void onNext(LatLng latLng) {
                         LocationMemo memo = new LocationMemo(
                                 argMemoId,
-                                address,
-                                note,
-                                latLng);
+                                getAddress(),
+                                getNote(),
+                                latLng,
+                                getRadius()
+                                );
                         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-                        dialog.dismiss();
                     }
                 });
     }

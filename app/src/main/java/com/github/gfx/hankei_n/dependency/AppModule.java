@@ -16,7 +16,6 @@ import android.app.Application;
 import android.content.Context;
 import android.location.Geocoder;
 import android.os.Vibrator;
-import android.view.LayoutInflater;
 
 import java.util.Locale;
 
@@ -45,11 +44,6 @@ public class AppModule {
     @Provides
     Context provideContext() {
         return context;
-    }
-
-    @Provides
-    LayoutInflater getLayoutInflater(Context context) {
-        return LayoutInflater.from(context);
     }
 
     @Singleton

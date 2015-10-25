@@ -16,14 +16,17 @@
     <string name="dialog_button_add">Add</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="about_add_location_memo">You can write memos for addresses</string>
-    <string name="add_location_memo">Add an address memo</string>
-    <string name="label_address">Address</string>
+    <string name="add_location_memo">Edit an address memo</string>
+    <string name="label_address">Postal Address</string>
     <string name="label_note">Random Note</string>
     <string name="attribution_powered_by_google">Powered by Google</string>
     <string name="errro_it_must_be_a_number">Error: It must be a number</string>
     <string name="ask_to_remove_memo">Do you remove it？</string>
     <string name="affirmative">Yes</string>
     <string name="negative">No</string>
+    <string name="circle_required">Circle?</string>
+    <string name="default_radius">1.5</string>
+    <string name="radius_unit">km</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

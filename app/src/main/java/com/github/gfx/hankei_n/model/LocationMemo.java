@@ -38,19 +38,23 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     @SerializedName("marker_hue")
     public double markerHue;
 
-    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location) {
+    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius) {
         this.id = id;
         this.address = address;
         this.note = note;
         this.latitude = location.latitude;
         this.longitude = location.longitude;
 
-        this.radius = 1.5;
-        this.markerHue = BitmapDescriptorFactory.HUE_GREEN;
+        this.radius = radius;
+        if (radius == 0) {
+            this.markerHue = BitmapDescriptorFactory.HUE_GREEN;
+        } else {
+            this.markerHue = BitmapDescriptorFactory.HUE_RED;
+        }
     }
 
-    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location) {
-        this(0, address, note, location);
+    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location, double radius) {
+        this(0, address, note, location, radius);
     }
 
     public LatLng buildLocation() {
