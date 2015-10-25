@@ -8,7 +8,7 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
-import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 
@@ -98,8 +98,8 @@ public class AppModule {
 
     @Singleton
     @Provides
-    LocationMemoList provideLocationMemoList(Context context) {
-        return new LocationMemoList(context, DB_NAME);
+    LocationMemoManager provideLocationMemoList(Context context) {
+        return new LocationMemoManager(context, DB_NAME);
     }
 
     @Singleton

@@ -6,6 +6,7 @@ import com.github.gfx.hankei_n.debug.StethoDelegator;
 import com.github.gfx.hankei_n.dependency.AppComponent;
 import com.github.gfx.hankei_n.dependency.AppModule;
 import com.github.gfx.hankei_n.dependency.DaggerAppComponent;
+import com.github.gfx.hankei_n.model.LocationMemoListMigration;
 
 import android.app.Application;
 import android.content.Context;
@@ -39,6 +40,8 @@ public class HankeiNApplication extends Application {
             Timber.plant(new ExtDebugTree());
             Timber.d("start application");
         }
+
+        LocationMemoListMigration.run(this);
     }
 
     public AppComponent getAppComponent() {

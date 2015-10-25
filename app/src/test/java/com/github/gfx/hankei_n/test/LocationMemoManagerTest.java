@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.model.LocationMemo;
-import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.LocationMemoManager;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,11 +22,11 @@ import static org.hamcrest.Matchers.*;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, manifest = Config.NONE)
-public class LocationMemoListTest {
+public class LocationMemoManagerTest {
 
     Context context;
 
-    LocationMemoList memos;
+    LocationMemoManager memos;
 
     @Before
     public void setUp() throws Exception {
@@ -36,7 +36,7 @@ public class LocationMemoListTest {
     }
 
     void reset() {
-        memos = new LocationMemoList(context, "test.db");
+        memos = new LocationMemoManager(context, "test.db");
     }
 
     @Test

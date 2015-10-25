@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
-public class LocationMemoList extends SQLiteOpenHelper {
+public class LocationMemoManager extends SQLiteOpenHelper {
 
     static final int VERSION = 1;
 
@@ -59,7 +59,7 @@ public class LocationMemoList extends SQLiteOpenHelper {
             .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
             .create();
 
-    public LocationMemoList(Context context, String name) {
+    public LocationMemoManager(Context context, String name) {
         super(context.getApplicationContext(), name, null, VERSION);
     }
 
@@ -110,18 +110,23 @@ public class LocationMemoList extends SQLiteOpenHelper {
 
         if (memo.id != 0) {
             int result = db.update(TABLE_NAME, values, "id = ?", new String[]{ String.valueOf(memo.id) });
+
             if (result != 1) {
-                throw new RuntimeException("UPDATE changes " + result + " rows, but it must be 1.");
+                insert(db, memo, values);
             }
         } else {
-            long rowId = db.insert(TABLE_NAME, null, values);
-            if (rowId == -1) {
-                throw new RuntimeException("INSERT failed");
-            }
-            memo.id = rowId;
+            insert(db, memo, values);
         }
 
         db.close();
+    }
+
+    private void insert(SQLiteDatabase db, LocationMemo memo, ContentValues values) {
+        long rowId = db.insert(TABLE_NAME, null, values);
+        if (rowId == -1) {
+            throw new RuntimeException("INSERT failed");
+        }
+        memo.id = rowId;
     }
 
     public boolean remove(LocationMemo memo) {

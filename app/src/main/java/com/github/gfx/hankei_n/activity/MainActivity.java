@@ -21,7 +21,7 @@ import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
-import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
     @Inject
-    LocationMemoList locationMemos;
+    LocationMemoManager locationMemos;
 
     ActivityMainBinding binding;
 

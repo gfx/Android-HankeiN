@@ -9,7 +9,7 @@ import com.github.gfx.hankei_n.databinding.CardLocationMemoBinding;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
-import com.github.gfx.hankei_n.model.LocationMemoList;
+import com.github.gfx.hankei_n.model.LocationMemoManager;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -47,7 +47,7 @@ public class SidemenuFragment extends Fragment {
     Tracker tracker;
 
     @Inject
-    LocationMemoList memos;
+    LocationMemoManager memos;
 
     FragmentSidemenuBinding binding;
 
