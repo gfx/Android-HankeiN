@@ -5,8 +5,8 @@ import com.google.android.gms.analytics.Tracker;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.databinding.CardLocationMemoBinding;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
-import com.github.gfx.hankei_n.databinding.WidgetLocationMemoBinding;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
@@ -119,9 +119,9 @@ public class SidemenuFragment extends Fragment {
 
     private static class VH extends RecyclerView.ViewHolder {
 
-        final WidgetLocationMemoBinding binding;
+        final CardLocationMemoBinding binding;
 
-        public VH(WidgetLocationMemoBinding binding) {
+        public VH(CardLocationMemoBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -164,7 +164,7 @@ public class SidemenuFragment extends Fragment {
         @Override
         public VH onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            WidgetLocationMemoBinding binding = DataBindingUtil.inflate(inflater, R.layout.widget_location_memo, parent, false);
+            CardLocationMemoBinding binding = DataBindingUtil.inflate(inflater, R.layout.card_location_memo, parent, false);
             return new VH(binding);
         }
 
@@ -172,7 +172,7 @@ public class SidemenuFragment extends Fragment {
         public void onBindViewHolder(VH holder, int position) {
             final LocationMemo memo = getItem(position);
 
-            WidgetLocationMemoBinding binding = holder.binding;
+            CardLocationMemoBinding binding = holder.binding;
             binding.textAddress.setText(memo.address);
             binding.textNote.setText(memo.note);
 
