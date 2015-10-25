@@ -65,7 +65,7 @@ public class LocationMemoListTest {
 
     @Test
     public void testSaveAndLoad() throws Exception {
-        LocationMemoList memos  = LocationMemoList.load(context);
+        LocationMemoList memos = LocationMemoList.load(context);
         memos.clear();
         memos.save();
 

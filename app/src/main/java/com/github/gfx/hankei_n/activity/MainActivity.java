@@ -156,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
                 R.string.drawer_close);
         drawerToggle.setDrawerIndicatorEnabled(true);
         binding.drawer.setDrawerListener(drawerToggle);
-        binding.drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
     }
 
     void confirmPermissions() {
@@ -325,6 +324,15 @@ public class MainActivity extends AppCompatActivity {
                 return openAboutThisApp();
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
+            binding.drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
 
