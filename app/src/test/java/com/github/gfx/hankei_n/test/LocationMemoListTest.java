@@ -2,19 +2,25 @@ package com.github.gfx.hankei_n.test;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoList;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, manifest = Config.NONE)
 public class LocationMemoListTest {
 
     Context context;
@@ -23,7 +29,7 @@ public class LocationMemoListTest {
 
     @Before
     public void setUp() throws Exception {
-        context = InstrumentationRegistry.getTargetContext();
+        context = RuntimeEnvironment.application;
         memos = LocationMemoList.load(context);
     }
 
