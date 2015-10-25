@@ -240,14 +240,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (prevLatitude != 0.0f || prevLongitude != 0.0) {
             final float zoom = prefs.get("prevCameraZoom", MAP_ZOOM);
-            setMyLocation(prevLatitude, prevLongitude, false, zoom);
-
-            final String addressName = prefs.get("addressName", (String) null);
-            if (addressName != null) {
-                setStatusText(addressName);
-            }
-
+            setMyLocation(prevLatitude, prevLongitude, zoom, false);
             locationChangedSubject.onNext(new LocationChangedEvent(prevLatitude, prevLongitude));
+        }
+
+        final String addressName = prefs.get("addressName", (String) null);
+        if (addressName != null) {
+            setStatusText(addressName);
         }
 
         final float pointedLatitude = prefs.get("pointedLatitude", 0.0f);
@@ -413,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
         cameraInitialized = true;
 
         float prevCameraZoom = prefs.get("prevCameraZoom", MAP_ZOOM);
-        setMyLocation(location.getLatitude(), location.getLongitude(), true, prevCameraZoom);
+        setMyLocation(location.getLatitude(), location.getLongitude(), prevCameraZoom, true);
     }
 
     public void onMapLongClick(LatLng latLng) {
@@ -472,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
         binding.status.setText(addressName);
     }
 
-    private void setMyLocation(double lat, double lng, boolean animation, float zoom) {
+    private void setMyLocation(double lat, double lng, float zoom, boolean animation) {
         myLocation = new LatLng(lat, lng);
         final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(myLocation, zoom);
 
