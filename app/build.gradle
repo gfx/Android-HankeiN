@@ -50,7 +50,7 @@ android {
             resValue "string", "google_api_key", GoogleApiKey_Debug
             resValue "string", "ga_tracking_id", GA_TrackingId_Debug
 
-            shrinkResources true
+            shrinkResources false
         }
 
         release {
@@ -58,6 +58,7 @@ android {
             resValue "string", "ga_tracking_id", GA_TrackingId_Release
 
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 
             if (signingConfigs.release.storeFile.exists()) {
@@ -66,8 +67,6 @@ android {
                 logger.info(
                         "keystore ${signingConfigs.release.storeFile} does not exist. Release signing is ignored.")
             }
-
-            shrinkResources true
         }
     }
 
