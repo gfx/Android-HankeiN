@@ -241,7 +241,6 @@ public class MainActivity extends AppCompatActivity {
         if (prevLatitude != 0.0f || prevLongitude != 0.0) {
             final float zoom = prefs.get("prevCameraZoom", MAP_ZOOM);
             setMyLocation(prevLatitude, prevLongitude, zoom, false);
-            locationChangedSubject.onNext(new LocationChangedEvent(prevLatitude, prevLongitude));
         }
 
         final String addressName = prefs.get("addressName", (String) null);
@@ -462,8 +461,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 });
-
-        locationChangedSubject.onNext(new LocationChangedEvent(myLocation));
     }
 
     private void setStatusText(String addressName) {
@@ -480,6 +477,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             map.moveCamera(update);
         }
+        locationChangedSubject.onNext(new LocationChangedEvent(myLocation));
+
+        Timber.d("setMyLocation lat/lng: (%.02f, %.02f)", lat, lng);
     }
 
     private void setAppTitle(float radius) {

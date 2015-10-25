@@ -5,7 +5,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.DialogEditLocationMemoBinding;
-import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
@@ -38,9 +37,6 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @Inject
     PlaceEngine placeEngine;
-
-    @Inject
-    BehaviorSubject<LocationChangedEvent> locationChangedSubject;
 
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
