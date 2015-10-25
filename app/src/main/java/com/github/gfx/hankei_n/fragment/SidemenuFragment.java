@@ -17,10 +17,10 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -117,7 +117,20 @@ public class SidemenuFragment extends Fragment {
     }
 
 
-    private class Adapter extends BaseAdapter {
+    private static class VH extends RecyclerView.ViewHolder {
+
+        final WidgetLocationMemoBinding binding;
+
+        public VH(WidgetLocationMemoBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    private class Adapter extends RecyclerView.Adapter<VH> {
+
+
+
 
         public void addItem(LocationMemo memo) {
             memos.upsert(memo);
@@ -132,15 +145,11 @@ public class SidemenuFragment extends Fragment {
             notifyDataSetChanged();
         }
 
-        @Override
-        public int getCount() {
-            return memos.size();
-        }
 
-        @Override
         public LocationMemo getItem(int position) {
             return memos.get(position);
         }
+
 
         @Override
         public long getItemId(int position) {
@@ -148,36 +157,39 @@ public class SidemenuFragment extends Fragment {
         }
 
         @Override
-        public View getView(final int position, @Nullable View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                WidgetLocationMemoBinding binding = DataBindingUtil
-                        .inflate(inflater, R.layout.widget_location_memo, parent, false);
-                convertView = binding.getRoot();
-            }
+        public int getItemCount() {
+            return memos.size();
+        }
 
+        @Override
+        public VH onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            WidgetLocationMemoBinding binding = DataBindingUtil.inflate(inflater, R.layout.widget_location_memo, parent, false);
+            return new VH(binding);
+        }
+
+        @Override
+        public void onBindViewHolder(VH holder, int position) {
             final LocationMemo memo = getItem(position);
 
-            WidgetLocationMemoBinding binding = DataBindingUtil.getBinding(convertView);
+            WidgetLocationMemoBinding binding = holder.binding;
             binding.textAddress.setText(memo.address);
             binding.textNote.setText(memo.note);
 
-            convertView.setOnClickListener(new View.OnClickListener() {
+            binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showEditDialog(memo);
                 }
             });
 
-            convertView.setOnLongClickListener(new View.OnLongClickListener() {
+            binding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     askToRemove(memo);
                     return true;
                 }
             });
-
-            return convertView;
         }
     }
 }
