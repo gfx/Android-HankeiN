@@ -27,6 +27,8 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
 
     final PlaceEngine placeEngine;
 
+    final StyleSpan bold = new StyleSpan(Typeface.BOLD);
+
     public AddressAutocompleAdapter(Context context, PlaceEngine placeEngine) {
         super(context, R.layout.widget_autocomplete, android.R.id.text1);
         this.placeEngine = placeEngine;
@@ -43,8 +45,6 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
 
     Spanned convertToSpanned(AutocompletePrediction prediction) {
         SpannableString ss = new SpannableString(prediction.getDescription());
-
-        StyleSpan bold = new StyleSpan(Typeface.BOLD);
 
         for (AutocompletePrediction.Substring substring : prediction.getMatchedSubstrings()) {
             ss.setSpan(bold, substring.getOffset(),
