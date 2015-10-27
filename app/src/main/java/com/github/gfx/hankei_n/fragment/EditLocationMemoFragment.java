@@ -13,7 +13,6 @@ import com.github.gfx.hankei_n.model.PlaceEngine;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -84,7 +83,7 @@ public class EditLocationMemoFragment extends DialogFragment {
         vibrator.vibrate(100);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
-        binding = DataBindingUtil.inflate(inflater, R.layout.dialog_edit_location_memo, null, false);
+        binding = DialogEditLocationMemoBinding.inflate(inflater, null, false);
 
         LocationMemo memo = (LocationMemo) getArguments().getSerializable(kLocationMemo);
         if (memo != null) {
