@@ -25,8 +25,8 @@ import com.github.gfx.hankei_n.model.MyLocationState;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
+import com.github.gfx.hankei_n.toolbox.RuntimePermissions;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -37,8 +37,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -72,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
     static final float DEFAULT_RADIUS = 1.5f;
 
     static final int MARKER_COLOR = 0x00ff66;
-
-    static final int REQUEST_CODE_PERMISSIONS = 1;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -109,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     MyLocationState myLocationState;
 
+    final RuntimePermissions runtimePermissions = new RuntimePermissions(this);
+
     ActivityMainBinding binding;
 
     boolean cameraInitialized = false;
@@ -132,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawer();
         checkGooglePlayServices();
-        confirmPermissions();
+        runtimePermissions.confirm();
+        setupMap();
 
         tracker.send(
                 new HitBuilders.TimingBuilder()
@@ -159,16 +158,6 @@ public class MainActivity extends AppCompatActivity {
         binding.drawer.setDrawerListener(drawerToggle);
     }
 
-    void confirmPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            String[] permissions = {
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-            };
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE_PERMISSIONS);
-        }
-    }
 
     void setupMap() {
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -219,18 +208,6 @@ public class MainActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    /**
-     * Initialize the camera position.
-     * (1) initial start -> Does nothing. Changes camera position on onMyLocationChange().
-     * (2) resume        -> Starts with the saved position and then moves to my location on onMyLocationChange().
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        setupMap();
     }
 
     void load() {
