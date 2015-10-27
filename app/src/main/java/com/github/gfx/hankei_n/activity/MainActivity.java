@@ -9,7 +9,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
@@ -22,6 +21,7 @@ import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
+import com.github.gfx.hankei_n.model.MyLocationState;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.model.SingleMarker;
@@ -106,6 +106,9 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     LocationMemoManager locationMemos;
 
+    @Inject
+    MyLocationState myLocationState;
+
     ActivityMainBinding binding;
 
     boolean cameraInitialized = false;
@@ -115,8 +118,6 @@ public class MainActivity extends AppCompatActivity {
     SingleMarker marker;
 
     ActionBarDrawerToggle drawerToggle;
-
-    LatLng myLocation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -235,12 +236,9 @@ public class MainActivity extends AppCompatActivity {
     void load() {
         assert map != null;
 
-        final float prevLatitude = prefs.get("prevLatitude", 0.0f);
-        final float prevLongitude = prefs.get("prevLongitude", 0.0f);
-
-        if (prevLatitude != 0.0f || prevLongitude != 0.0) {
-            final float zoom = prefs.get("prevCameraZoom", MAP_ZOOM);
-            setMyLocation(prevLatitude, prevLongitude, zoom, false);
+        LatLng latLng = myLocationState.getLatLng();
+        if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
+            updateCameraPosition(latLng, myLocationState.getCameraZoom(), false);
         }
 
         final String addressName = prefs.get("addressName", (String) null);
@@ -290,12 +288,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        if (map != null) {
-            final CameraPosition pos = map.getCameraPosition();
-            prefs.put("prevLatitude", (float) pos.target.latitude);
-            prefs.put("prevLongitude", (float) pos.target.longitude);
-            prefs.put("prevCameraZoom", pos.zoom);
-        }
         cameraInitialized = false;
 
         subscription.unsubscribe();
@@ -402,16 +394,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onMyLocationChange(Location location) {
-        prefs.put("prevLatitude", (float) location.getLatitude());
-        prefs.put("prevLongitude", (float) location.getLongitude());
-
         if (cameraInitialized) {
             return;
         }
         cameraInitialized = true;
 
-        float prevCameraZoom = prefs.get("prevCameraZoom", MAP_ZOOM);
-        setMyLocation(location.getLatitude(), location.getLongitude(), prevCameraZoom, true);
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        updateCameraPosition(latLng, myLocationState.getCameraZoom(), true);
     }
 
     public void onMapLongClick(LatLng latLng) {
@@ -468,18 +457,19 @@ public class MainActivity extends AppCompatActivity {
         binding.status.setText(addressName);
     }
 
-    private void setMyLocation(double lat, double lng, float zoom, boolean animation) {
-        myLocation = new LatLng(lat, lng);
-        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(myLocation, zoom);
+    private void updateCameraPosition(LatLng latLng, float zoom, boolean animation) {
+        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
 
         if (animation) {
             map.animateCamera(update);
         } else {
             map.moveCamera(update);
         }
-        locationChangedSubject.onNext(new LocationChangedEvent(myLocation));
+        locationChangedSubject.onNext(new LocationChangedEvent(latLng));
 
-        Timber.d("setMyLocation lat/lng: (%.02f, %.02f)", lat, lng);
+        myLocationState.save(latLng, zoom);
+
+        Timber.d("updateCameraPosition lat/lng: (%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
 
     private void setAppTitle(float radius) {

@@ -84,4 +84,8 @@ public class Prefs {
         }
         editor.apply();
     }
+
+    public SharedPreferences.Editor edit() {
+        return sharedPrefs.edit();
+    }
 }
