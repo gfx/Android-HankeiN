@@ -33,7 +33,6 @@
                     android:imeOptions="actionNext"
                     android:inputType="textPostalAddress"
                     android:maxLength="512"
-                    android:maxLines="2"
                     />
         </LinearLayout>
 
