@@ -56,7 +56,7 @@ import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
@@ -73,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
-
     @Inject
     PlaceEngine placeEngine;
 
@@ -90,9 +88,6 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     GoogleApiAvailability googleApiAvailability;
 
-    /**
-     * An event stream to tell where the location marker is.
-     */
     @Inject
     BehaviorSubject<LocationChangedEvent> locationChangedSubject;
 
@@ -104,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     MyLocationState myLocationState;
+
+    final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
 
     final RuntimePermissions runtimePermissions = new RuntimePermissions(this);
 
@@ -133,12 +130,11 @@ public class MainActivity extends AppCompatActivity {
         runtimePermissions.confirm();
         setupMap();
 
-        tracker.send(
-                new HitBuilders.TimingBuilder()
-                        .setCategory(TAG)
-                        .setVariable("onCreate")
-                        .setValue(System.currentTimeMillis() - t0)
-                        .build());
+        tracker.send(new HitBuilders.TimingBuilder()
+                .setCategory(TAG)
+                .setVariable("onCreate")
+                .setValue(System.currentTimeMillis() - t0)
+                .build());
     }
 
     void setupDrawer() {
@@ -241,24 +237,12 @@ public class MainActivity extends AppCompatActivity {
 
         locationMemoAddedSubject
                 .lift(new OperatorAddToCompositeSubscription<LocationMemoAddedEvent>(subscription))
-                .subscribe(new Subscriber<LocationMemoAddedEvent>() {
+                .subscribe(new Action1<LocationMemoAddedEvent>() {
                     @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(LocationMemoAddedEvent locationMemoAddedEvent) {
-                        LocationMemo memo = locationMemoAddedEvent.memo;
-                        addLocationMemo(memo);
+                    public void call(LocationMemoAddedEvent locationMemoAddedEvent) {
+                        addLocationMemo(locationMemoAddedEvent.memo);
                     }
                 });
-
     }
 
     @Override
