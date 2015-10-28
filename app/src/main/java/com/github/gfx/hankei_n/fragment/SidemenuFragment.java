@@ -13,7 +13,6 @@ import com.github.gfx.hankei_n.model.LocationMemoManager;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,11 +29,10 @@ import javax.inject.Inject;
 
 import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
+import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class SidemenuFragment extends Fragment {
-
-    static final String TAG = SidemenuFragment.class.getSimpleName();
 
     static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
 
@@ -56,12 +54,14 @@ public class SidemenuFragment extends Fragment {
         super.onAttach(context);
 
         HankeiNApplication.getAppComponent(context).inject(this);
+
+        Timber.d("onAttach");
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_sidemenu, container, false);
+        binding = FragmentSidemenuBinding.inflate(inflater, container, false);
 
         adapter = new Adapter(); // it depends on memos
         binding.listLocationMemos.setAdapter(adapter);
@@ -173,7 +173,7 @@ public class SidemenuFragment extends Fragment {
         @Override
         public VH onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            CardLocationMemoBinding binding = DataBindingUtil.inflate(inflater, R.layout.card_location_memo, parent, false);
+            CardLocationMemoBinding binding = CardLocationMemoBinding.inflate(inflater, parent, false);
             return new VH(binding);
         }
 

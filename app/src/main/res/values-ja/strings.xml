@@ -16,7 +16,7 @@
     <string name="dialog_button_add">追加</string>
     <string name="dialog_button_cancel">キャンセル</string>
     <string name="about_add_location_memo">中心点とは別に住所のメモを記録できます</string>
-    <string name="add_location_memo">住所メモを追加する</string>
+    <string name="add_location_memo">住所メモを編集する</string>
     <string name="label_address">住所</string>
     <string name="label_note">ノート</string>
     <string name="attribution_powered_by_google">Powered by Google</string>
@@ -24,6 +24,7 @@
     <string name="ask_to_remove_memo">メモを削除しますか？</string>
     <string name="affirmative">はい</string>
     <string name="negative">いいえ</string>
+    <string name="circle_required">円を描画する？</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

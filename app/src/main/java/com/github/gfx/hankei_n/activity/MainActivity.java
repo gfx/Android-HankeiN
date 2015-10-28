@@ -9,7 +9,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
@@ -20,13 +19,14 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
+import com.github.gfx.hankei_n.model.MyLocationState;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
-import com.github.gfx.hankei_n.model.SingleMarker;
+import com.github.gfx.hankei_n.toolbox.RuntimePermissions;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -37,30 +37,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
-
-import java.util.Locale;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.Observer;
-import rx.Subscriber;
+import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
@@ -73,11 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     static final int MARKER_COLOR = 0x00ff66;
 
-    static final int REQUEST_CODE_PERMISSIONS = 1;
-
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
 
     @Inject
     PlaceEngine placeEngine;
@@ -94,9 +81,6 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     GoogleApiAvailability googleApiAvailability;
 
-    /**
-     * An event stream to tell where the location marker is.
-     */
     @Inject
     BehaviorSubject<LocationChangedEvent> locationChangedSubject;
 
@@ -106,17 +90,20 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     LocationMemoManager locationMemos;
 
+    @Inject
+    MyLocationState myLocationState;
+
+    final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
+
+    final RuntimePermissions runtimePermissions = new RuntimePermissions(this);
+
     ActivityMainBinding binding;
 
     boolean cameraInitialized = false;
 
     GoogleMap map;
 
-    SingleMarker marker;
-
     ActionBarDrawerToggle drawerToggle;
-
-    LatLng myLocation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -127,18 +114,16 @@ public class MainActivity extends AppCompatActivity {
 
         HankeiNApplication.getAppComponent(this).inject(this);
 
-        setAppTitle(getRadius());
-
         setupDrawer();
         checkGooglePlayServices();
-        confirmPermissions();
+        runtimePermissions.confirm();
+        setupMap();
 
-        tracker.send(
-                new HitBuilders.TimingBuilder()
-                        .setCategory(TAG)
-                        .setVariable("onCreate")
-                        .setValue(System.currentTimeMillis() - t0)
-                        .build());
+        tracker.send(new HitBuilders.TimingBuilder()
+                .setCategory(TAG)
+                .setVariable("onCreate")
+                .setValue(System.currentTimeMillis() - t0)
+                .build());
     }
 
     void setupDrawer() {
@@ -158,16 +143,6 @@ public class MainActivity extends AppCompatActivity {
         binding.drawer.setDrawerListener(drawerToggle);
     }
 
-    void confirmPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            String[] permissions = {
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-            };
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE_PERMISSIONS);
-        }
-    }
 
     void setupMap() {
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -194,8 +169,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                marker = new SingleMarker(map, getRadius(), MARKER_COLOR);
-
                 load();
             }
         });
@@ -220,39 +193,12 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    /**
-     * Initialize the camera position.
-     * (1) initial start -> Does nothing. Changes camera position on onMyLocationChange().
-     * (2) resume        -> Starts with the saved position and then moves to my location on onMyLocationChange().
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        setupMap();
-    }
-
     void load() {
         assert map != null;
 
-        final float prevLatitude = prefs.get("prevLatitude", 0.0f);
-        final float prevLongitude = prefs.get("prevLongitude", 0.0f);
-
-        if (prevLatitude != 0.0f || prevLongitude != 0.0) {
-            final float zoom = prefs.get("prevCameraZoom", MAP_ZOOM);
-            setMyLocation(prevLatitude, prevLongitude, zoom, false);
-        }
-
-        final String addressName = prefs.get("addressName", (String) null);
-        if (addressName != null) {
-            setStatusText(addressName);
-        }
-
-        final float pointedLatitude = prefs.get("pointedLatitude", 0.0f);
-        final float pointedLongitude = prefs.get("pointedLongitude", 0.0f);
-
-        if (pointedLatitude != 0.0f || pointedLongitude != 0.0) {
-            updatePoint(new LatLng(pointedLatitude, pointedLongitude));
+        LatLng latLng = myLocationState.getLatLng();
+        if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
+            updateCameraPosition(latLng, myLocationState.getCameraZoom(), false);
         }
 
         for (LocationMemo memo : locationMemos.all()) {
@@ -266,36 +212,18 @@ public class MainActivity extends AppCompatActivity {
 
         locationMemoAddedSubject
                 .lift(new OperatorAddToCompositeSubscription<LocationMemoAddedEvent>(subscription))
-                .subscribe(new Subscriber<LocationMemoAddedEvent>() {
+                .subscribe(new Action1<LocationMemoAddedEvent>() {
                     @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(LocationMemoAddedEvent locationMemoAddedEvent) {
-                        LocationMemo memo = locationMemoAddedEvent.memo;
-                        addLocationMemo(memo);
+                    public void call(LocationMemoAddedEvent locationMemoAddedEvent) {
+                        addLocationMemo(locationMemoAddedEvent.memo);
                     }
                 });
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        if (map != null) {
-            final CameraPosition pos = map.getCameraPosition();
-            prefs.put("prevLatitude", (float) pos.target.latitude);
-            prefs.put("prevLongitude", (float) pos.target.longitude);
-            prefs.put("prevCameraZoom", pos.zoom);
-        }
         cameraInitialized = false;
 
         subscription.unsubscribe();
@@ -314,8 +242,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                return openSettingView();
             case R.id.action_reset:
                 return openResetDialog();
             case R.id.action_about:
@@ -332,31 +258,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
-    }
-
-    private boolean openSettingView() {
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-
-        dialog.setTitle(R.string.main_setting_radius_km);
-
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        input.setText(String.valueOf(getRadius()));
-        dialog.setView(input);
-
-        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                try {
-                    final float value = Float.parseFloat(String.valueOf(input.getText()));
-                    setRadius(value);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(MainActivity.this, R.string.errro_it_must_be_a_number, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-        dialog.show();
-        return true;
     }
 
     private boolean openResetDialog() {
@@ -402,104 +303,61 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onMyLocationChange(Location location) {
-        prefs.put("prevLatitude", (float) location.getLatitude());
-        prefs.put("prevLongitude", (float) location.getLongitude());
-
         if (cameraInitialized) {
             return;
         }
         cameraInitialized = true;
 
-        float prevCameraZoom = prefs.get("prevCameraZoom", MAP_ZOOM);
-        setMyLocation(location.getLatitude(), location.getLongitude(), prevCameraZoom, true);
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        updateCameraPosition(latLng, myLocationState.getCameraZoom(), true);
     }
 
-    public void onMapLongClick(LatLng latLng) {
+    public void onMapLongClick(final LatLng latLng) {
         vibrator.vibrate(100);
 
-        prefs.put("pointedLatitude", (float) latLng.latitude);
-        prefs.put("pointedLongitude", (float) latLng.longitude);
-
-        updatePoint(latLng);
-    }
-
-    private String defaultPlaceName(LatLng latLng) {
-        return String.format(Locale.getDefault(), "(%.02f, %.02f)", latLng.latitude, latLng.longitude);
-    }
-
-    private void updatePoint(final LatLng latLng) {
-        marker.move(latLng);
-
         placeEngine.getAddressFromLocation(latLng)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .lift(new OperatorAddToCompositeSubscription<String>(subscription))
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
                     @Override
                     public Observable<? extends String> call(Throwable throwable) {
                         return placeEngine.getAddressFromLocation(latLng); // retry once
                     }
                 })
-                .subscribe(new Observer<String>() {
+                .onErrorReturn(new Func1<Throwable, String>() {
                     @Override
-                    public void onNext(String s) {
-                        setStatusText(s);
-                        prefs.put("addressName", s);
+                    public String call(Throwable throwable) {
+                        Timber.w(throwable, "Failed to get address from location");
+                        return "";
                     }
-
+                })
+                .subscribe(new Action1<String>() {
                     @Override
-                    public void onCompleted() {
+                    public void call(String s) {
+                        LocationMemo memo = new LocationMemo(s, "", latLng, 0);
+                        EditLocationMemoFragment.newInstance(memo)
+                                .show(getSupportFragmentManager(), "edit_location_memo");
 
                     }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.wtf(TAG, e);
-
-                        String s = defaultPlaceName(latLng);
-                        setStatusText(s);
-                        prefs.put("addressName", s);
-                    }
-
                 });
     }
 
-    private void setStatusText(String addressName) {
-        marker.setTitle(addressName);
-        binding.status.setText(addressName);
-    }
-
-    private void setMyLocation(double lat, double lng, float zoom, boolean animation) {
-        myLocation = new LatLng(lat, lng);
-        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(myLocation, zoom);
+    private void updateCameraPosition(LatLng latLng, float zoom, boolean animation) {
+        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
 
         if (animation) {
             map.animateCamera(update);
         } else {
             map.moveCamera(update);
         }
-        locationChangedSubject.onNext(new LocationChangedEvent(myLocation));
+        locationChangedSubject.onNext(new LocationChangedEvent(latLng));
 
-        Timber.d("setMyLocation lat/lng: (%.02f, %.02f)", lat, lng);
-    }
+        myLocationState.save(latLng, zoom);
 
-    private void setAppTitle(float radius) {
-        setTitle(getResources().getString(R.string.app_title_template, radius));
-    }
-
-    private float getRadius() {
-        return prefs.get("radius", DEFAULT_RADIUS);
-    }
-
-    private void setRadius(float radius) {
-        marker.setRadius(radius);
-        setAppTitle(radius);
-        prefs.put("radius", radius);
-
-        final LatLng latLng = new LatLng(prefs.get("pointedLatitude", 0f), prefs.get("pointedLongitude", 0f));
-        updatePoint(latLng);
+        Timber.d("updateCameraPosition lat/lng: (%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
 
     void addLocationMemo(LocationMemo memo) {
-        map.addMarker(memo.buildMarkerOptions());
+        memo.addMarkerToMap(map);
     }
 }
