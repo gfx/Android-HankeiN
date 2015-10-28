@@ -12,7 +12,7 @@ public class MyLocationState {
     static final String kLongitude = "prevLongitude";
     static final String kZoom = "prevCameraZoom";
 
-    static final float kDefaultZoo = 14.0f;
+    static final float kDefaultZoom = 14.0f;
 
     final Prefs prefs;
 
@@ -34,7 +34,7 @@ public class MyLocationState {
     }
 
     public float getCameraZoom() {
-        return prefs.get(kZoom, kDefaultZoo);
+        return prefs.get(kZoom, kDefaultZoom);
     }
     public CameraUpdate getCameraUpdate() {
       return CameraUpdateFactory.newLatLngZoom(getLatLng(), getCameraZoom());

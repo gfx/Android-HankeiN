@@ -29,11 +29,10 @@ import javax.inject.Inject;
 
 import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
+import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class SidemenuFragment extends Fragment {
-
-    static final String TAG = SidemenuFragment.class.getSimpleName();
 
     static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
 
@@ -55,6 +54,8 @@ public class SidemenuFragment extends Fragment {
         super.onAttach(context);
 
         HankeiNApplication.getAppComponent(context).inject(this);
+
+        Timber.d("onAttach");
     }
 
     @Nullable

@@ -14,7 +14,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -29,7 +28,9 @@ import android.widget.CompoundButton;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
+import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func1;
 import rx.subjects.BehaviorSubject;
 
 @ParametersAreNonnullByDefault
@@ -43,12 +44,9 @@ public class EditLocationMemoFragment extends DialogFragment {
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
-    @Inject
-    Vibrator vibrator;
-
     DialogEditLocationMemoBinding binding;
 
-    long argMemoId = 0;
+    LocationMemo argMemo;
 
     AlertDialog dialog;
 
@@ -80,14 +78,12 @@ public class EditLocationMemoFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        vibrator.vibrate(100);
-
         LayoutInflater inflater = LayoutInflater.from(getContext());
         binding = DialogEditLocationMemoBinding.inflate(inflater, null, false);
 
         LocationMemo memo = (LocationMemo) getArguments().getSerializable(kLocationMemo);
         if (memo != null) {
-            argMemoId = memo.id;
+            argMemo = memo;
             binding.editAddress.setText(memo.address);
             binding.editNote.setText(memo.note);
         }
@@ -157,7 +153,7 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onPause();
     }
 
-    String getAddress () {
+    String getAddress() {
         return binding.editAddress.getText().toString();
     }
 
@@ -167,37 +163,59 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     double getRadius() {
         if (binding.checkboxCircle.isChecked()) {
-            return Double.parseDouble(binding.editRadius.toString());
+            return Double.parseDouble(binding.editRadius.getText().toString());
         } else {
             return 0;
         }
     }
 
     void sendLocationMemoAddedEventAndDismiss() {
-        placeEngine.getLocationFromAddress(getAddress())
-                .subscribe(new Subscriber<LatLng>() {
-                    @Override
-                    public void onCompleted() {
-                        dialog.dismiss();
-                    }
+        final String address = getAddress();
 
-                    @Override
-                    public void onError(Throwable e) {
-                        onNext(new LatLng(0, 0));
-                    }
+        if (argMemo != null && address.equals(argMemo.address)) {
+            castLocationMemo(new LocationMemo(
+                    argMemo.id,
+                    address,
+                    getNote(),
+                    argMemo.buildLocation(),
+                    getRadius()));
 
-                    @Override
-                    public void onNext(LatLng latLng) {
-                        LocationMemo memo = new LocationMemo(
-                                argMemoId,
-                                getAddress(),
-                                getNote(),
-                                latLng,
-                                getRadius()
-                                );
-                        locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-                    }
-                });
+        } else {
+            placeEngine.getLocationFromAddress(address)
+                    .onErrorResumeNext(new Func1<Throwable, Observable<? extends LatLng>>() {
+                        @Override
+                        public Observable<? extends LatLng> call(Throwable throwable) {
+                            return placeEngine.getLocationFromAddress(address); // retry once
+
+                        }
+                    })
+                    .subscribe(new Subscriber<LatLng>() {
+                        @Override
+                        public void onCompleted() {
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            // FIXME: any idea?
+                            onNext(new LatLng(0, 0));
+                        }
+
+                        @Override
+                        public void onNext(LatLng latLng) {
+                            castLocationMemo(new LocationMemo(
+                                    argMemo != null ? argMemo.id : 0,
+                                    address,
+                                    getNote(),
+                                    latLng,
+                                    getRadius()
+                            ));
+                        }
+                    });
+        }
     }
 
+    void castLocationMemo(LocationMemo memo) {
+        locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
+        dialog.dismiss();
+    }
 }
