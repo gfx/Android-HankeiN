@@ -10,7 +10,7 @@ public class RuntimePermissions {
 
     static final int REQUEST_CODE_PERMISSIONS = 1000;
 
-    final String[] permissions = {
+    public static final String[] LOCATIONS = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
     };
@@ -24,7 +24,7 @@ public class RuntimePermissions {
     public void confirm() {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, permissions, REQUEST_CODE_PERMISSIONS);
+            ActivityCompat.requestPermissions(activity, LOCATIONS, REQUEST_CODE_PERMISSIONS);
         }
     }
 }

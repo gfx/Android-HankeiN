@@ -22,6 +22,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import rx.Subscriber;
 import timber.log.Timber;
 
+// FIXME: Use SupportPlaceAutocompleteFragment https://developers.google.com/places/android-api/autocomplete
 @ParametersAreNonnullByDefault
 public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
 
