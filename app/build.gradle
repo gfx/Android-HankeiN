@@ -1,6 +1,4 @@
-apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
-apply plugin: 'com.android.databinding'
 apply plugin: 'com.github.gfx.android.powerassert'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.github.gfx.ribbonizer'
@@ -13,7 +11,9 @@ rootProject.ext.properties.each { key, value ->
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.2'
+
+    dataBinding.enabled = true
 
     defaultConfig {
         minSdkVersion 17
@@ -83,24 +83,23 @@ android {
 
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.1.0'
-    compile 'com.android.support:cardview-v7:23.1.0'
-    compile 'com.android.support:recyclerview-v7:23.1.0'
-    compile 'com.android.support:design:23.1.0'
-    compile 'com.android.support:support-annotations:23.1.0'
-    compile 'com.google.android.gms:play-services-maps:8.1.0'
-    compile 'com.google.android.gms:play-services-location:8.1.0'
-    compile 'com.google.android.gms:play-services-analytics:8.1.0'
-    compile 'com.google.android.gms:play-services-ads:8.1.0'
-    compile 'com.google.code.findbugs:jsr305:3.0.0'
-    compile 'io.reactivex:rxjava:1.0.14'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:cardview-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:support-annotations:23.1.1'
+    compile 'com.google.android.gms:play-services-maps:8.4.0'
+    compile 'com.google.android.gms:play-services-location:8.4.0'
+    compile 'com.google.android.gms:play-services-analytics:8.4.0'
+    compile 'com.google.android.gms:play-services-ads:8.4.0'
+    compile 'com.google.code.findbugs:jsr305:3.0.1'
+    compile 'io.reactivex:rxjava:1.1.0'
     compile 'com.cookpad.android.rxt4a:rxt4a:1.0.0'
-    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.google.code.gson:gson:2.5'
     compile 'com.jakewharton.timber:timber:3.1.0'
-    compile 'com.google.dagger:dagger:2.0.1'
-    apt 'com.google.dagger:dagger-compiler:2.0.1'
+    compile 'com.google.dagger:dagger:2.0.2'
+    apt 'com.google.dagger:dagger-compiler:2.0.2'
     provided 'javax.annotation:jsr250-api:1.0'
-    apt 'com.android.databinding:compiler:1.0-rc2'
     debugCompile 'com.facebook.stetho:stetho:1.2.0'
     testCompile 'org.robolectric:robolectric:3.0'
     testCompile 'junit:junit:4.12'
