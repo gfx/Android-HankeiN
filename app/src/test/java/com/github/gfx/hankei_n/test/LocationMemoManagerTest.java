@@ -41,8 +41,8 @@ public class LocationMemoManagerTest {
 
     @Test
     public void testAdd() throws Exception {
-        memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5));
-        memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5));
+        memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5, 0));
+        memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5, 0));
 
         List<LocationMemo> list = memos.all();
 
@@ -54,8 +54,8 @@ public class LocationMemoManagerTest {
 
     @Test
     public void testRemove() throws Exception {
-        LocationMemo a = new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5);
-        LocationMemo b = new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5);
+        LocationMemo a = new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5, 0);
+        LocationMemo b = new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5, 0);
 
 
         memos.upsert(a);
@@ -74,8 +74,8 @@ public class LocationMemoManagerTest {
     @Test
     public void testSaveAndLoad() throws Exception {
 
-        memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5));
-        memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5));
+        memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5, 0));
+        memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5, 0));
 
         reset();
 
