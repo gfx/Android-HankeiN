@@ -13,13 +13,17 @@ import com.github.gfx.hankei_n.model.LocationMemoManager;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -192,10 +196,10 @@ public class SidemenuFragment extends Fragment {
         public void onBindViewHolder(VH holder, int position) {
             final LocationMemo memo = getItem(position);
 
-            Log.d("XXX", "onBindViewHolder for " + memo.address);
+            Timber.d("onBindViewHolder for " + memo.address);
 
             CardLocationMemoBinding binding = holder.binding;
-            binding.circle.setTextColor(Color.HSVToColor(new float[]{memo.markerHue, 1.0f, 1.0f}));
+            binding.circle.setImageDrawable(createCircle(hueToColor(memo.markerHue)));
             binding.textAddress.setText(memo.address);
             binding.textNote.setText(memo.note);
 
@@ -213,6 +217,35 @@ public class SidemenuFragment extends Fragment {
                     return true;
                 }
             });
+        }
+
+        @ColorInt
+        int hueToColor(float hue) {
+            return Color.HSVToColor(new float[]{hue, 1.0f, 1.0f});
+        }
+
+        Drawable createCircle(@ColorInt int color) {
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setShape(GradientDrawable.OVAL);
+            drawable.setColor(color);
+            drawable.setStroke(dpToPx(1), darker(color, 0.7f));
+            return drawable;
+        }
+
+        public int dpToPx(int dp) {
+            return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
+        }
+
+        public int darker(int color, @FloatRange(from = 0.0, to = 1.0) float factor) {
+            int a = Color.alpha(color);
+            int r = Color.red(color);
+            int g = Color.green(color);
+            int b = Color.blue(color);
+
+            return Color.argb(a,
+                    Math.max((int) (r * factor), 0),
+                    Math.max((int) (g * factor), 0),
+                    Math.max((int) (b * factor), 0));
         }
     }
 }
