@@ -55,7 +55,7 @@ public class LocationMemoManager extends SQLiteOpenHelper {
 
     static final String DROP_TABLE = "DROP TABLE " + TABLE_NAME;
 
-    static final Gson GSON = new GsonBuilder()
+    final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
             .create();
 
@@ -88,7 +88,8 @@ public class LocationMemoManager extends SQLiteOpenHelper {
                 object.addProperty(name, value);
             }
 
-            list.add(GSON.fromJson(object, LocationMemo.class));
+            LocationMemo memo = GSON.fromJson(object, LocationMemo.class);
+            list.add(memo);
         }
         cursor.close();
         db.close();
@@ -135,6 +136,8 @@ public class LocationMemoManager extends SQLiteOpenHelper {
         int result = db.delete(TABLE_NAME, "id = ?", new String[]{String.valueOf(memo.id)});
 
         db.close();
+
+        memo.removeFromMap();
 
         return result == 1;
     }

@@ -44,10 +44,6 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     @SerializedName("marker_hue")
     public float markerHue;
 
-    transient Marker marker;
-
-    transient Circle circle;
-
     public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
             float markerHue) {
         this.id = id;
@@ -79,15 +75,11 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     }
 
     public void addMarkerToMap(GoogleMap map) {
-        final MarkerOptions markerOptions = buildMarkerOptions();
-        if (marker != null) {
-            marker.remove();
-        }
-        marker = map.addMarker(markerOptions);
+        removeFromMap();
 
-        if (circle != null) {
-            circle.remove();
-        }
+        final MarkerOptions markerOptions = buildMarkerOptions();
+        Marker marker = map.addMarker(markerOptions);
+        Circle circle = null;
 
         if (radius != 0) {
             final CircleOptions circleOptions = new CircleOptions()
@@ -98,6 +90,12 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
                     .fillColor(makeAlpha(MARKER_COLOR, 0x1f));
             circle = map.addCircle(circleOptions);
         }
+
+        MarkerRegistry.INSTANCE.register(latitude, longitude, marker, circle);
+    }
+
+    public void removeFromMap() {
+        MarkerRegistry.INSTANCE.remove(latitude, longitude);
     }
 
     private int makeAlpha(int color, int alpha) {

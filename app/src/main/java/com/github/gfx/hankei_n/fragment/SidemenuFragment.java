@@ -8,6 +8,7 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.CardLocationMemoBinding;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 
@@ -46,6 +47,9 @@ public class SidemenuFragment extends Fragment {
 
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+
+    @Inject
+    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     @Inject
     Tracker tracker;
@@ -135,6 +139,7 @@ public class SidemenuFragment extends Fragment {
                 .build());
 
         adapter.removeItem(memo);
+        locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
     }
 
 

@@ -19,6 +19,7 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
@@ -89,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+
+    @Inject
+    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     @Inject
     LocationMemoManager locationMemos;
@@ -226,6 +230,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void call(LocationMemoAddedEvent locationMemoAddedEvent) {
                         addLocationMemo(locationMemoAddedEvent.memo);
+                    }
+                });
+
+        locationMemoRemovedSubject
+                .lift(new OperatorAddToCompositeSubscription<LocationMemoRemovedEvent>(subscription))
+                .subscribe(new Action1<LocationMemoRemovedEvent>() {
+                    @Override
+                    public void call(LocationMemoRemovedEvent locationMemoRemovedEvent) {
+                        removeLocationMemo(locationMemoRemovedEvent.memo);
                     }
                 });
     }
@@ -369,5 +382,9 @@ public class MainActivity extends AppCompatActivity {
 
     void addLocationMemo(LocationMemo memo) {
         memo.addMarkerToMap(map);
+    }
+
+    void removeLocationMemo(LocationMemo memo) {
+        locationMemos.remove(memo);
     }
 }
