@@ -20,17 +20,36 @@
                 android:orientation="vertical"
                 >
 
-            <TextView
-                    android:id="@+id/text_address"
-                    android:layout_width="wrap_content"
+            <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    tools:text="Yebisu Garden Place"
-                    />
+                    android:orientation="horizontal"
+                    >
+
+                <TextView
+                        android:id="@+id/circle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="4dp"
+                        android:text="●"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        tools:ignore="HardcodedText"
+                        />
+
+                <TextView
+                        android:id="@+id/text_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        tools:text="Yebisu Garden Place"
+                        />
+
+            </LinearLayout>
+
 
             <TextView
                     android:id="@+id/text_note"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"

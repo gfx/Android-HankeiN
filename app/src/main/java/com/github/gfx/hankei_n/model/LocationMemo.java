@@ -19,8 +19,22 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo> {
+    static final float[] HUES = {
+            BitmapDescriptorFactory.HUE_RED,
+            BitmapDescriptorFactory.HUE_ORANGE,
+            BitmapDescriptorFactory.HUE_YELLOW,
+            BitmapDescriptorFactory.HUE_GREEN,
+            BitmapDescriptorFactory.HUE_CYAN,
+            BitmapDescriptorFactory.HUE_AZURE,
+            BitmapDescriptorFactory.HUE_BLUE,
+            BitmapDescriptorFactory.HUE_VIOLET,
+            BitmapDescriptorFactory.HUE_MAGENTA,
+            BitmapDescriptorFactory.HUE_ROSE,
+    };
 
     static final int MARKER_COLOR = 0x00ff66;
+
+    static volatile int HUES_INDEX = 0;
 
     @SerializedName("id")
     public long id;
@@ -42,7 +56,7 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     public double radius;
 
     @SerializedName("marker_hue")
-    public double markerHue;
+    public float markerHue;
 
     transient Marker marker;
 
@@ -54,12 +68,10 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
         this.note = note;
         this.latitude = location.latitude;
         this.longitude = location.longitude;
-
         this.radius = radius;
-        if (radius == 0) {
-            this.markerHue = BitmapDescriptorFactory.HUE_GREEN;
-        } else {
-            this.markerHue = BitmapDescriptorFactory.HUE_RED;
+        this.markerHue = HUES[HUES_INDEX++];
+        if (HUES_INDEX == HUES.length) {
+            HUES_INDEX = 0;
         }
     }
 
@@ -72,7 +84,7 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     }
 
     public MarkerOptions buildMarkerOptions() {
-        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker((float) markerHue);
+        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(markerHue);
 
         return new MarkerOptions()
                 .title(address)

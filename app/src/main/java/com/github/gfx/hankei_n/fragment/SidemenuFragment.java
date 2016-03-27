@@ -13,11 +13,13 @@ import com.github.gfx.hankei_n.model.LocationMemoManager;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +65,8 @@ public class SidemenuFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentSidemenuBinding.inflate(inflater, container, false);
 
-        adapter = new Adapter(); // it depends on memos
+        adapter = new Adapter(inflater); // it depends on memos
+
         binding.listLocationMemos.setAdapter(adapter);
 
         binding.buttonAddLocationMemo.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +86,10 @@ public class SidemenuFragment extends Fragment {
         return binding.getRoot();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     void showEditDialog(LocationMemo memo) {
         tracker.send(new HitBuilders.EventBuilder()
@@ -139,7 +146,13 @@ public class SidemenuFragment extends Fragment {
 
     private class Adapter extends RecyclerView.Adapter<VH> {
 
+        final LayoutInflater inflater;
+
         List<LocationMemo> list = memos.all();
+
+        public Adapter(LayoutInflater inflater) {
+            this.inflater = inflater;
+        }
 
         public void addItem(LocationMemo memo) {
             memos.upsert(memo);
@@ -153,7 +166,6 @@ public class SidemenuFragment extends Fragment {
 
             notifyDataSetChanged();
         }
-
 
         public LocationMemo getItem(int position) {
             return list.get(position);
@@ -172,7 +184,6 @@ public class SidemenuFragment extends Fragment {
 
         @Override
         public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
             CardLocationMemoBinding binding = CardLocationMemoBinding.inflate(inflater, parent, false);
             return new VH(binding);
         }
@@ -181,7 +192,10 @@ public class SidemenuFragment extends Fragment {
         public void onBindViewHolder(VH holder, int position) {
             final LocationMemo memo = getItem(position);
 
+            Log.d("XXX", "onBindViewHolder for " + memo.address);
+
             CardLocationMemoBinding binding = holder.binding;
+            binding.circle.setTextColor(Color.HSVToColor(new float[]{memo.markerHue, 1.0f, 1.0f}));
             binding.textAddress.setText(memo.address);
             binding.textNote.setText(memo.note);
 
