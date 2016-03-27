@@ -24,7 +24,7 @@
     <string name="ask_to_remove_memo">メモを削除しますか？</string>
     <string name="affirmative">はい</string>
     <string name="negative">いいえ</string>
-    <string name="circle_required">円を描画する？</string>
+    <string name="circle_required">円を描く？</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

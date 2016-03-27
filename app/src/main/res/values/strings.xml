@@ -24,7 +24,7 @@
     <string name="ask_to_remove_memo">Do you remove it？</string>
     <string name="affirmative">Yes</string>
     <string name="negative">No</string>
-    <string name="circle_required">Circle?</string>
+    <string name="circle_required">Draws a circle?</string>
     <string name="default_radius">1.5</string>
     <string name="radius_unit">km</string>
 
