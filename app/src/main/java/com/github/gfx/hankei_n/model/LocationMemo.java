@@ -19,22 +19,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo> {
-    static final float[] HUES = {
-            BitmapDescriptorFactory.HUE_RED,
-            BitmapDescriptorFactory.HUE_ORANGE,
-            BitmapDescriptorFactory.HUE_YELLOW,
-            BitmapDescriptorFactory.HUE_GREEN,
-            BitmapDescriptorFactory.HUE_CYAN,
-            BitmapDescriptorFactory.HUE_AZURE,
-            BitmapDescriptorFactory.HUE_BLUE,
-            BitmapDescriptorFactory.HUE_VIOLET,
-            BitmapDescriptorFactory.HUE_MAGENTA,
-            BitmapDescriptorFactory.HUE_ROSE,
-    };
 
     static final int MARKER_COLOR = 0x00ff66;
-
-    static volatile int HUES_INDEX = 0;
 
     @SerializedName("id")
     public long id;
@@ -62,21 +48,20 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
     transient Circle circle;
 
-    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius) {
+    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
+            float markerHue) {
         this.id = id;
         this.address = address;
         this.note = note;
         this.latitude = location.latitude;
         this.longitude = location.longitude;
         this.radius = radius;
-        this.markerHue = HUES[HUES_INDEX++];
-        if (HUES_INDEX == HUES.length) {
-            HUES_INDEX = 0;
-        }
+        this.markerHue = markerHue;
     }
 
-    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location, double radius) {
-        this(0, address, note, location, radius);
+    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
+            float markerHue) {
+        this(0, address, note, location, radius, markerHue);
     }
 
     public LatLng buildLocation() {

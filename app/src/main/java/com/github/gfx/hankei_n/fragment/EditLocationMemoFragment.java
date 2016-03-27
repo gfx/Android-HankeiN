@@ -9,6 +9,7 @@ import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.PlaceEngine;
+import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -37,6 +38,9 @@ import rx.subjects.BehaviorSubject;
 public class EditLocationMemoFragment extends DialogFragment {
 
     static final String kLocationMemo = "location_memo";
+
+    @Inject
+    MarkerHueAllocator markerHueAllocator;
 
     @Inject
     PlaceEngine placeEngine;
@@ -178,7 +182,9 @@ public class EditLocationMemoFragment extends DialogFragment {
                     address,
                     getNote(),
                     argMemo.buildLocation(),
-                    getRadius()));
+                    getRadius(),
+                    getMarkerHue()
+            ));
 
         } else {
             placeEngine.getLocationFromAddress(address)
@@ -207,7 +213,8 @@ public class EditLocationMemoFragment extends DialogFragment {
                                     address,
                                     getNote(),
                                     latLng,
-                                    getRadius()
+                                    getRadius(),
+                                    getMarkerHue()
                             ));
                         }
                     });
@@ -217,5 +224,13 @@ public class EditLocationMemoFragment extends DialogFragment {
     void castLocationMemo(LocationMemo memo) {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
         dialog.dismiss();
+    }
+
+    float getMarkerHue() {
+        if (argMemo != null) {
+            return argMemo.markerHue;
+        } else {
+            return markerHueAllocator.allocate();
+        }
     }
 }

@@ -25,6 +25,7 @@ import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.MyLocationState;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
+import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 import com.github.gfx.hankei_n.toolbox.RuntimePermissions;
 
 import android.Manifest;
@@ -94,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     MyLocationState myLocationState;
+
+    @Inject
+    MarkerHueAllocator markerHueAllocator;
 
     final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
 
@@ -340,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
-                        LocationMemo memo = new LocationMemo(s, "", latLng, 0);
+                        LocationMemo memo = new LocationMemo(s, "", latLng, 0, markerHueAllocator.allocate());
                         EditLocationMemoFragment.newInstance(memo)
                                 .show(getSupportFragmentManager(), "edit_location_memo");
 

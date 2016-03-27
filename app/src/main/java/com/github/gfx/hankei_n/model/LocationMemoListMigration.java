@@ -1,5 +1,6 @@
 package com.github.gfx.hankei_n.model;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -63,7 +64,8 @@ public class LocationMemoListMigration {
 
         LocationMemoManager locationMemoManager = getLocationMemoManager();
 
-        LocationMemo memo = new LocationMemo(address, "", new LatLng(latitude, longitude), radius);
+        LocationMemo memo = new LocationMemo(address, "", new LatLng(latitude, longitude), radius,
+                BitmapDescriptorFactory.HUE_ORANGE);
         Timber.d("migrate the pointed location as %s", memo);
         locationMemoManager.upsert(memo);
 
