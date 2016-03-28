@@ -19,6 +19,7 @@ import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemo;
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    public static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
+
     @Inject
     PlaceEngine placeEngine;
 
@@ -93,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Inject
     BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
+
+    @Inject
+    BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
 
     @Inject
     LocationMemoManager locationMemos;
@@ -381,10 +387,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void addLocationMemo(LocationMemo memo) {
+        locationMemos.upsert(memo);
         memo.addMarkerToMap(map);
+
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(CATEGORY_LOCATION_MEMO)
+                .setAction("add")
+                .build());
+
+        locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
     }
 
     void removeLocationMemo(LocationMemo memo) {
         locationMemos.remove(memo);
+
+        if (locationMemos.count() == 0) {
+            markerHueAllocator.reset();
+        }
+
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(CATEGORY_LOCATION_MEMO)
+                .setAction("remove")
+                .build());
+
+        locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
     }
 }

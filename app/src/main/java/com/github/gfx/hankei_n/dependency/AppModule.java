@@ -7,9 +7,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
-import com.github.gfx.hankei_n.model.MarkerRegistry;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
@@ -103,11 +103,6 @@ public class AppModule {
         return new MarkerHueAllocator(prefs);
     }
 
-    @Provides
-    MarkerRegistry provideMarkerRegistry() {
-        return MarkerRegistry.INSTANCE;
-    }
-
     @Singleton
     @Provides
     BehaviorSubject<LocationChangedEvent> provideLocationChangedEventSubject() {
@@ -123,6 +118,12 @@ public class AppModule {
     @Singleton
     @Provides
     BehaviorSubject<LocationMemoRemovedEvent> provideLocationMemoRemovedEventSubject() {
+        return BehaviorSubject.create();
+    }
+
+    @Singleton
+    @Provides
+    BehaviorSubject<LocationMemoChangedEvent> provideLocationMemoChangedEventSubject() {
         return BehaviorSubject.create();
     }
 }

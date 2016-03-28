@@ -44,6 +44,10 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     @SerializedName("marker_hue")
     public float markerHue;
 
+    private transient Marker marker;
+
+    private transient Circle circle;
+
     public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
             float markerHue) {
         this.id = id;
@@ -65,7 +69,7 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     }
 
     public MarkerOptions buildMarkerOptions() {
-        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(markerHue);
+        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(markerHue % 360.0f);
 
         return new MarkerOptions()
                 .title(address)
@@ -74,28 +78,30 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
                 .icon(icon);
     }
 
-    public void addMarkerToMap(GoogleMap map) {
+    public CircleOptions buildCircleOptions() {
+        return new CircleOptions()
+                .center(buildLocation())
+                .radius(radius * 1000)
+                .strokeWidth(2)
+                .strokeColor(makeAlpha(MARKER_COLOR, 0xdd))
+                .fillColor(makeAlpha(MARKER_COLOR, 0x1f));
+    }
+
+    public void addMarkerToMap(@NonNull  GoogleMap map) {
         removeFromMap();
-
-        final MarkerOptions markerOptions = buildMarkerOptions();
-        Marker marker = map.addMarker(markerOptions);
-        Circle circle = null;
-
+        marker = map.addMarker(buildMarkerOptions());
         if (radius != 0) {
-            final CircleOptions circleOptions = new CircleOptions()
-                    .center(markerOptions.getPosition())
-                    .radius(radius * 1000)
-                    .strokeWidth(2)
-                    .strokeColor(makeAlpha(MARKER_COLOR, 0xdd))
-                    .fillColor(makeAlpha(MARKER_COLOR, 0x1f));
-            circle = map.addCircle(circleOptions);
+            circle = map.addCircle(buildCircleOptions());
         }
-
-        MarkerRegistry.INSTANCE.register(latitude, longitude, marker, circle);
     }
 
     public void removeFromMap() {
-        MarkerRegistry.INSTANCE.remove(latitude, longitude);
+        if (marker != null) {
+            marker.remove();
+        }
+        if (circle != null) {
+            circle.remove();
+        }
     }
 
     private int makeAlpha(int color, int alpha) {

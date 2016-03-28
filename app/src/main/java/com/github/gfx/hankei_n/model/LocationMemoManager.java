@@ -59,20 +59,18 @@ public class LocationMemoManager extends SQLiteOpenHelper {
             .registerTypeAdapter(LatLng.class, new LatLngTypeAdapter())
             .create();
 
+    final List<LocationMemo> items = new ArrayList<>();
+
     public LocationMemoManager(Context context, String name) {
         super(context.getApplicationContext(), name, null, VERSION);
+        items.addAll(loadAll());
     }
 
     public int count() {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, columns, null, null, null, null, null);
-        int count = cursor.getCount();
-        cursor.close();
-        db.close();
-        return count;
+        return items.size();
     }
 
-    public List<LocationMemo> all() {
+    private List<LocationMemo> loadAll() {
         SQLiteDatabase db = getReadableDatabase();
 
         List<LocationMemo> list = new ArrayList<>();
@@ -97,6 +95,12 @@ public class LocationMemoManager extends SQLiteOpenHelper {
         return list;
     }
 
+
+    public List<LocationMemo> all() {
+        return items;
+
+    }
+
     public void upsert(LocationMemo memo) {
         SQLiteDatabase db = getWritableDatabase();
 
@@ -109,25 +113,21 @@ public class LocationMemoManager extends SQLiteOpenHelper {
             }
         }
 
-        if (memo.id != 0) {
-            int result = db.update(TABLE_NAME, values, "id = ?", new String[]{ String.valueOf(memo.id) });
-
-            if (result != 1) {
-                insert(db, memo, values);
-            }
-        } else {
-            insert(db, memo, values);
-        }
+        insertOrUpdate(db, memo, values);
 
         db.close();
     }
 
-    private void insert(SQLiteDatabase db, LocationMemo memo, ContentValues values) {
+    private void insertOrUpdate(SQLiteDatabase db, LocationMemo memo, ContentValues values) {
         long rowId = db.insert(TABLE_NAME, null, values);
         if (rowId == -1) {
             throw new RuntimeException("INSERT failed");
         }
-        memo.id = rowId;
+        if (memo.id == 0) {
+            items.add(memo);
+        } else {
+            memo.id = rowId;
+        }
     }
 
     public boolean remove(LocationMemo memo) {
@@ -138,6 +138,7 @@ public class LocationMemoManager extends SQLiteOpenHelper {
         db.close();
 
         memo.removeFromMap();
+        items.remove(memo);
 
         return result == 1;
     }
@@ -146,6 +147,8 @@ public class LocationMemoManager extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
         db.close();
+
+        items.clear();
     }
 
     @Override

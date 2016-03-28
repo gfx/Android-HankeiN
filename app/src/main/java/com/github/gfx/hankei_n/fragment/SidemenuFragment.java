@@ -5,9 +5,10 @@ import com.google.android.gms.analytics.Tracker;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.activity.MainActivity;
 import com.github.gfx.hankei_n.databinding.CardLocationMemoBinding;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
-import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
@@ -41,15 +42,14 @@ import timber.log.Timber;
 @ParametersAreNonnullByDefault
 public class SidemenuFragment extends Fragment {
 
-    static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
-
     Adapter adapter;
 
     @Inject
-    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+    BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject; // to subscribe
 
     @Inject
-    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
+    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject; // to emit
+
 
     @Inject
     Tracker tracker;
@@ -85,10 +85,10 @@ public class SidemenuFragment extends Fragment {
             }
         });
 
-        locationMemoAddedSubject.subscribe(new Action1<LocationMemoAddedEvent>() {
+        locationMemoChangedSubject.subscribe(new Action1<LocationMemoChangedEvent>() {
             @Override
-            public void call(LocationMemoAddedEvent locationMemoAddedEvent) {
-                addMemo(locationMemoAddedEvent.memo);
+            public void call(LocationMemoChangedEvent changedEvent) {
+                adapter.reload();
             }
         });
         return binding.getRoot();
@@ -101,21 +101,12 @@ public class SidemenuFragment extends Fragment {
 
     void showEditDialog(LocationMemo memo) {
         tracker.send(new HitBuilders.EventBuilder()
-                .setCategory(CATEGORY_LOCATION_MEMO)
+                .setCategory(MainActivity.CATEGORY_LOCATION_MEMO)
                 .setAction("showEditDialog")
                 .build());
 
         EditLocationMemoFragment.newInstance(memo)
                 .show(getFragmentManager(), "edit_location_memo");
-    }
-
-    void addMemo(LocationMemo memo) {
-        tracker.send(new HitBuilders.EventBuilder()
-                .setCategory(CATEGORY_LOCATION_MEMO)
-                .setAction("add")
-                .build());
-
-        adapter.addItem(memo);
     }
 
     void askToRemove(final LocationMemo memo) {
@@ -133,15 +124,8 @@ public class SidemenuFragment extends Fragment {
     }
 
     void removeMemo(LocationMemo memo) {
-        tracker.send(new HitBuilders.EventBuilder()
-                .setCategory(CATEGORY_LOCATION_MEMO)
-                .setAction("remove")
-                .build());
-
-        adapter.removeItem(memo);
         locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
     }
-
 
     private static class VH extends RecyclerView.ViewHolder {
 
@@ -163,16 +147,8 @@ public class SidemenuFragment extends Fragment {
             this.inflater = inflater;
         }
 
-        public void addItem(LocationMemo memo) {
-            memos.upsert(memo);
+        public void reload() {
             list = memos.all();
-            notifyDataSetChanged();
-        }
-
-        public void removeItem(LocationMemo memo) {
-            memos.remove(memo);
-            list = memos.all();
-
             notifyDataSetChanged();
         }
 
