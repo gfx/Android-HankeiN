@@ -21,8 +21,10 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 
@@ -53,6 +55,8 @@ public class EditLocationMemoFragment extends DialogFragment {
     LocationMemo argMemo;
 
     AlertDialog dialog;
+
+    AddressAutocompleAdapter adapter;
 
     public static EditLocationMemoFragment newInstance() {
         EditLocationMemoFragment fragment = new EditLocationMemoFragment();
@@ -92,7 +96,8 @@ public class EditLocationMemoFragment extends DialogFragment {
             binding.editNote.setText(memo.note);
         }
 
-        binding.editAddress.setAdapter(new AddressAutocompleAdapter(getContext(), placeEngine));
+        adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
+        binding.editAddress.setAdapter(adapter);
         binding.editAddress.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -141,6 +146,27 @@ public class EditLocationMemoFragment extends DialogFragment {
         });
 
         return dialog;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog dialog = getDialog();
+
+        WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int minSize = (int) (metrics.widthPixels * 0.7);
+        if (lp.width < minSize) {
+            lp.width = minSize;
+            dialog.getWindow().setAttributes(lp);
+        }
     }
 
     @Override
@@ -231,6 +257,14 @@ public class EditLocationMemoFragment extends DialogFragment {
             return argMemo.markerHue;
         } else {
             return markerHueAllocator.allocate();
+        }
+    }
+
+    public void initAddress(String address) {
+        if (binding.editAddress.getText().length() == 0) {
+            binding.editAddress.setAdapter(null);
+            binding.editAddress.setText(address);
+            binding.editAddress.setAdapter(adapter);
         }
     }
 }

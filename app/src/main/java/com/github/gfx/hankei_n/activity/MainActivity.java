@@ -54,9 +54,9 @@ import android.widget.Toast;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
-import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
@@ -344,15 +344,15 @@ public class MainActivity extends AppCompatActivity {
     public void onMapLongClick(final LatLng latLng) {
         vibrator.vibrate(100);
 
+        LocationMemo memo = new LocationMemo("", "", latLng, 0, markerHueAllocator.allocate());
+        final EditLocationMemoFragment fragment = EditLocationMemoFragment.newInstance(memo);
+        fragment.show(getSupportFragmentManager(), "edit_location_memo");
+
         placeEngine.getAddressFromLocation(latLng)
                 .lift(new OperatorAddToCompositeSubscription<String>(subscription))
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .onErrorResumeNext(new Func1<Throwable, Observable<? extends String>>() {
-                    @Override
-                    public Observable<? extends String> call(Throwable throwable) {
-                        return placeEngine.getAddressFromLocation(latLng); // retry once
-                    }
-                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .retry(2)
                 .onErrorReturn(new Func1<Throwable, String>() {
                     @Override
                     public String call(Throwable throwable) {
@@ -363,10 +363,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
-                        LocationMemo memo = new LocationMemo(s, "", latLng, 0, markerHueAllocator.allocate());
-                        EditLocationMemoFragment.newInstance(memo)
-                                .show(getSupportFragmentManager(), "edit_location_memo");
-
+                        fragment.initAddress(s);
                     }
                 });
     }

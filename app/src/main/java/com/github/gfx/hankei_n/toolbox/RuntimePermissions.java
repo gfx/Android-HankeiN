@@ -8,7 +8,7 @@ import android.support.v4.content.ContextCompat;
 
 public class RuntimePermissions {
 
-    static final int REQUEST_CODE_PERMISSIONS = 1000;
+    static final int REQUEST_CODE_PERMISSIONS = 0x01;
 
     public static final String[] LOCATIONS = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
