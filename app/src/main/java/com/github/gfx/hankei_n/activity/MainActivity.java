@@ -337,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void reset() {
         prefs.resetAll();
+        locationMemos.clear();
 
         Toast.makeText(this, R.string.message_reset_done, Toast.LENGTH_SHORT).show();
 

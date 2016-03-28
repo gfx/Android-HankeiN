@@ -4,9 +4,9 @@
     <string name="app_name">Radius N km</string>
     <string name="app_title_template">Radius %.01f km </string>
     <string name="action_settings">Set the size of the radius</string>
-    <string name="action_reset">Reset settings</string>
+    <string name="action_reset">Reset</string>
     <string name="action_about">About this app</string>
-    <string name="message_reset">Do you really reset the settings?</string>
+    <string name="message_reset">Do you really reset the application data?</string>
     <string name="message_reset_done">Reset!</string>
     <string name="initial_instruction">Long tap a point in the map</string>
     <string name="project_url">http://github.com/gfx/Android-HankeiN</string>

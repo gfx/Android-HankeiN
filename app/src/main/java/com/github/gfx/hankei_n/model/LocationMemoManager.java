@@ -119,7 +119,7 @@ public class LocationMemoManager extends SQLiteOpenHelper {
     }
 
     private void insertOrUpdate(SQLiteDatabase db, LocationMemo memo, ContentValues values) {
-        long rowId = db.insert(TABLE_NAME, null, values);
+        long rowId = db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         if (rowId == -1) {
             throw new RuntimeException("INSERT failed");
         }
