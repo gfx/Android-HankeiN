@@ -47,15 +47,15 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
-            resValue "string", "google_api_key", GoogleApiKey_Debug
-            resValue "string", "ga_tracking_id", GA_TrackingId_Debug
+            manifestPlaceholders = [GOOGLE_API_KEY:GoogleApiKey_Debug]
+            buildConfigField "String", "GA_TRACKING_ID", '"' + GA_TrackingId_Debug + '"'
 
             shrinkResources false
         }
 
         release {
-            resValue "string", "google_api_key", GoogleApiKey_Release
-            resValue "string", "ga_tracking_id", GA_TrackingId_Release
+            manifestPlaceholders = [GOOGLE_API_KEY:GoogleApiKey_Release]
+            buildConfigField "String", "GA_TRACKING_ID", '"' + GA_TrackingId_Release + '"'
 
             minifyEnabled false
             shrinkResources false

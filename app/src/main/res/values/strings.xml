@@ -25,9 +25,8 @@
     <string name="affirmative">Yes</string>
     <string name="negative">No</string>
     <string name="circle_required">Draws a circle?</string>
-    <string name="default_radius">1.5</string>
-    <string name="radius_unit">km</string>
-    <string name="permission_location_denied">The application cannot access the location </string>
+    <string name="permission_location_denied">The application cannot access the location</string>
 
-    <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
+    <string name="default_radius" translatable="false">1.5</string>
+    <string name="radius_unit" translatable="false">km</string>
 </resources>

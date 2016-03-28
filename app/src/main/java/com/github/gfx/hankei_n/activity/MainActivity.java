@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 R.string.drawer_open,
                 R.string.drawer_close);
         drawerToggle.setDrawerIndicatorEnabled(true);
-        binding.drawer.setDrawerListener(drawerToggle);
+        binding.drawer.addDrawerListener(drawerToggle);
     }
 
 
@@ -181,6 +181,13 @@ public class MainActivity extends AppCompatActivity {
             throw new AssertionError("never reached");
         }
         map.setMyLocationEnabled(true);
+
+        map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                return true;
+            }
+        });
 
         // FIXME: https://developers.google.com/maps/documentation/android-api/location
         map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {

@@ -4,7 +4,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
@@ -59,7 +59,7 @@ public class AppModule {
     @Singleton
     @Provides
     Tracker provideTracker(Context context, GoogleAnalytics ga) {
-        Tracker tracker = ga.newTracker(context.getString(R.string.ga_tracking_id));
+        Tracker tracker = ga.newTracker(BuildConfig.GA_TRACKING_ID);
         tracker.enableAutoActivityTracking(true);
         tracker.enableExceptionReporting(true);
         return tracker;
