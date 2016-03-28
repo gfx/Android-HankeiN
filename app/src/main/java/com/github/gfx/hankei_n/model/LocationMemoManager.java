@@ -108,9 +108,10 @@ public class LocationMemoManager extends SQLiteOpenHelper {
         JsonObject object = (JsonObject)GSON.toJsonTree(memo);
 
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            if (!entry.getKey().equals("id")) {
-                values.put(entry.getKey(), entry.getValue().getAsString());
-            }
+            values.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        if (memo.id == 0) {
+            values.remove("id");
         }
 
         insertOrUpdate(db, memo, values);
@@ -125,7 +126,6 @@ public class LocationMemoManager extends SQLiteOpenHelper {
         }
         if (memo.id == 0) {
             items.add(memo);
-        } else {
             memo.id = rowId;
         }
     }

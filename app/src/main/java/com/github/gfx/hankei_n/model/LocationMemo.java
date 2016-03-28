@@ -87,7 +87,7 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
                 .fillColor(makeAlpha(MARKER_COLOR, 0x1f));
     }
 
-    public void addMarkerToMap(@NonNull  GoogleMap map) {
+    public void addMarkerToMap(@NonNull GoogleMap map) {
         removeFromMap();
         marker = map.addMarker(buildMarkerOptions());
         if (radius != 0) {

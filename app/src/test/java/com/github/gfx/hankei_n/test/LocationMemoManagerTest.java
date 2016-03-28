@@ -53,10 +53,23 @@ public class LocationMemoManagerTest {
     }
 
     @Test
+    public void testUpsert() throws Exception {
+        LocationMemo a = new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5, 0);
+        memos.upsert(a);
+        memos.upsert(a);
+
+        List<LocationMemo> list = memos.all();
+
+        assertThat(list.size(), is(1));
+
+        assertThat(list.get(0).address, is("foo"));
+        assertThat(list.get(0).id, is(greaterThan(0L)));
+    }
+
+    @Test
     public void testRemove() throws Exception {
         LocationMemo a = new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5, 0);
         LocationMemo b = new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5, 0);
-
 
         memos.upsert(a);
         memos.upsert(b);
@@ -66,14 +79,11 @@ public class LocationMemoManagerTest {
         List<LocationMemo> list = memos.all();
 
         assertThat(list.size(), is(1));
-
         assertThat(list.get(0), is(b));
     }
 
-
     @Test
     public void testSaveAndLoad() throws Exception {
-
         memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5, 0));
         memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5, 0));
 
