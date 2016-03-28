@@ -28,7 +28,6 @@ import com.github.gfx.hankei_n.model.MyLocationState;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
-import com.github.gfx.hankei_n.toolbox.RuntimePermissions;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -41,7 +40,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -54,6 +53,11 @@ import android.widget.Toast;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.RuntimePermissions;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -61,13 +65,8 @@ import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
+@RuntimePermissions
 public class MainActivity extends AppCompatActivity {
-
-    static final float MAP_ZOOM = 14f;
-
-    static final float DEFAULT_RADIUS = 1.5f;
-
-    static final int MARKER_COLOR = 0x00ff66;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -111,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
 
     final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
 
-    final RuntimePermissions runtimePermissions = new RuntimePermissions(this);
-
     ActivityMainBinding binding;
 
     boolean cameraInitialized = false;
@@ -132,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawer();
         checkGooglePlayServices();
-        runtimePermissions.confirm();
         setupMap();
 
         tracker.send(new HitBuilders.TimingBuilder()
@@ -169,29 +165,54 @@ public class MainActivity extends AppCompatActivity {
             public void onMapReady(GoogleMap googleMap) {
                 Timber.d("onMapReady");
 
-                map = googleMap;
-
-                assert ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED;
-                map.setMyLocationEnabled(true);
-
-                // FIXME: https://developers.google.com/maps/documentation/android-api/location
-                map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-                    @Override
-                    public void onMyLocationChange(Location location) {
-                        MainActivity.this.onMyLocationChange(location);
-                    }
-                });
-                map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                    @Override
-                    public void onMapLongClick(LatLng latLng) {
-                        MainActivity.this.onMapLongClick(latLng);
-                    }
-                });
-
-                load();
+                MainActivityPermissionsDispatcher.initMapWithCheck(MainActivity.this, googleMap);
             }
         });
+    }
+
+    @NeedsPermission({Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION})
+    void initMap(GoogleMap googleMap) {
+        map = googleMap;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new AssertionError("never reached");
+        }
+        map.setMyLocationEnabled(true);
+
+        // FIXME: https://developers.google.com/maps/documentation/android-api/location
+        map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                MainActivity.this.onMyLocationChange(location);
+            }
+        });
+        map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                MainActivity.this.onMapLongClick(latLng);
+            }
+        });
+
+        loadInitialData();
+    }
+
+    @OnShowRationale({Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION})
+    void showRationaleForLocation(final PermissionRequest request) {
+        request.proceed();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    @OnPermissionDenied({Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION})
+    void showDeniedForCamera() {
+        Toast.makeText(this, R.string.permission_location_denied, Toast.LENGTH_SHORT).show();
     }
 
     void checkGooglePlayServices() {
@@ -213,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    void load() {
+    void loadInitialData() {
         assert map != null;
 
         LatLng latLng = myLocationState.getLatLng();

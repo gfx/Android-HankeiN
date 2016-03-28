@@ -25,6 +25,7 @@
     <string name="affirmative">はい</string>
     <string name="negative">いいえ</string>
     <string name="circle_required">円を描く？</string>
+    <string name="permission_location_denied">アプリケーションが現在位置を取得できません</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>
