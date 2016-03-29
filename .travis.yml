@@ -10,7 +10,7 @@ before_install:
     - export TERM=dumb # to get clean gradle output
     - cp gradle.properties{.sample,}
     - echo yes | android update sdk --no-ui --all --filter tools
-    - echo yes | android update sdk --no-ui --all --filter platform-tools,build-tools-23.0.2,android-23
+    - echo yes | android update sdk --no-ui --all --filter platform-tools,build-tools-23.0.3,android-23
     - echo yes | android update sdk --no-ui --all --filter extra-android-m2repository,extra-google-m2repository
 script:
     - ./gradlew check
