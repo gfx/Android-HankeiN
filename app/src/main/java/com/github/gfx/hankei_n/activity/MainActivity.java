@@ -52,6 +52,7 @@ import android.widget.Toast;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
+import hugo.weaving.DebugLog;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnPermissionDenied;
 import permissions.dispatcher.OnShowRationale;
@@ -226,14 +227,33 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
+    @DebugLog
     void loadInitialData() {
+        assert map != null;
+
         LatLng latLng = myLocationState.getLatLng();
         if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
             updateCameraPosition(latLng, myLocationState.getCameraZoom(), false);
         }
 
-        for (LocationMemo memo : locationMemos.all()) {
-            addLocationMemo(memo);
+        for (final LocationMemo memo : locationMemos.all()) {
+            if (memo.latitude == 0.0 && memo.longitude == 0.0) {
+                placeEngine.getLocationFromAddress(memo.address)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .retry(2)
+                        .subscribe(new Action1<LatLng>() {
+                            @Override
+                            public void call(LatLng latLng) {
+                                memo.latitude = latLng.latitude;
+                                memo.longitude = latLng.longitude;
+                                locationMemos.upsert(memo);
+                                memo.addMarkerToMap(map);
+                            }
+                        });
+            } else {
+                memo.addMarkerToMap(map);
+            }
         }
     }
 
@@ -407,6 +427,7 @@ public class MainActivity extends AppCompatActivity {
         Timber.d("updateCameraPosition lat/lng: (%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
 
+    @DebugLog
     void addLocationMemo(LocationMemo memo) {
         locationMemos.upsert(memo);
         memo.addMarkerToMap(map);
@@ -419,6 +440,7 @@ public class MainActivity extends AppCompatActivity {
         locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
     }
 
+    @DebugLog
     void removeLocationMemo(LocationMemo memo) {
         locationMemos.remove(memo);
 

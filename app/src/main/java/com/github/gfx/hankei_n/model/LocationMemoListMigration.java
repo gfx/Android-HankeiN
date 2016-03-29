@@ -85,14 +85,15 @@ public class LocationMemoListMigration {
             Timber.d("no LocationMemoList migration needed.");
             return;
         }
-        Timber.d("start LocationMemoList migration.");
+        Timber.d("start LocationMemoList migration for: %s", json);
 
         LocationMemoManager locationMemoManager = getLocationMemoManager();
 
         List<LocationMemo> memos = gson.fromJson(json, LocationMemoList.class).memos;
 
         for (LocationMemo memo : memos) {
-            Timber.d("%d/%s", memo.id, memo.address);
+            Timber.d("%d/%s (%.02f, %.02f)", memo.id, memo.address, memo.latitude, memo.longitude);
+            memo.markerHue = BitmapDescriptorFactory.HUE_GREEN;
             locationMemoManager.upsert(memo);
         }
 
