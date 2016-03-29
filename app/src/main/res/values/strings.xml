@@ -3,7 +3,6 @@
 
     <string name="app_name">Radius N km</string>
     <string name="app_title_template">Radius %.01f km </string>
-    <string name="action_settings">Set the size of the radius</string>
     <string name="action_reset">Reset</string>
     <string name="action_about">About this app</string>
     <string name="message_reset">Do you really reset the application data?</string>
@@ -20,7 +19,7 @@
     <string name="label_address">Postal Address</string>
     <string name="label_note">Random Note</string>
     <string name="attribution_powered_by_google">Powered by Google</string>
-    <string name="errro_it_must_be_a_number">Error: It must be a number</string>
+    <string name="error_it_must_be_a_number">Error: It must be a number</string>
     <string name="ask_to_remove_memo">Do you remove it？</string>
     <string name="affirmative">Yes</string>
     <string name="negative">No</string>

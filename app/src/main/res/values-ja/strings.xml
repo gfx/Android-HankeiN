@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">半径n</string>
+    <string name="app_name">半径Nキロメートル</string>
     <string name="app_title_template">半径%.01fキロメートル</string>
-    <string name="action_settings">半径の設定</string>
     <string name="action_reset">初期化</string>
     <string name="action_about">このアプリについて</string>
     <string name="message_reset">アプリケーションデータを初期化しますか？</string>
@@ -20,7 +19,7 @@
     <string name="label_address">住所</string>
     <string name="label_note">ノート</string>
     <string name="attribution_powered_by_google">Powered by Google</string>
-    <string name="errro_it_must_be_a_number">エラー: 数値を入力してください</string>
+    <string name="error_it_must_be_a_number">エラー: 数値を入力してください</string>
     <string name="ask_to_remove_memo">メモを削除しますか？</string>
     <string name="affirmative">はい</string>
     <string name="negative">いいえ</string>
