@@ -75,11 +75,9 @@ public class AppModule {
         return new Geocoder(context, Locale.getDefault());
     }
 
-    @Singleton
     @Provides
-    PlaceEngine providePlacesEngine(Context context, Geocoder geocoder,
-            BehaviorSubject<LocationChangedEvent> locationChangedEventObservable) {
-        return new PlaceEngine(context, geocoder, locationChangedEventObservable);
+    PlaceEngine providePlacesEngine(Context context, Geocoder geocoder) {
+        return new PlaceEngine(context, geocoder);
     }
 
     @Provides

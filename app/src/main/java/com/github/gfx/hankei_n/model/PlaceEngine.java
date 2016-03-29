@@ -4,6 +4,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBuffer;
@@ -11,14 +12,18 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
-import com.cookpad.android.rxt4a.subscriptions.AndroidCompositeSubscription;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 
 import java.io.IOException;
@@ -29,52 +34,73 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action1;
+import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class PlaceEngine {
 
+    final Context context;
+
     final GoogleApiClient googleApiClient;
 
-    final Observable<LocationChangedEvent> locationChangedObservable;
+    final BehaviorSubject<LocationChangedEvent> locationChangedSubject = BehaviorSubject.create();
 
     final Geocoder geocoder;
 
-    final AndroidCompositeSubscription subscription = new AndroidCompositeSubscription();
-
     LatLng location;
 
-    public PlaceEngine(Context context, Geocoder geocoder, Observable<LocationChangedEvent> locationChangedEventObservable) {
+    public PlaceEngine(Context context, Geocoder geocoder) {
+        this.context = context;
         this.geocoder = geocoder;
-        this.locationChangedObservable = locationChangedEventObservable;
-
-        ConnectionHandler handler = new ConnectionHandler();
 
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Places.GEO_DATA_API)
-                .addConnectionCallbacks(handler)
-                .addOnConnectionFailedListener(handler)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(@Nullable Bundle bundle) {
+                        handleLastLocation();
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int i) {
+
+                    }
+                })
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+                    }
+                })
                 .build();
+    }
+
+    public Observable<LocationChangedEvent> getMyLocationChangedObservable() {
+        return locationChangedSubject;
+    }
+
+    private void handleLastLocation() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        if (currentLocation != null) {
+            location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            locationChangedSubject.onNext(new LocationChangedEvent(location));
+        }
     }
 
     public void start() {
         googleApiClient.connect();
-
-        locationChangedObservable
-                .lift(new OperatorAddToCompositeSubscription<LocationChangedEvent>(subscription))
-                .subscribe(new Action1<LocationChangedEvent>() {
-                    @Override
-                    public void call(LocationChangedEvent myLocationChanged) {
-                        setLocation(myLocationChanged.location);
-                    }
-                });
     }
 
     public void stop() {
         googleApiClient.disconnect();
-
-        subscription.unsubscribe();
     }
 
     public void setLocation(LatLng latLng) {
@@ -181,24 +207,6 @@ public class PlaceEngine {
 
         public GeocodingException(Throwable throwable) {
             super(throwable);
-        }
-    }
-
-    static class ConnectionHandler implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
-        @Override
-        public void onConnected(Bundle bundle) {
-            Timber.d("onConnected");
-        }
-
-        @Override
-        public void onConnectionSuspended(int i) {
-            Timber.d("onConnectionSuspended");
-        }
-
-        @Override
-        public void onConnectionFailed(ConnectionResult connectionResult) {
-            Timber.d("onConnectionFailed");
         }
     }
 }

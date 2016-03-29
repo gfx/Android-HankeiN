@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -182,20 +181,6 @@ public class MainActivity extends AppCompatActivity {
         }
         map.setMyLocationEnabled(true);
 
-        map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                return true;
-            }
-        });
-
-        // FIXME: https://developers.google.com/maps/documentation/android-api/location
-        map.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-            @Override
-            public void onMyLocationChange(Location location) {
-                MainActivity.this.onMyLocationChange(location);
-            }
-        });
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
@@ -242,8 +227,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void loadInitialData() {
-        assert map != null;
-
         LatLng latLng = myLocationState.getLatLng();
         if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
             updateCameraPosition(latLng, myLocationState.getCameraZoom(), false);
@@ -257,6 +240,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        placeEngine.getMyLocationChangedObservable()
+                .lift(new OperatorAddToCompositeSubscription<LocationChangedEvent>(subscription))
+                .subscribe(new Action1<LocationChangedEvent>() {
+            @Override
+            public void call(LocationChangedEvent locationChangedEvent) {
+                onMyLocationChange(locationChangedEvent.location);
+            }
+        });
+
+        placeEngine.start();
 
         locationMemoAddedSubject
                 .lift(new OperatorAddToCompositeSubscription<LocationMemoAddedEvent>(subscription))
@@ -280,6 +274,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+
+        placeEngine.stop();
 
         cameraInitialized = false;
 
@@ -360,13 +356,12 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void onMyLocationChange(Location location) {
+    public void onMyLocationChange(LatLng latLng) {
         if (cameraInitialized) {
             return;
         }
         cameraInitialized = true;
 
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         updateCameraPosition(latLng, myLocationState.getCameraZoom(), true);
     }
 

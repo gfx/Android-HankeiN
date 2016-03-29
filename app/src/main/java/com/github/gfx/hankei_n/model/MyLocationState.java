@@ -9,7 +9,9 @@ import javax.inject.Inject;
 public class MyLocationState {
 
     static final String kLatitude = "prevLatitude";
+
     static final String kLongitude = "prevLongitude";
+
     static final String kZoom = "prevCameraZoom";
 
     static final float kDefaultZoom = 14.0f;
@@ -23,8 +25,8 @@ public class MyLocationState {
 
     public void save(LatLng latLng, float zoom) {
         prefs.edit()
-                .putFloat(kLatitude, (float)latLng.latitude)
-                .putFloat(kLongitude, (float)latLng.longitude)
+                .putFloat(kLatitude, (float) latLng.latitude)
+                .putFloat(kLongitude, (float) latLng.longitude)
                 .putFloat(kZoom, zoom)
                 .apply();
     }
@@ -36,7 +38,8 @@ public class MyLocationState {
     public float getCameraZoom() {
         return prefs.get(kZoom, kDefaultZoom);
     }
+
     public CameraUpdate getCameraUpdate() {
-      return CameraUpdateFactory.newLatLngZoom(getLatLng(), getCameraZoom());
+        return CameraUpdateFactory.newLatLngZoom(getLatLng(), getCameraZoom());
     }
 }
