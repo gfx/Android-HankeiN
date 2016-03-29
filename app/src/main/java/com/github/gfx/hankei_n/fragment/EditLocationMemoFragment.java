@@ -162,11 +162,16 @@ public class EditLocationMemoFragment extends DialogFragment {
         WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int minSize = (int) (metrics.widthPixels * 0.7);
-        if (lp.width < minSize) {
-            lp.width = minSize;
-            dialog.getWindow().setAttributes(lp);
+        int screenWidthDp = (int) (metrics.widthPixels / metrics.density);
+
+        int widthPx;
+        if (screenWidthDp < 500) {
+            widthPx = (int) (metrics.widthPixels * 0.95);
+        } else {
+            widthPx = (int) (metrics.widthPixels * 0.75);
         }
+        lp.width = widthPx;
+        dialog.getWindow().setAttributes(lp);
     }
 
     @Override
