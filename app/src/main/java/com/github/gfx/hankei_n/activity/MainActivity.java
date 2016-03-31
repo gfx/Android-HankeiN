@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnPermissionDenied({Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION})
-    void showDeniedForCamera() {
+    void showDeniedForLocation() {
         Toast.makeText(this, R.string.permission_location_denied, Toast.LENGTH_SHORT).show();
     }
 

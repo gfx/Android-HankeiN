@@ -74,6 +74,7 @@ android {
     lintOptions {
         disable 'InvalidPackage'
         disable 'TypographyDashes'
+        disable 'NeedOnRequestPermissionsResult'
     }
 
     packagingOptions {
@@ -94,6 +95,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-ads:8.4.0'
     compile 'com.google.code.findbugs:jsr305:3.0.1'
     compile 'io.reactivex:rxjava:1.1.2'
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
     compile 'com.cookpad.android.rxt4a:rxt4a:1.0.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.jakewharton.timber:timber:3.1.0'
