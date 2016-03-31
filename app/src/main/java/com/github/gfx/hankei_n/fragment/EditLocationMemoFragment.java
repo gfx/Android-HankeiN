@@ -10,6 +10,8 @@ import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
+import com.jakewharton.rxbinding.widget.RxTextView;
+import com.jakewharton.rxbinding.widget.TextViewAfterTextChangeEvent;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -20,7 +22,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,9 +32,8 @@ import android.widget.CompoundButton;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
-import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Func1;
+import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 
 @ParametersAreNonnullByDefault
@@ -52,7 +52,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     DialogEditLocationMemoBinding binding;
 
-    LocationMemo argMemo;
+    LocationMemo memo;
 
     AlertDialog dialog;
 
@@ -89,38 +89,22 @@ public class EditLocationMemoFragment extends DialogFragment {
         LayoutInflater inflater = LayoutInflater.from(getContext());
         binding = DialogEditLocationMemoBinding.inflate(inflater, null, false);
 
-        LocationMemo memo = (LocationMemo) getArguments().getSerializable(kLocationMemo);
-        if (memo != null) {
-            argMemo = memo;
-            binding.editAddress.setText(memo.address);
-            binding.editNote.setText(memo.note);
+        LocationMemo argMemo = (LocationMemo) getArguments().getSerializable(kLocationMemo);
+        if (argMemo != null) {
+            memo = argMemo;
+            binding.editAddress.setText(argMemo.address);
+            binding.editNote.setText(argMemo.note);
+            if (argMemo.radius > 0) {
+                binding.checkboxCircle.setChecked(true);
+                binding.editRadius.setText(String.valueOf(argMemo.radius));
+                binding.editRadius.setEnabled(true);
+            }
+        } else {
+            memo = new LocationMemo("", "", new LatLng(0, 0), 0, markerHueAllocator.allocate());
         }
 
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
         binding.editAddress.setAdapter(adapter);
-        binding.editAddress.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
-            }
-        });
-
-        binding.checkboxCircle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                binding.editRadius.setEnabled(isChecked);
-            }
-        });
 
         dialog = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.add_location_memo)
@@ -132,20 +116,54 @@ public class EditLocationMemoFragment extends DialogFragment {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
-                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                positiveButton.setEnabled(binding.editAddress.length() > 0);
+                setupEventListeners();
+            }
+        });
+        return dialog;
+    }
 
-                positiveButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        sendLocationMemoAddedEventAndDismiss();
-                    }
-                });
+    void setupEventListeners() {
+        final Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveButton.setEnabled(binding.editAddress.length() > 0);
 
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendLocationMemoAddedEventAndDismiss();
             }
         });
 
-        return dialog;
+        RxTextView.afterTextChangeEvents(binding.editAddress).subscribe(new Action1<TextViewAfterTextChangeEvent>() {
+            @Override
+            public void call(TextViewAfterTextChangeEvent event) {
+                Editable s = event.editable();
+                positiveButton.setEnabled(s.length() > 0);
+                memo.address = s.toString();
+            }
+        });
+
+        RxTextView.afterTextChangeEvents(binding.editNote).subscribe(new Action1<TextViewAfterTextChangeEvent>() {
+            @Override
+            public void call(TextViewAfterTextChangeEvent event) {
+                Editable s = event.editable();
+                memo.note = s.toString();
+            }
+        });
+
+        RxTextView.afterTextChangeEvents(binding.editRadius).subscribe(new Action1<TextViewAfterTextChangeEvent>() {
+            @Override
+            public void call(TextViewAfterTextChangeEvent event) {
+                Editable s = event.editable();
+                memo.radius = Double.parseDouble(s.toString());
+            }
+        });
+
+        binding.checkboxCircle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                binding.editRadius.setEnabled(isChecked);
+            }
+        });
     }
 
     @Override
@@ -188,81 +206,37 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onPause();
     }
 
-    String getAddress() {
-        return binding.editAddress.getText().toString();
-    }
-
-    String getNote() {
-        return binding.editNote.getText().toString();
-    }
-
-    double getRadius() {
-        if (binding.checkboxCircle.isChecked()) {
-            return Double.parseDouble(binding.editRadius.getText().toString());
-        } else {
-            return 0;
-        }
-    }
-
     void sendLocationMemoAddedEventAndDismiss() {
-        final String address = getAddress();
 
-        if (argMemo != null && address.equals(argMemo.address)) {
-            castLocationMemo(new LocationMemo(
-                    argMemo.id,
-                    address,
-                    getNote(),
-                    argMemo.buildLocation(),
-                    getRadius(),
-                    getMarkerHue()
-            ));
+        placeEngine.getLocationFromAddress(memo.address)
+                .retry(2)
+                .subscribe(new Subscriber<LatLng>() {
+                    @Override
+                    public void onCompleted() {
+                    }
 
-        } else {
-            placeEngine.getLocationFromAddress(address)
-                    .onErrorResumeNext(new Func1<Throwable, Observable<? extends LatLng>>() {
-                        @Override
-                        public Observable<? extends LatLng> call(Throwable throwable) {
-                            return placeEngine.getLocationFromAddress(address); // retry once
+                    @Override
+                    public void onError(Throwable e) {
+                        // Network error or something?
+                        onNext(memo.buildLocation());
+                    }
 
+                    @Override
+                    public void onNext(LatLng latLng) {
+                        if (!binding.checkboxCircle.isChecked()) {
+                            memo.radius = 0;
                         }
-                    })
-                    .subscribe(new Subscriber<LatLng>() {
-                        @Override
-                        public void onCompleted() {
-                        }
+                        memo.latitude = latLng.latitude;
+                        memo.longitude = latLng.longitude;
 
-                        @Override
-                        public void onError(Throwable e) {
-                            // FIXME: any idea?
-                            onNext(new LatLng(0, 0));
-                        }
-
-                        @Override
-                        public void onNext(LatLng latLng) {
-                            castLocationMemo(new LocationMemo(
-                                    argMemo != null ? argMemo.id : 0,
-                                    address,
-                                    getNote(),
-                                    latLng,
-                                    getRadius(),
-                                    getMarkerHue()
-                            ));
-                        }
-                    });
-        }
+                        castLocationMemo(memo);
+                    }
+                });
     }
 
     void castLocationMemo(LocationMemo memo) {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
         dialog.dismiss();
-    }
-
-    float getMarkerHue() {
-        if (argMemo != null) {
-            return argMemo.markerHue;
-        } else {
-            return markerHueAllocator.allocate();
-        }
     }
 
     public void initAddress(String address) {

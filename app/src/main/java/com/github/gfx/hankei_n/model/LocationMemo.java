@@ -18,7 +18,7 @@ import java.io.Serializable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public class LocationMemo implements Serializable, Comparable<LocationMemo> {
+public class LocationMemo implements Serializable, Comparable<LocationMemo>, Cloneable {
 
     static final int MARKER_COLOR = 0x00ff66;
 
