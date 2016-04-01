@@ -15,3 +15,12 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keepattributes SourceFile,Signature,Exceptions,*Annotation*,*Table
+
+# RxJava
+-dontwarn rx.internal.util.unsafe.**
+
+-dontwarn android.support.**
+
+-keepnames class ** { *; }
