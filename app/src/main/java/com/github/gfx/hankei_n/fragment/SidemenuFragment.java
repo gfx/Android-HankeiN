@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.Nullable;
@@ -53,6 +54,9 @@ public class SidemenuFragment extends Fragment {
 
     @Inject
     Tracker tracker;
+
+    @Inject
+    Vibrator vibrator;
 
     @Inject
     LocationMemoManager memos;
@@ -110,6 +114,7 @@ public class SidemenuFragment extends Fragment {
     }
 
     void askToRemove(final LocationMemo memo) {
+        vibrator.vibrate(100);
         new AlertDialog.Builder(getActivity())
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(R.string.ask_to_remove_memo)
