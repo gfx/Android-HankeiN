@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
     boolean cameraInitialized = false;
 
+    @Nullable
     GoogleMap map;
 
     ActionBarDrawerToggle drawerToggle;
@@ -338,6 +339,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean toggleSatellite(MenuItem item) {
         boolean satellite = !item.isChecked();
         item.setChecked(satellite);
+        assert map != null;
         map.setMapType(satellite ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
         return true;
     }
@@ -385,6 +387,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onMyLocationChange(LatLng latLng) {
+        if (map == null) {
+            return;
+        }
+
         if (cameraInitialized) {
             return;
         }
@@ -421,6 +427,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateCameraPosition(LatLng latLng, float zoom, boolean animation) {
+        assert map != null;
+
         final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
 
         if (animation) {
@@ -438,6 +446,8 @@ public class MainActivity extends AppCompatActivity {
     @DebugLog
     void addLocationMemo(LocationMemo memo) {
         locationMemos.upsert(memo);
+
+        // FIXME: ensure GoogleMap is ready
         memo.addMarkerToMap(map);
 
         tracker.send(new HitBuilders.EventBuilder()
