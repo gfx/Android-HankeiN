@@ -349,13 +349,13 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.setMessage(R.string.message_reset);
 
-        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 reset();
             }
         });
-        dialog.setNegativeButton("Cancel", null);
+        dialog.setNegativeButton(android.R.string.cancel, null);
         dialog.show();
         return true;
     }
@@ -381,7 +381,6 @@ public class MainActivity extends AppCompatActivity {
         final Intent intent = new Intent(Intent.ACTION_VIEW)
                 .setData(Uri.parse(getString(R.string.project_url)));
         startActivity(intent);
-
         return true;
     }
 
