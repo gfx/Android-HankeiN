@@ -38,6 +38,7 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
@@ -49,15 +50,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.Arrays;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
-import permissions.dispatcher.NeedsPermission;
-import permissions.dispatcher.OnPermissionDenied;
-import permissions.dispatcher.OnShowRationale;
-import permissions.dispatcher.PermissionRequest;
-import permissions.dispatcher.RuntimePermissions;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -65,12 +63,19 @@ import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
-@RuntimePermissions
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
+
+    public static final int RC_PERMISSIONS = 0x01;
+
+    public static final String[] PERMISSIONS = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+
 
     @Inject
     PlaceEngine placeEngine;
@@ -156,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
         binding.drawer.addDrawerListener(drawerToggle);
     }
 
-
     void setupMap() {
         final MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         assert mapFragment != null;
@@ -166,22 +170,13 @@ public class MainActivity extends AppCompatActivity {
             public void onMapReady(GoogleMap googleMap) {
                 Timber.d("onMapReady");
 
-                MainActivityPermissionsDispatcher.initMapWithCheck(MainActivity.this, googleMap);
+                initMap(googleMap);
             }
         });
     }
 
-    @NeedsPermission({Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION})
-    void initMap(GoogleMap googleMap) {
+    void initMap(@NonNull GoogleMap googleMap) {
         map = googleMap;
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            throw new AssertionError("never reached");
-        }
-        map.setMyLocationEnabled(true);
 
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -191,22 +186,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
         loadInitialData();
+        setMyLocationEnabled();
     }
 
-    @OnShowRationale({Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION})
-    void showRationaleForLocation(final PermissionRequest request) {
-        request.proceed();
+    void setMyLocationEnabled() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, RC_PERMISSIONS);
+            return;
+        }
+        assert map != null;
+        map.setMyLocationEnabled(true);
     }
 
+    @DebugLog
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
-    }
 
-    @OnPermissionDenied({Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION})
-    void showDeniedForLocation() {
-        Toast.makeText(this, R.string.permission_location_denied, Toast.LENGTH_SHORT).show();
+        if (requestCode == RC_PERMISSIONS) {
+            int[] granted2 = {PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_GRANTED};
+            if (Arrays.equals(permissions, PERMISSIONS)
+                    && Arrays.equals(grantResults, granted2)) {
+                setMyLocationEnabled();
+            } else {
+                Toast.makeText(this, R.string.launched_without_location, Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     void checkGooglePlayServices() {
@@ -265,11 +273,11 @@ public class MainActivity extends AppCompatActivity {
         placeEngine.getMyLocationChangedObservable()
                 .lift(new OperatorAddToCompositeSubscription<LocationChangedEvent>(subscription))
                 .subscribe(new Action1<LocationChangedEvent>() {
-            @Override
-            public void call(LocationChangedEvent locationChangedEvent) {
-                onMyLocationChange(locationChangedEvent.location);
-            }
-        });
+                    @Override
+                    public void call(LocationChangedEvent locationChangedEvent) {
+                        onMyLocationChange(locationChangedEvent.location);
+                    }
+                });
 
         placeEngine.start();
 

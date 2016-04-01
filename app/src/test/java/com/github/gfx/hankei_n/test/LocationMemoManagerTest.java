@@ -94,10 +94,10 @@ public class LocationMemoManagerTest {
 
         assertThat(list.get(0).address, is("foo"));
         assertThat(list.get(0).note, is("note 1"));
-        assertThat(list.get(0).buildLocation(), is(new LatLng(1.0, 2.0)));
+        assertThat(list.get(0).getLatLng(), is(new LatLng(1.0, 2.0)));
 
         assertThat(list.get(1).address, is("bar"));
         assertThat(list.get(1).note, is("note 2"));
-        assertThat(list.get(1).buildLocation(), is(new LatLng(3.0, 4.0)));
+        assertThat(list.get(1).getLatLng(), is(new LatLng(3.0, 4.0)));
     }
 }

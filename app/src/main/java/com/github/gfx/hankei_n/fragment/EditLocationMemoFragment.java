@@ -218,7 +218,7 @@ public class EditLocationMemoFragment extends DialogFragment {
                     @Override
                     public void onError(Throwable e) {
                         // Network error or something?
-                        onNext(memo.buildLocation());
+                        onNext(memo.getLatLng());
                     }
 
                     @Override

@@ -10,6 +10,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.annotations.SerializedName;
 
+import com.github.gfx.android.orma.annotation.Column;
+import com.github.gfx.android.orma.annotation.Setter;
+import com.github.gfx.android.orma.annotation.Table;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -17,46 +21,61 @@ import java.io.Serializable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@Table
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo>, Cloneable {
 
     static final int MARKER_COLOR = 0x00ff66;
 
     @SerializedName("id")
+    @Column
     public long id;
 
     @SerializedName("address")
+    @Column
     @NonNull
     public String address;
 
     @SerializedName("note")
+    @Column
+    @NonNull
     public String note;
 
     @SerializedName("latitude")
+    @Column
     public double latitude;
 
     @SerializedName("longitude")
+    @Column
     public double longitude;
 
     @SerializedName("radius")
+    @Column
     public double radius;
 
     @SerializedName("marker_hue")
+    @Column
     public float markerHue;
 
     private transient Marker marker;
 
     private transient Circle circle;
 
-    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
+    @Setter
+    public LocationMemo(long id, @NonNull String address, @NonNull String note, double latitude, double longitude, double radius,
             float markerHue) {
         this.id = id;
         this.address = address;
         this.note = note;
-        this.latitude = location.latitude;
-        this.longitude = location.longitude;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.radius = radius;
         this.markerHue = markerHue;
+    }
+
+    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
+            float markerHue) {
+        this(id, address, note, location.latitude, location.longitude, radius, markerHue);
     }
 
     public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
@@ -64,7 +83,7 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo>, Clo
         this(0, address, note, location, radius, markerHue);
     }
 
-    public LatLng buildLocation() {
+    public LatLng getLatLng() {
         return new LatLng(latitude, longitude);
     }
 
@@ -74,13 +93,13 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo>, Clo
         return new MarkerOptions()
                 .title(address)
                 .snippet(note)
-                .position(buildLocation())
+                .position(getLatLng())
                 .icon(icon);
     }
 
     public CircleOptions buildCircleOptions() {
         return new CircleOptions()
-                .center(buildLocation())
+                .center(getLatLng())
                 .radius(radius * 1000)
                 .strokeWidth(2)
                 .strokeColor(makeAlpha(MARKER_COLOR, 0xdd))
