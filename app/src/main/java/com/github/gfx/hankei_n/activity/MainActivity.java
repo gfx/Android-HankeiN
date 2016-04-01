@@ -315,6 +315,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         switch (item.getItemId()) {
+            case R.id.action_toggle_satellite:
+                return toggleSatellite(item);
             case R.id.action_reset:
                 return openResetDialog();
             case R.id.action_about:
@@ -331,6 +333,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    private boolean toggleSatellite(MenuItem item) {
+        boolean satellite = !item.isChecked();
+        item.setChecked(satellite);
+        map.setMapType(satellite ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
+        return true;
     }
 
     private boolean openResetDialog() {
