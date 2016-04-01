@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                MainActivity.this.onMapLongClick(latLng);
+                addPoint(latLng);
             }
         });
 
@@ -385,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
         updateCameraPosition(latLng, myLocationState.getCameraZoom(), true);
     }
 
-    public void onMapLongClick(final LatLng latLng) {
+    public void addPoint(final LatLng latLng) {
         vibrator.vibrate(100);
 
         LocationMemo memo = new LocationMemo("", "", latLng, 0, markerHueAllocator.allocate());
