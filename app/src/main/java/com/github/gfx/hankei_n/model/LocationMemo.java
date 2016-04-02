@@ -63,7 +63,8 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     protected transient Circle circle;
 
     @Setter
-    public LocationMemo(long id, @NonNull String address, @NonNull String note, double latitude, double longitude, double radius,
+    public LocationMemo(long id, @NonNull String address, @NonNull String note, double latitude, double longitude,
+            double radius,
             float markerHue) {
         this.id = id;
         this.address = address;
@@ -129,7 +130,9 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     }
 
     public void showInfoWindow() {
-        marker.showInfoWindow();
+        if (marker != null && !address.isEmpty()) {
+            marker.showInfoWindow();
+        }
     }
 
     private int makeAlpha(int color, int alpha) {

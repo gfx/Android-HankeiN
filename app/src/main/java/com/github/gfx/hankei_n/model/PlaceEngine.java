@@ -89,6 +89,11 @@ public class PlaceEngine {
     }
 
     private void handleLastLocation() {
+        if (true) {
+            guessCurrentLocation();
+            return;
+        }
+
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -115,16 +120,22 @@ public class PlaceEngine {
                         return !s.isEmpty();
                     }
                 })
-                .map(new Func1<String, Locale>() {
+                .map(new Func1<String, String>() {
                     @Override
-                    public Locale call(String s) {
-                        return new Locale("", s);
+                    public String call(String s) {
+                        return new Locale("", s).getDisplayCountry();
                     }
                 })
-                .flatMap(new Func1<Locale, Observable<LatLng>>() {
+                .flatMap(new Func1<String, Observable<LatLng>>() {
                     @Override
-                    public Observable<LatLng> call(Locale locale) {
-                        return getLocationFromAddress(locale.getDisplayCountry());
+                    public Observable<LatLng> call(String country) {
+                        return getLocationFromAddress(country);
+                    }
+                })
+                .filter(new Func1<LatLng, Boolean>() {
+                    @Override
+                    public Boolean call(LatLng latLng) {
+                        return latLng.latitude > 0 && latLng.longitude > 0;
                     }
                 })
                 .first()
@@ -156,11 +167,6 @@ public class PlaceEngine {
     }
 
     public Observable<Iterable<AutocompletePrediction>> queryAutocompletion(final String s) {
-        if (location == null) {
-            Timber.w("no location set");
-            return Observable.empty();
-        }
-
         if (!googleApiClient.isConnected()) {
             Timber.w("not connected");
             return Observable.empty();
