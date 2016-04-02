@@ -30,12 +30,14 @@ import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -68,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String CATEGORY_LOCATION_MEMO = "LocationMemo";
+
+    public static final String CATEGORY_PERMISSIONS = "Permissions";
 
     public static final int RC_PERMISSIONS = 0x01;
 
@@ -201,19 +205,25 @@ public class MainActivity extends AppCompatActivity {
         map.setMyLocationEnabled(true);
     }
 
-    @DebugLog
+    @TargetApi(Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == RC_PERMISSIONS) {
-            int[] granted2 = {PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_GRANTED};
-            if (Arrays.equals(permissions, PERMISSIONS)
-                    && Arrays.equals(grantResults, granted2)) {
-                setMyLocationEnabled();
-            } else {
-                Toast.makeText(this, R.string.launched_without_location, Toast.LENGTH_LONG).show();
-            }
+            onRequestLocationPermissionsResult(permissions, grantResults);
+        }
+    }
+
+    @DebugLog
+    void onRequestLocationPermissionsResult(String[] permissions, int[] grantResults) {
+        int[] granted2 = {PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_GRANTED};
+        if (Arrays.equals(permissions, PERMISSIONS) && Arrays.equals(grantResults, granted2)) {
+            setMyLocationEnabled();
+            tracker.send(new HitBuilders.EventBuilder(CATEGORY_PERMISSIONS, "granted").build());
+        } else {
+            Toast.makeText(this, R.string.launched_without_location, Toast.LENGTH_LONG).show();
+            tracker.send(new HitBuilders.EventBuilder(CATEGORY_PERMISSIONS, "denied").build());
         }
     }
 
