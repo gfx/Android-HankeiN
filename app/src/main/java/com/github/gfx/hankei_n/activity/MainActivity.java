@@ -63,7 +63,7 @@ import hugo.weaving.DebugLog;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
@@ -99,19 +99,19 @@ public class MainActivity extends AppCompatActivity {
     GoogleApiAvailability googleApiAvailability;
 
     @Inject
-    BehaviorSubject<LocationChangedEvent> locationChangedSubject;
+    PublishSubject<LocationChangedEvent> locationChangedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+    PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
+    PublishSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
+    PublishSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoFocusedEvent> locationMemoFocusedSubject;
+    PublishSubject<LocationMemoFocusedEvent> locationMemoFocusedSubject;
 
     @Inject
     LocationMemoManager locationMemos;
@@ -413,11 +413,9 @@ public class MainActivity extends AppCompatActivity {
     private void reset() {
         prefs.resetAll();
         locationMemos.clear();
+        restart();
 
         Toast.makeText(this, R.string.message_reset_done, Toast.LENGTH_SHORT).show();
-
-        locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
-        restart();
     }
 
     private void restart() {

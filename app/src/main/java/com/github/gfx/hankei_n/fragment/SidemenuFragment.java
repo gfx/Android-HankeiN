@@ -33,7 +33,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import rx.functions.Action1;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
@@ -44,13 +44,13 @@ public class SidemenuFragment extends Fragment {
     Adapter adapter;
 
     @Inject
-    BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
+    PublishSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
+    PublishSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoFocusedEvent> locationMemoFocusedSubject;
+    PublishSubject<LocationMemoFocusedEvent> locationMemoFocusedSubject;
 
     @Inject
     Tracker tracker;

@@ -34,7 +34,7 @@ import javax.inject.Inject;
 
 import rx.Subscriber;
 import rx.functions.Action1;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 @ParametersAreNonnullByDefault
 public class EditLocationMemoFragment extends DialogFragment {
@@ -48,10 +48,10 @@ public class EditLocationMemoFragment extends DialogFragment {
     PlaceEngine placeEngine;
 
     @Inject
-    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+    PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
+    PublishSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     DialogEditLocationMemoBinding binding;
 
