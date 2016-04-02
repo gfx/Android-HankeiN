@@ -2,6 +2,7 @@ package com.github.gfx.hankei_n.fragment;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
 import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.DialogEditLocationMemoBinding;
@@ -35,6 +36,7 @@ import javax.inject.Inject;
 
 import rx.Subscriber;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
@@ -110,13 +112,34 @@ public class EditLocationMemoFragment extends DialogFragment {
                 binding.editRadius.setEnabled(true);
             }
             initialAddress = memo.address;
+
+            if (memo.address.isEmpty() && (memo.latitude > 0 && memo.longitude > 0)) {
+                placeEngine.getAddressFromLocation(memo.getLatLng())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Action1<String>() {
+                            @Override
+                            public void call(String s) {
+                                initAddress(s);
+                            }
+                        }, new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable throwable) {
+                                Timber.w(throwable, "no address found");
+                            }
+                        });
+            }
+
         } else {
             memo = memos.newMemo(getContext(), markerHueAllocator, new LatLng(0, 0));
         }
 
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
         binding.editAddress.setAdapter(adapter);
+        return buildDialog(argMemo);
+    }
 
+    private Dialog buildDialog(@Nullable LocationMemo argMemo) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.add_location_memo)
                 .setView(binding.getRoot())

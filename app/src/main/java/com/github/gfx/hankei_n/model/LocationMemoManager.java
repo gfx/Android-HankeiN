@@ -70,7 +70,7 @@ public class LocationMemoManager {
     }
 
     public void remove(LocationMemo memo) {
-        relation.deleter().idEq(memo.id);
+        relation.deleter().idEq(memo.id).execute();
 
         reload(memo).removeFromMap();
         items.remove(memo);

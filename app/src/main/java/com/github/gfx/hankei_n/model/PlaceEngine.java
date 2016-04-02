@@ -146,6 +146,11 @@ public class PlaceEngine {
                     public void call(LatLng latLng) {
                         castMyLocation(latLng, false);
                     }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.w(throwable, "no location found");
+                    }
                 });
     }
 

@@ -284,8 +284,12 @@ public class MainActivity extends AppCompatActivity {
                             public void call(LatLng latLng) {
                                 memo.latitude = latLng.latitude;
                                 memo.longitude = latLng.longitude;
-                                locationMemos.upsert(memo);
-                                memo.addMarkerToMap(map);
+                                addLocationMemo(memo);
+                            }
+                        }, new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable throwable) {
+                                Timber.w(throwable, "no location found for %s", memo.address);
                             }
                         });
             } else {
