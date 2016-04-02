@@ -4,7 +4,6 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import com.github.gfx.hankei_n.HankeiNApplication;
-import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.activity.MainActivity;
 import com.github.gfx.hankei_n.databinding.CardLocationMemoBinding;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
@@ -14,7 +13,6 @@ import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -25,7 +23,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -113,25 +110,6 @@ public class SidemenuFragment extends Fragment {
                 .show(getFragmentManager(), "edit_location_memo");
     }
 
-    void askToRemove(final LocationMemo memo) {
-        vibrator.vibrate(100);
-        new AlertDialog.Builder(getActivity())
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.ask_to_remove_memo)
-                .setPositiveButton(R.string.affirmative, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        removeMemo(memo);
-                    }
-                })
-                .setNegativeButton(R.string.negative, null)
-                .show();
-    }
-
-    void removeMemo(LocationMemo memo) {
-        locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
-    }
-
     private static class VH extends RecyclerView.ViewHolder {
 
         final CardLocationMemoBinding binding;
@@ -193,14 +171,6 @@ public class SidemenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     showEditDialog(memo);
-                }
-            });
-
-            binding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    askToRemove(memo);
-                    return true;
                 }
             });
         }

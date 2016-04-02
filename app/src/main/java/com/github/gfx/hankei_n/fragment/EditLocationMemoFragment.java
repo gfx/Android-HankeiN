@@ -6,6 +6,7 @@ import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.DialogEditLocationMemoBinding;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.PlaceEngine;
@@ -24,7 +25,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -49,6 +49,9 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @Inject
     BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+
+    @Inject
+    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     DialogEditLocationMemoBinding binding;
 
@@ -106,13 +109,39 @@ public class EditLocationMemoFragment extends DialogFragment {
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
         binding.editAddress.setAdapter(adapter);
 
-        dialog = new AlertDialog.Builder(getContext())
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext())
                 .setTitle(R.string.add_location_memo)
                 .setView(binding.getRoot())
-                .setPositiveButton(R.string.dialog_button_add, null /* will be overridden in dialogHandler */)
-                .setNegativeButton(R.string.dialog_button_cancel, null)
-                .create();
+                .setNeutralButton(R.string.dialog_button_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dismiss();
+                    }
+                });
 
+        if (argMemo == null || argMemo.id == 0) {
+            dialogBuilder.setPositiveButton(R.string.dialog_button_add, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    sendLocationMemoAddedEventAndDismiss();
+                }
+            });
+        } else {
+            dialogBuilder.setPositiveButton(R.string.dialog_button_update, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    sendLocationMemoAddedEventAndDismiss();
+                }
+            });
+            dialogBuilder.setNegativeButton(R.string.dialog_button_remove, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    askToRemove();
+                }
+            });
+        }
+
+        dialog = dialogBuilder.create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
@@ -123,21 +152,14 @@ public class EditLocationMemoFragment extends DialogFragment {
     }
 
     void setupEventListeners() {
-        final Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         positiveButton.setEnabled(binding.editAddress.length() > 0);
-
-        positiveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendLocationMemoAddedEventAndDismiss();
-            }
-        });
 
         RxTextView.afterTextChangeEvents(binding.editAddress).subscribe(new Action1<TextViewAfterTextChangeEvent>() {
             @Override
             public void call(TextViewAfterTextChangeEvent event) {
                 Editable s = event.editable();
-                positiveButton.setEnabled(s.length() > 0);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
                 memo.address = s.toString();
             }
         });
@@ -164,12 +186,6 @@ public class EditLocationMemoFragment extends DialogFragment {
                 binding.editRadius.setEnabled(isChecked);
             }
         });
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
     }
 
     @Override
@@ -207,7 +223,6 @@ public class EditLocationMemoFragment extends DialogFragment {
     }
 
     void sendLocationMemoAddedEventAndDismiss() {
-
         placeEngine.getLocationFromAddress(memo.address)
                 .retry(2)
                 .subscribe(new Subscriber<LatLng>() {
@@ -238,6 +253,25 @@ public class EditLocationMemoFragment extends DialogFragment {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
         dialog.dismiss();
     }
+
+    void askToRemove() {
+        new AlertDialog.Builder(getActivity())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(R.string.ask_to_remove_memo)
+                .setPositiveButton(R.string.affirmative, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeMemo(memo);
+                    }
+                })
+                .setNegativeButton(R.string.negative, null)
+                .show();
+    }
+
+    void removeMemo(LocationMemo memo) {
+        locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
+    }
+
 
     public void initAddress(String address) {
         if (binding.editAddress.getText().length() == 0) {
