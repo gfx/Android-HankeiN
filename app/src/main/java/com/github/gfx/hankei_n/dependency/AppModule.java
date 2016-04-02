@@ -8,6 +8,7 @@ import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
@@ -122,6 +123,12 @@ public class AppModule {
     @Singleton
     @Provides
     BehaviorSubject<LocationMemoChangedEvent> provideLocationMemoChangedEventSubject() {
+        return BehaviorSubject.create();
+    }
+
+    @Singleton
+    @Provides
+    BehaviorSubject<LocationMemoFocusedEvent> provideLocationMemoFocusedEventSubject() {
         return BehaviorSubject.create();
     }
 }

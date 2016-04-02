@@ -10,6 +10,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
@@ -20,6 +21,7 @@ import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.LocationMemo;
@@ -109,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
     BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
 
     @Inject
+    BehaviorSubject<LocationMemoFocusedEvent> locationMemoFocusedSubject;
+
+    @Inject
     LocationMemoManager locationMemos;
 
     @Inject
@@ -173,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 Timber.d("onMapReady");
-
                 initMap(googleMap);
             }
         });
@@ -186,6 +190,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 addPoint(latLng);
+            }
+        });
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                LocationMemo memo = locationMemos.findMemoByMarker(marker);
+                showEditDialog(memo);
+                return true;
             }
         });
 
@@ -220,10 +232,16 @@ public class MainActivity extends AppCompatActivity {
         int[] granted2 = {PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_GRANTED};
         if (Arrays.equals(permissions, PERMISSIONS) && Arrays.equals(grantResults, granted2)) {
             setMyLocationEnabled();
-            tracker.send(new HitBuilders.EventBuilder(CATEGORY_PERMISSIONS, "granted").build());
+            tracker.send(new HitBuilders.EventBuilder()
+                    .setCategory(CATEGORY_PERMISSIONS)
+                    .setAction("granted")
+                    .build());
         } else {
             Toast.makeText(this, R.string.launched_without_location, Toast.LENGTH_LONG).show();
-            tracker.send(new HitBuilders.EventBuilder(CATEGORY_PERMISSIONS, "denied").build());
+            tracker.send(new HitBuilders.EventBuilder()
+                    .setCategory(CATEGORY_PERMISSIONS)
+                    .setAction("denied")
+                    .build());
         }
     }
 
@@ -252,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
         LatLng latLng = myLocationState.getLatLng();
         if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
-            updateCameraPosition(latLng, myLocationState.getCameraZoom(), false);
+            updateCameraPosition(latLng, false);
         }
 
         for (final LocationMemo memo : locationMemos.all()) {
@@ -295,8 +313,8 @@ public class MainActivity extends AppCompatActivity {
                 .lift(new OperatorAddToCompositeSubscription<LocationMemoAddedEvent>(subscription))
                 .subscribe(new Action1<LocationMemoAddedEvent>() {
                     @Override
-                    public void call(LocationMemoAddedEvent locationMemoAddedEvent) {
-                        addLocationMemo(locationMemoAddedEvent.memo);
+                    public void call(LocationMemoAddedEvent event) {
+                        addLocationMemo(event.memo);
                     }
                 });
 
@@ -304,10 +322,24 @@ public class MainActivity extends AppCompatActivity {
                 .lift(new OperatorAddToCompositeSubscription<LocationMemoRemovedEvent>(subscription))
                 .subscribe(new Action1<LocationMemoRemovedEvent>() {
                     @Override
-                    public void call(LocationMemoRemovedEvent locationMemoRemovedEvent) {
-                        removeLocationMemo(locationMemoRemovedEvent.memo);
+                    public void call(LocationMemoRemovedEvent event) {
+                        removeLocationMemo(event.memo);
                     }
                 });
+
+        locationMemoFocusedSubject
+                .lift(new OperatorAddToCompositeSubscription<LocationMemoFocusedEvent>(subscription))
+                .subscribe(new Action1<LocationMemoFocusedEvent>() {
+                    @Override
+                    public void call(LocationMemoFocusedEvent event) {
+                        focusOnMemo(event.memo);
+                    }
+                });
+    }
+
+    private void focusOnMemo(LocationMemo memo) {
+        memo.showInfoWindow();
+        updateCameraPosition(memo.getLatLng(), true);
     }
 
     @Override
@@ -414,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
         }
         cameraInitialized = true;
 
-        updateCameraPosition(latLng, myLocationState.getCameraZoom(), true);
+        updateCameraPosition(latLng, true);
     }
 
     public void addPoint(final LatLng latLng) {
@@ -444,9 +476,10 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void updateCameraPosition(LatLng latLng, float zoom, boolean animation) {
+    private void updateCameraPosition(LatLng latLng, boolean animation) {
         assert map != null;
 
+        float zoom = myLocationState.getCameraZoom();
         final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
 
         if (animation) {
@@ -461,12 +494,23 @@ public class MainActivity extends AppCompatActivity {
         Timber.d("updateCameraPosition lat/lng: (%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
 
+    void showEditDialog(LocationMemo memo) {
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(MainActivity.CATEGORY_LOCATION_MEMO)
+                .setAction("showEditDialog")
+                .setLabel(TAG)
+                .build());
+
+        EditLocationMemoFragment.newInstance(memo)
+                .show(getSupportFragmentManager(), "edit_location_memo");
+    }
+
     @DebugLog
     void addLocationMemo(LocationMemo memo) {
         locationMemos.upsert(memo);
 
         // FIXME: ensure GoogleMap is ready
-        memo.addMarkerToMap(map);
+        locationMemos.reload(memo).addMarkerToMap(map);
 
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(CATEGORY_LOCATION_MEMO)
@@ -490,5 +534,7 @@ public class MainActivity extends AppCompatActivity {
                 .build());
 
         locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
+
+        Toast.makeText(this, R.string.memo_removed, Toast.LENGTH_SHORT).show();
     }
 }

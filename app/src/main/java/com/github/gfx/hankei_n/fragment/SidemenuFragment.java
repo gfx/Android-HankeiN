@@ -8,6 +8,7 @@ import com.github.gfx.hankei_n.activity.MainActivity;
 import com.github.gfx.hankei_n.databinding.CardLocationMemoBinding;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
@@ -28,8 +29,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
@@ -40,14 +39,18 @@ import timber.log.Timber;
 @ParametersAreNonnullByDefault
 public class SidemenuFragment extends Fragment {
 
+    static final String TAG = SidemenuFragment.class.getSimpleName();
+
     Adapter adapter;
 
     @Inject
-    BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject; // to subscribe
+    BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject; // to emit
+    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
+    @Inject
+    BehaviorSubject<LocationMemoFocusedEvent> locationMemoFocusedSubject;
 
     @Inject
     Tracker tracker;
@@ -89,7 +92,7 @@ public class SidemenuFragment extends Fragment {
         locationMemoChangedSubject.subscribe(new Action1<LocationMemoChangedEvent>() {
             @Override
             public void call(LocationMemoChangedEvent changedEvent) {
-                adapter.reload();
+                adapter.notifyDataSetChanged();
             }
         });
         return binding.getRoot();
@@ -100,14 +103,21 @@ public class SidemenuFragment extends Fragment {
         super.onResume();
     }
 
-    void showEditDialog(LocationMemo memo) {
+    private void showEditDialog(LocationMemo memo) {
+        vibrator.vibrate(100);
+
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(MainActivity.CATEGORY_LOCATION_MEMO)
                 .setAction("showEditDialog")
+                .setLabel(TAG)
                 .build());
 
         EditLocationMemoFragment.newInstance(memo)
                 .show(getFragmentManager(), "edit_location_memo");
+    }
+
+    private void focusOnMemo(LocationMemo memo) {
+        locationMemoFocusedSubject.onNext(new LocationMemoFocusedEvent(memo));
     }
 
     private static class VH extends RecyclerView.ViewHolder {
@@ -124,19 +134,12 @@ public class SidemenuFragment extends Fragment {
 
         final LayoutInflater inflater;
 
-        List<LocationMemo> list = memos.all();
-
         public Adapter(LayoutInflater inflater) {
             this.inflater = inflater;
         }
 
-        public void reload() {
-            list = memos.all();
-            notifyDataSetChanged();
-        }
-
         public LocationMemo getItem(int position) {
-            return list.get(position);
+            return memos.get(position);
         }
 
 
@@ -147,7 +150,7 @@ public class SidemenuFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return list.size();
+            return memos.count();
         }
 
         @Override
@@ -170,7 +173,14 @@ public class SidemenuFragment extends Fragment {
             binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    focusOnMemo(memo);
+                }
+            });
+            binding.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
                     showEditDialog(memo);
+                    return true;
                 }
             });
         }

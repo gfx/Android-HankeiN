@@ -18,9 +18,9 @@
 
 -keepattributes SourceFile,Signature,Exceptions,*Annotation*,*Table
 
-# RxJava
 -dontwarn rx.internal.util.unsafe.**
-
 -dontwarn android.support.**
+
+-keep class com.facebook.stetho.** { *; }
 
 -keepnames class ** { *; }

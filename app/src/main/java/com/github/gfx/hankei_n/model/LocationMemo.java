@@ -24,7 +24,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @Table("addresses")
 @ParametersAreNonnullByDefault
-public class LocationMemo implements Serializable, Comparable<LocationMemo>, Cloneable {
+public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
     static final int MARKER_COLOR = 0x00ff66;
 
@@ -58,9 +58,9 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo>, Clo
     @Column
     public float markerHue;
 
-    private transient Marker marker;
+    protected transient Marker marker;
 
-    private transient Circle circle;
+    protected transient Circle circle;
 
     @Setter
     public LocationMemo(long id, @NonNull String address, @NonNull String note, double latitude, double longitude, double radius,
@@ -82,6 +82,10 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo>, Clo
     public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
             float markerHue) {
         this(0, address, note, location, radius, markerHue);
+    }
+
+    public LocationMemo copy() {
+        return new LocationMemo(id, address, note, latitude, longitude, radius, markerHue);
     }
 
     public LatLng getLatLng() {
@@ -110,7 +114,7 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo>, Clo
     public void addMarkerToMap(@NonNull GoogleMap map) {
         removeFromMap();
         marker = map.addMarker(buildMarkerOptions());
-        if (radius != 0) {
+        if (radius > 0) {
             circle = map.addCircle(buildCircleOptions());
         }
     }
@@ -122,6 +126,10 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo>, Clo
         if (circle != null) {
             circle.remove();
         }
+    }
+
+    public void showInfoWindow() {
+        marker.showInfoWindow();
     }
 
     private int makeAlpha(int color, int alpha) {
@@ -150,5 +158,15 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo>, Clo
     @Override
     public int compareTo(LocationMemo another) {
         return another.address.compareTo(this.address);
+    }
+
+    public void update(LocationMemo memo) {
+        id = memo.id;
+        address = memo.address;
+        note = memo.note;
+        latitude = memo.latitude;
+        longitude = memo.longitude;
+        radius = memo.radius;
+        markerHue = memo.markerHue;
     }
 }

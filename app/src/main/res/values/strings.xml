@@ -32,4 +32,5 @@
     <string name="radius_unit" translatable="false">km</string>
     <string name="action_toggle_satellite">Satellite</string>
     <string name="launched_without_location">The application launched without location data</string>
+    <string name="memo_removed">Removed!</string>
 </resources>
