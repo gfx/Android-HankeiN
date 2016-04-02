@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.annotations.SerializedName;
 
 import com.github.gfx.android.orma.annotation.Column;
+import com.github.gfx.android.orma.annotation.PrimaryKey;
 import com.github.gfx.android.orma.annotation.Setter;
 import com.github.gfx.android.orma.annotation.Table;
 
@@ -21,14 +22,14 @@ import java.io.Serializable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-@Table
+@Table("addresses")
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo>, Cloneable {
 
     static final int MARKER_COLOR = 0x00ff66;
 
     @SerializedName("id")
-    @Column
+    @PrimaryKey(autoincrement = true)
     public long id;
 
     @SerializedName("address")

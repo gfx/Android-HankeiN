@@ -97,8 +97,6 @@ public class LocationMemoListMigration {
             locationMemoManager.upsert(memo);
         }
 
-        locationMemoManager.close();
-
         preferences.edit().clear().apply();
 
         Timber.d("finish LocationMemoList migration");
