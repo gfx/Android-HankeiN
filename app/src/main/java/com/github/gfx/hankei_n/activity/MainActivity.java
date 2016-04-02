@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
                 placeEngine.getLocationFromAddress(memo.address)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .retry(2)
+                        .retry(1)
                         .subscribe(new Action1<LatLng>() {
                             @Override
                             public void call(LatLng latLng) {
@@ -489,10 +489,10 @@ public class MainActivity extends AppCompatActivity {
         addLocationMemo(memo);
 
         placeEngine.getAddressFromLocation(latLng)
+                .retry(1)
                 .lift(new OperatorAddToCompositeSubscription<String>(subscription))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(2)
                 .onErrorReturn(new Func1<Throwable, String>() {
                     @Override
                     public String call(Throwable throwable) {

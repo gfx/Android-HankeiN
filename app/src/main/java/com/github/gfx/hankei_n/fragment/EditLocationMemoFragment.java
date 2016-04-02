@@ -115,6 +115,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
             if (memo.address.isEmpty() && (memo.latitude > 0 && memo.longitude > 0)) {
                 placeEngine.getAddressFromLocation(memo.getLatLng())
+                        .retry(1)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Action1<String>() {
@@ -277,7 +278,9 @@ public class EditLocationMemoFragment extends DialogFragment {
         }
 
         placeEngine.getLocationFromAddress(memo.address)
-                .retry(2)
+                .retry(1)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<LatLng>() {
                     @Override
                     public void onCompleted() {
