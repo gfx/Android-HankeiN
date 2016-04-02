@@ -7,8 +7,6 @@ import com.github.gfx.hankei_n.R;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.widget.ArrayAdapter;
@@ -24,7 +22,7 @@ import timber.log.Timber;
 
 // FIXME: Use SupportPlaceAutocompleteFragment https://developers.google.com/places/android-api/autocomplete
 @ParametersAreNonnullByDefault
-public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
+public class AddressAutocompleAdapter extends ArrayAdapter<CharSequence> {
 
     final PlaceEngine placeEngine;
 
@@ -35,24 +33,13 @@ public class AddressAutocompleAdapter extends ArrayAdapter<Spanned> {
         this.placeEngine = placeEngine;
     }
 
-    List<Spanned> convertToSpannedList(Iterable<AutocompletePrediction> predictions) {
-        List<Spanned> list = new ArrayList<>();
+    List<CharSequence> convertToSpannedList(Iterable<AutocompletePrediction> predictions) {
+        List<CharSequence> list = new ArrayList<>();
 
         for (AutocompletePrediction prediction : predictions) {
-            list.add(convertToSpanned(prediction));
+            list.add(prediction.getFullText(bold));
         }
         return list;
-    }
-
-    Spanned convertToSpanned(AutocompletePrediction prediction) {
-        SpannableString ss = new SpannableString(prediction.getDescription());
-
-        for (AutocompletePrediction.Substring substring : prediction.getMatchedSubstrings()) {
-            ss.setSpan(bold, substring.getOffset(),
-                    substring.getOffset() + substring.getLength(),
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-        return ss;
     }
 
     boolean isCompleteInput(@Nullable CharSequence s) {
