@@ -179,7 +179,7 @@ public class EditLocationMemoFragment extends DialogFragment {
             @Override
             public void call(TextViewAfterTextChangeEvent event) {
                 Editable s = event.editable();
-                memo.radius = Double.parseDouble(s.toString());
+                memo.radius = parseDouble(s);
             }
         });
 
@@ -188,12 +188,20 @@ public class EditLocationMemoFragment extends DialogFragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 binding.editRadius.setEnabled(isChecked);
                 if (isChecked) {
-                    memo.radius = Double.parseDouble(binding.editRadius.getText().toString());
+                    memo.radius = parseDouble(binding.editRadius.getText());
                 } else {
                     memo.radius = 0;
                 }
             }
         });
+    }
+
+    double parseDouble(CharSequence s) {
+        if (s.length() > 0) {
+            return Double.parseDouble(s.toString());
+        } else {
+            return 0;
+        }
     }
 
     @Override

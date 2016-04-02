@@ -395,20 +395,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean openResetDialog() {
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.action_reset)
+                .setMessage(R.string.message_reset)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        reset();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
 
-        dialog.setTitle(R.string.action_reset);
-
-        dialog.setMessage(R.string.message_reset);
-
-        dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                reset();
-            }
-        });
-        dialog.setNegativeButton(android.R.string.cancel, null);
-        dialog.show();
         return true;
     }
 
@@ -418,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(this, R.string.message_reset_done, Toast.LENGTH_SHORT).show();
 
+        locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
         restart();
     }
 
