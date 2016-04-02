@@ -14,6 +14,8 @@
     <string name="drawer_close">close navigation drawer</string>
     <string name="dialog_button_add">追加</string>
     <string name="dialog_button_cancel">キャンセル</string>
+    <string name="dialog_button_remove">削除</string>
+    <string name="dialog_button_update">更新</string>
     <string name="about_add_location_memo">中心点とは別に住所のメモを記録できます</string>
     <string name="add_location_memo">住所メモを編集する</string>
     <string name="label_address">住所</string>
@@ -27,6 +29,7 @@
     <string name="permission_location_denied">アプリケーションが現在位置を取得できません</string>
     <string name="action_toggle_satellite">衛星写真</string>
     <string name="launched_without_location">位置情報を使わずにアプリを起動します</string>
+    <string name="memo_removed">メモを削除しました</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

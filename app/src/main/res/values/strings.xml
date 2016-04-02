@@ -14,6 +14,8 @@
     <string name="drawer_close">close navigation drawer</string>
     <string name="dialog_button_add">Add</string>
     <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_remove">Remove</string>
+    <string name="dialog_button_update">Update</string>
     <string name="about_add_location_memo">You can write memos for addresses</string>
     <string name="add_location_memo">Edit an address memo</string>
     <string name="label_address">Postal Address</string>
@@ -30,4 +32,5 @@
     <string name="radius_unit" translatable="false">km</string>
     <string name="action_toggle_satellite">Satellite</string>
     <string name="launched_without_location">The application launched without location data</string>
+    <string name="memo_removed">Removed!</string>
 </resources>

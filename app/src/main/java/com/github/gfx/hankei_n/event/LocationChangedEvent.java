@@ -9,11 +9,14 @@ public class LocationChangedEvent {
 
     public final LatLng location;
 
-    public LocationChangedEvent(LatLng latLng) {
+    public final boolean accurate;
+
+    public LocationChangedEvent(LatLng latLng, boolean accurate) {
         location = latLng;
+        this.accurate = accurate;
     }
 
     public LocationChangedEvent(double latitude, double longitude) {
-        location = new LatLng(latitude, longitude);
+        this(new LatLng(latitude, longitude), true);
     }
 }

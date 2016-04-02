@@ -12,6 +12,7 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 
 import android.Manifest;
@@ -24,16 +25,22 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import hugo.weaving.DebugLog;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
 import timber.log.Timber;
 
@@ -65,13 +72,13 @@ public class PlaceEngine {
 
                     @Override
                     public void onConnectionSuspended(int i) {
-
+                        Timber.i("GoogleApiClient connection suspended");
                     }
                 })
                 .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+                        Timber.w("GoogleApiClient connection failed: %s", connectionResult.getErrorMessage());
                     }
                 })
                 .build();
@@ -82,17 +89,69 @@ public class PlaceEngine {
     }
 
     private void handleLastLocation() {
+        if (true) {
+            guessCurrentLocation();
+            return;
+        }
+
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            guessCurrentLocation();
             return;
         }
+
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         if (currentLocation != null) {
-            location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            locationChangedSubject.onNext(new LocationChangedEvent(location));
+            castMyLocation(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), true);
+        } else {
+            guessCurrentLocation();
         }
+    }
+
+    private void guessCurrentLocation() {
+        TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
+        Observable.just(telephony.getNetworkCountryIso(), telephony.getSimCountryIso(), Locale.getDefault().getCountry())
+                .filter(new Func1<String, Boolean>() {
+                    @Override
+                    public Boolean call(String s) {
+                        return !s.isEmpty();
+                    }
+                })
+                .map(new Func1<String, String>() {
+                    @Override
+                    public String call(String s) {
+                        return new Locale("", s).getDisplayCountry();
+                    }
+                })
+                .flatMap(new Func1<String, Observable<LatLng>>() {
+                    @Override
+                    public Observable<LatLng> call(String country) {
+                        return getLocationFromAddress(country);
+                    }
+                })
+                .filter(new Func1<LatLng, Boolean>() {
+                    @Override
+                    public Boolean call(LatLng latLng) {
+                        return latLng.latitude > 0 && latLng.longitude > 0;
+                    }
+                })
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<LatLng>() {
+                    @Override
+                    public void call(LatLng latLng) {
+                        castMyLocation(latLng, false);
+                    }
+                });
+    }
+
+    private void castMyLocation(LatLng latLng, boolean accurate) {
+        location = latLng;
+        locationChangedSubject.onNext(new LocationChangedEvent(latLng, accurate));
     }
 
     public void start() {
@@ -108,11 +167,6 @@ public class PlaceEngine {
     }
 
     public Observable<Iterable<AutocompletePrediction>> queryAutocompletion(final String s) {
-        if (location == null) {
-            Timber.w("no location set");
-            return Observable.empty();
-        }
-
         if (!googleApiClient.isConnected()) {
             Timber.w("not connected");
             return Observable.empty();
@@ -144,6 +198,7 @@ public class PlaceEngine {
         });
     }
 
+    @DebugLog
     public Observable<String> getAddressFromLocation(final LatLng latLng) {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
@@ -175,6 +230,7 @@ public class PlaceEngine {
 
     // Geocoding
 
+    @DebugLog
     public Observable<LatLng> getLocationFromAddress(final String address) {
         return Observable.create(new Observable.OnSubscribe<LatLng>() {
             @Override

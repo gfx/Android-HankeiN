@@ -8,6 +8,7 @@ import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
@@ -25,7 +26,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 @Module
 public class AppModule {
@@ -103,25 +104,31 @@ public class AppModule {
 
     @Singleton
     @Provides
-    BehaviorSubject<LocationChangedEvent> provideLocationChangedEventSubject() {
-        return BehaviorSubject.create();
+    PublishSubject<LocationChangedEvent> provideLocationChangedEventSubject() {
+        return PublishSubject.create();
     }
 
     @Singleton
     @Provides
-    BehaviorSubject<LocationMemoAddedEvent> provideLocationMemoAddedEventSubject() {
-        return BehaviorSubject.create();
+    PublishSubject<LocationMemoAddedEvent> provideLocationMemoAddedEventSubject() {
+        return PublishSubject.create();
     }
 
     @Singleton
     @Provides
-    BehaviorSubject<LocationMemoRemovedEvent> provideLocationMemoRemovedEventSubject() {
-        return BehaviorSubject.create();
+    PublishSubject<LocationMemoRemovedEvent> provideLocationMemoRemovedEventSubject() {
+        return PublishSubject.create();
     }
 
     @Singleton
     @Provides
-    BehaviorSubject<LocationMemoChangedEvent> provideLocationMemoChangedEventSubject() {
-        return BehaviorSubject.create();
+    PublishSubject<LocationMemoChangedEvent> provideLocationMemoChangedEventSubject() {
+        return PublishSubject.create();
+    }
+
+    @Singleton
+    @Provides
+    PublishSubject<LocationMemoFocusedEvent> provideLocationMemoFocusedEventSubject() {
+        return PublishSubject.create();
     }
 }

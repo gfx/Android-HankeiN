@@ -5,11 +5,11 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
@@ -20,11 +20,12 @@ import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
+import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
+import com.github.gfx.hankei_n.model.CameraState;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
-import com.github.gfx.hankei_n.model.MyLocationState;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
@@ -61,7 +62,7 @@ import hugo.weaving.DebugLog;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
@@ -97,22 +98,25 @@ public class MainActivity extends AppCompatActivity {
     GoogleApiAvailability googleApiAvailability;
 
     @Inject
-    BehaviorSubject<LocationChangedEvent> locationChangedSubject;
+    PublishSubject<LocationChangedEvent> locationChangedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
+    PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
+    PublishSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     @Inject
-    BehaviorSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
+    PublishSubject<LocationMemoChangedEvent> locationMemoChangedSubject;
+
+    @Inject
+    PublishSubject<LocationMemoFocusedEvent> locationMemoFocusedSubject;
 
     @Inject
     LocationMemoManager locationMemos;
 
     @Inject
-    MyLocationState myLocationState;
+    CameraState cameraState;
 
     @Inject
     MarkerHueAllocator markerHueAllocator;
@@ -173,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 Timber.d("onMapReady");
-
                 initMap(googleMap);
             }
         });
@@ -186,6 +189,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 addPoint(latLng);
+            }
+        });
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                LocationMemo memo = locationMemos.findMemoByMarker(marker);
+                showEditDialog(memo);
+                return true;
             }
         });
 
@@ -220,10 +231,16 @@ public class MainActivity extends AppCompatActivity {
         int[] granted2 = {PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_GRANTED};
         if (Arrays.equals(permissions, PERMISSIONS) && Arrays.equals(grantResults, granted2)) {
             setMyLocationEnabled();
-            tracker.send(new HitBuilders.EventBuilder(CATEGORY_PERMISSIONS, "granted").build());
+            tracker.send(new HitBuilders.EventBuilder()
+                    .setCategory(CATEGORY_PERMISSIONS)
+                    .setAction("granted")
+                    .build());
         } else {
             Toast.makeText(this, R.string.launched_without_location, Toast.LENGTH_LONG).show();
-            tracker.send(new HitBuilders.EventBuilder(CATEGORY_PERMISSIONS, "denied").build());
+            tracker.send(new HitBuilders.EventBuilder()
+                    .setCategory(CATEGORY_PERMISSIONS)
+                    .setAction("denied")
+                    .build());
         }
     }
 
@@ -250,9 +267,9 @@ public class MainActivity extends AppCompatActivity {
     void loadInitialData() {
         assert map != null;
 
-        LatLng latLng = myLocationState.getLatLng();
+        LatLng latLng = cameraState.getLatLng();
         if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
-            updateCameraPosition(latLng, myLocationState.getCameraZoom(), false);
+            updateCameraPosition(latLng, false);
         }
 
         for (final LocationMemo memo : locationMemos.all()) {
@@ -280,23 +297,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        placeEngine.start();
+
         placeEngine.getMyLocationChangedObservable()
                 .lift(new OperatorAddToCompositeSubscription<LocationChangedEvent>(subscription))
                 .subscribe(new Action1<LocationChangedEvent>() {
                     @Override
-                    public void call(LocationChangedEvent locationChangedEvent) {
-                        onMyLocationChange(locationChangedEvent.location);
+                    public void call(LocationChangedEvent event) {
+                        onMyLocationChanged(event);
                     }
                 });
-
-        placeEngine.start();
 
         locationMemoAddedSubject
                 .lift(new OperatorAddToCompositeSubscription<LocationMemoAddedEvent>(subscription))
                 .subscribe(new Action1<LocationMemoAddedEvent>() {
                     @Override
-                    public void call(LocationMemoAddedEvent locationMemoAddedEvent) {
-                        addLocationMemo(locationMemoAddedEvent.memo);
+                    public void call(LocationMemoAddedEvent event) {
+                        addLocationMemo(event.memo);
                     }
                 });
 
@@ -304,10 +321,25 @@ public class MainActivity extends AppCompatActivity {
                 .lift(new OperatorAddToCompositeSubscription<LocationMemoRemovedEvent>(subscription))
                 .subscribe(new Action1<LocationMemoRemovedEvent>() {
                     @Override
-                    public void call(LocationMemoRemovedEvent locationMemoRemovedEvent) {
-                        removeLocationMemo(locationMemoRemovedEvent.memo);
+                    public void call(LocationMemoRemovedEvent event) {
+                        removeLocationMemo(event.memo);
                     }
                 });
+
+        locationMemoFocusedSubject
+                .lift(new OperatorAddToCompositeSubscription<LocationMemoFocusedEvent>(subscription))
+                .subscribe(new Action1<LocationMemoFocusedEvent>() {
+                    @Override
+                    public void call(LocationMemoFocusedEvent event) {
+                        focusOnMemo(event.memo);
+                    }
+                });
+    }
+
+    private void focusOnMemo(LocationMemo memo) {
+        memo.showInfoWindow();
+        updateCameraPosition(memo.getLatLng(), true);
+        binding.drawer.closeDrawer(GravityCompat.START);
     }
 
     @Override
@@ -316,7 +348,9 @@ public class MainActivity extends AppCompatActivity {
 
         placeEngine.stop();
 
-        cameraInitialized = false;
+        if (map != null) {
+            cameraState.save(map.getCameraPosition());
+        }
 
         subscription.unsubscribe();
     }
@@ -363,30 +397,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean openResetDialog() {
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.action_reset)
+                .setMessage(R.string.message_reset)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        reset();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
 
-        dialog.setTitle(R.string.action_reset);
-
-        dialog.setMessage(R.string.message_reset);
-
-        dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                reset();
-            }
-        });
-        dialog.setNegativeButton(android.R.string.cancel, null);
-        dialog.show();
         return true;
     }
 
     private void reset() {
         prefs.resetAll();
         locationMemos.clear();
+        cameraInitialized = false;
+        restart();
 
         Toast.makeText(this, R.string.message_reset_done, Toast.LENGTH_SHORT).show();
-
-        restart();
     }
 
     private void restart() {
@@ -404,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void onMyLocationChange(LatLng latLng) {
+    public void onMyLocationChanged(LocationChangedEvent event) {
         if (map == null) {
             return;
         }
@@ -414,15 +446,18 @@ public class MainActivity extends AppCompatActivity {
         }
         cameraInitialized = true;
 
-        updateCameraPosition(latLng, myLocationState.getCameraZoom(), true);
+        CameraUpdate update = cameraState.updateCamera(
+                event.location,
+                event.accurate ? CameraState.ZOOM : CameraState.ZOOM_FOR_NON_ACCURATE_LOCATION
+        );
+        map.moveCamera(update);
     }
 
     public void addPoint(final LatLng latLng) {
         vibrator.vibrate(100);
 
-        LocationMemo memo = new LocationMemo("", "", latLng, 0, markerHueAllocator.allocate());
-        final EditLocationMemoFragment fragment = EditLocationMemoFragment.newInstance(memo);
-        fragment.show(getSupportFragmentManager(), "edit_location_memo");
+        final LocationMemo memo = new LocationMemo("", "", latLng, 1.5, markerHueAllocator.allocate());
+        addLocationMemo(memo);
 
         placeEngine.getAddressFromLocation(latLng)
                 .lift(new OperatorAddToCompositeSubscription<String>(subscription))
@@ -439,39 +474,56 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
-                        fragment.initAddress(s);
+                        if (!s.isEmpty()) {
+                            memo.address = s;
+                            addLocationMemo(memo);
+                        }
                     }
                 });
     }
 
-    private void updateCameraPosition(LatLng latLng, float zoom, boolean animation) {
+    private void updateCameraPosition(LatLng latLng, boolean animation) {
         assert map != null;
 
-        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        cameraInitialized = true;
+
+        final CameraUpdate update = cameraState.updateCamera(latLng);
 
         if (animation) {
             map.animateCamera(update);
         } else {
             map.moveCamera(update);
         }
-        locationChangedSubject.onNext(new LocationChangedEvent(latLng));
-
-        myLocationState.save(latLng, zoom);
 
         Timber.d("updateCameraPosition lat/lng: (%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
 
+    void showEditDialog(LocationMemo memo) {
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(MainActivity.CATEGORY_LOCATION_MEMO)
+                .setAction("showEditDialog")
+                .setLabel(TAG)
+                .build());
+
+        EditLocationMemoFragment.newInstance(memo)
+                .show(getSupportFragmentManager(), "edit_location_memo");
+    }
+
     @DebugLog
     void addLocationMemo(LocationMemo memo) {
+        if (memo.id != 0) {
+            tracker.send(new HitBuilders.EventBuilder()
+                    .setCategory(CATEGORY_LOCATION_MEMO)
+                    .setAction("add")
+                    .build());
+        }
+
         locationMemos.upsert(memo);
+        memo = locationMemos.reload(memo);
 
         // FIXME: ensure GoogleMap is ready
         memo.addMarkerToMap(map);
-
-        tracker.send(new HitBuilders.EventBuilder()
-                .setCategory(CATEGORY_LOCATION_MEMO)
-                .setAction("add")
-                .build());
+        memo.showInfoWindow();
 
         locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
     }
@@ -490,5 +542,7 @@ public class MainActivity extends AppCompatActivity {
                 .build());
 
         locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
+
+        Toast.makeText(this, R.string.memo_removed, Toast.LENGTH_SHORT).show();
     }
 }
