@@ -5,7 +5,6 @@ import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,9 +23,9 @@ import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
+import com.github.gfx.hankei_n.model.CameraState;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
-import com.github.gfx.hankei_n.model.MyLocationState;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     LocationMemoManager locationMemos;
 
     @Inject
-    MyLocationState myLocationState;
+    CameraState cameraState;
 
     @Inject
     MarkerHueAllocator markerHueAllocator;
@@ -268,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
     void loadInitialData() {
         assert map != null;
 
-        LatLng latLng = myLocationState.getLatLng();
+        LatLng latLng = cameraState.getLatLng();
         if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
             updateCameraPosition(latLng, false);
         }
@@ -302,8 +301,8 @@ public class MainActivity extends AppCompatActivity {
                 .lift(new OperatorAddToCompositeSubscription<LocationChangedEvent>(subscription))
                 .subscribe(new Action1<LocationChangedEvent>() {
                     @Override
-                    public void call(LocationChangedEvent locationChangedEvent) {
-                        onMyLocationChange(locationChangedEvent.location);
+                    public void call(LocationChangedEvent event) {
+                        onMyLocationChanged(event);
                     }
                 });
 
@@ -349,6 +348,7 @@ public class MainActivity extends AppCompatActivity {
         placeEngine.stop();
 
         cameraInitialized = false;
+        cameraState.save(map.getCameraPosition());
 
         subscription.unsubscribe();
     }
@@ -433,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void onMyLocationChange(LatLng latLng) {
+    public void onMyLocationChanged(LocationChangedEvent event) {
         if (map == null) {
             return;
         }
@@ -443,7 +443,11 @@ public class MainActivity extends AppCompatActivity {
         }
         cameraInitialized = true;
 
-        updateCameraPosition(latLng, true);
+        CameraUpdate update = cameraState.updateCamera(
+                event.location,
+                event.accurate ? CameraState.ZOOM : CameraState.ZOOM_FOR_NON_ACCURATE_LOCATION
+        );
+        map.moveCamera(update);
     }
 
     public void addPoint(final LatLng latLng) {
@@ -476,17 +480,13 @@ public class MainActivity extends AppCompatActivity {
     private void updateCameraPosition(LatLng latLng, boolean animation) {
         assert map != null;
 
-        float zoom = myLocationState.getCameraZoom();
-        final CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        final CameraUpdate update = cameraState.updateCamera(latLng);
 
         if (animation) {
             map.animateCamera(update);
         } else {
             map.moveCamera(update);
         }
-        locationChangedSubject.onNext(new LocationChangedEvent(latLng));
-
-        myLocationState.save(latLng, zoom);
 
         Timber.d("updateCameraPosition lat/lng: (%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
