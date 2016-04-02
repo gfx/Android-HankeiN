@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -356,6 +357,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
+            binding.drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -374,17 +384,10 @@ public class MainActivity extends AppCompatActivity {
                 return openResetDialog();
             case R.id.action_about:
                 return openAboutThisApp();
+            case R.id.action_settings:
+                return openSettings();
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
-            binding.drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
         }
     }
 
@@ -393,6 +396,10 @@ public class MainActivity extends AppCompatActivity {
         item.setChecked(satellite);
         assert map != null;
         map.setMapType(satellite ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("toggleSatelllite")
+                .build());
         return true;
     }
 
@@ -408,7 +415,10 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
-
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openResetDialog")
+                .build());
         return true;
     }
 
@@ -433,6 +443,21 @@ public class MainActivity extends AppCompatActivity {
         final Intent intent = new Intent(Intent.ACTION_VIEW)
                 .setData(Uri.parse(getString(R.string.project_url)));
         startActivity(intent);
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openAboutThisApp")
+                .build());
+        return true;
+    }
+
+    private boolean openSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openSettings")
+                .build());
         return true;
     }
 
@@ -482,6 +507,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    @DebugLog
     private void updateCameraPosition(LatLng latLng, boolean animation) {
         assert map != null;
 
@@ -494,19 +520,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             map.moveCamera(update);
         }
-
-        Timber.d("updateCameraPosition lat/lng: (%.02f, %.02f)", latLng.latitude, latLng.longitude);
     }
 
     void showEditDialog(LocationMemo memo) {
+        EditLocationMemoFragment.newInstance(memo)
+                .show(getSupportFragmentManager(), "edit_location_memo");
+
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(MainActivity.CATEGORY_LOCATION_MEMO)
                 .setAction("showEditDialog")
                 .setLabel(TAG)
                 .build());
-
-        EditLocationMemoFragment.newInstance(memo)
-                .show(getSupportFragmentManager(), "edit_location_memo");
     }
 
     @DebugLog
@@ -536,13 +560,13 @@ public class MainActivity extends AppCompatActivity {
             markerHueAllocator.reset();
         }
 
+        locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
+
+        Toast.makeText(this, R.string.memo_removed, Toast.LENGTH_SHORT).show();
+
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(CATEGORY_LOCATION_MEMO)
                 .setAction("remove")
                 .build());
-
-        locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
-
-        Toast.makeText(this, R.string.memo_removed, Toast.LENGTH_SHORT).show();
     }
 }
