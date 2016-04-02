@@ -12,16 +12,15 @@ import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
+import com.github.gfx.hankei_n.toolbox.Colors;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.ColorInt;
-import android.support.annotation.FloatRange;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -57,6 +56,9 @@ public class SidemenuFragment extends Fragment {
 
     @Inject
     Vibrator vibrator;
+
+    @Inject
+    Colors colors;
 
     @Inject
     LocationMemoManager memos;
@@ -166,7 +168,7 @@ public class SidemenuFragment extends Fragment {
             Timber.d("onBindViewHolder for " + memo.address);
 
             CardLocationMemoBinding binding = holder.binding;
-            binding.circle.setImageDrawable(createCircle(hueToColor(memo.markerHue)));
+            binding.circle.setImageDrawable(createCircle(colors.hueToColor(memo.markerHue)));
             binding.textAddress.setText(memo.address);
             binding.textNote.setText(memo.note);
 
@@ -185,33 +187,16 @@ public class SidemenuFragment extends Fragment {
             });
         }
 
-        @ColorInt
-        int hueToColor(float hue) {
-            return Color.HSVToColor(new float[]{hue, 1.0f, 1.0f});
-        }
-
         Drawable createCircle(@ColorInt int color) {
             GradientDrawable drawable = new GradientDrawable();
             drawable.setShape(GradientDrawable.OVAL);
             drawable.setColor(color);
-            drawable.setStroke(dpToPx(1), darker(color, 0.7f));
+            drawable.setStroke(dpToPx(1), colors.makeDark(color, 0.7f));
             return drawable;
         }
 
         public int dpToPx(int dp) {
             return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
-        }
-
-        public int darker(int color, @FloatRange(from = 0.0, to = 1.0) float factor) {
-            int a = Color.alpha(color);
-            int r = Color.red(color);
-            int g = Color.green(color);
-            int b = Color.blue(color);
-
-            return Color.argb(a,
-                    Math.max((int) (r * factor), 0),
-                    Math.max((int) (g * factor), 0),
-                    Math.max((int) (b * factor), 0));
         }
     }
 }

@@ -478,10 +478,10 @@ public class MainActivity extends AppCompatActivity {
         map.moveCamera(update);
     }
 
-    public void addPoint(final LatLng latLng) {
+    public void addPoint(LatLng latLng) {
         vibrator.vibrate(100);
 
-        final LocationMemo memo = new LocationMemo("", "", latLng, 1.5, markerHueAllocator.allocate());
+        final LocationMemo memo = locationMemos.newMemo(this, markerHueAllocator, latLng);
         addLocationMemo(memo);
 
         placeEngine.getAddressFromLocation(latLng)

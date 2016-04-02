@@ -22,7 +22,7 @@ public class MarkerHueAllocator {
 
     public float allocate() {
         float hue = prefs.get(kMarkerHue, INITIAL_HUE);
-        prefs.put(kMarkerHue, (hue + 20.0f) % 360.0f);
+        prefs.put(kMarkerHue, (hue + 30.0f) % 360.0f);
         return hue;
     }
 }

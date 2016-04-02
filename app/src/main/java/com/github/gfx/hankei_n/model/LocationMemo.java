@@ -15,6 +15,7 @@ import com.github.gfx.android.orma.annotation.PrimaryKey;
 import com.github.gfx.android.orma.annotation.Setter;
 import com.github.gfx.android.orma.annotation.Table;
 
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -26,7 +27,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
-    static final int MARKER_COLOR = 0x00ff66;
+    @ColorInt
+    static final int CIRCLE_COLOR = 0x00ff66;
 
     @SerializedName("id")
     @PrimaryKey(autoincrement = true)
@@ -108,8 +110,13 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
                 .center(getLatLng())
                 .radius(radius * 1000)
                 .strokeWidth(2)
-                .strokeColor(makeAlpha(MARKER_COLOR, 0xdd))
-                .fillColor(makeAlpha(MARKER_COLOR, 0x1f));
+                .strokeColor(makeAlpha(CIRCLE_COLOR, 0xdd))
+                .fillColor(makeAlpha(CIRCLE_COLOR, 0x1f));
+    }
+
+    @ColorInt
+    private static int makeAlpha(@ColorInt int color, int alpha) {
+        return (color & 0xFFFFFF) | (alpha << 24);
     }
 
     public void addMarkerToMap(@NonNull GoogleMap map) {
@@ -135,8 +142,14 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
         }
     }
 
-    private int makeAlpha(int color, int alpha) {
-        return (color & 0xFFFFFF) | (alpha << 24);
+    public void update(LocationMemo memo) {
+        id = memo.id;
+        address = memo.address;
+        note = memo.note;
+        latitude = memo.latitude;
+        longitude = memo.longitude;
+        radius = memo.radius;
+        markerHue = memo.markerHue;
     }
 
     @Override
@@ -161,15 +174,5 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     @Override
     public int compareTo(LocationMemo another) {
         return another.address.compareTo(this.address);
-    }
-
-    public void update(LocationMemo memo) {
-        id = memo.id;
-        address = memo.address;
-        note = memo.note;
-        latitude = memo.latitude;
-        longitude = memo.longitude;
-        radius = memo.radius;
-        markerHue = memo.markerHue;
     }
 }

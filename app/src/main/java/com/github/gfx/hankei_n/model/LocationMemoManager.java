@@ -1,6 +1,10 @@
 package com.github.gfx.hankei_n.model;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+
+import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.content.Context;
 
@@ -47,6 +51,11 @@ public class LocationMemoManager {
             }
         }
         throw new NoSuchElementException();
+    }
+
+    public LocationMemo newMemo(Context context, MarkerHueAllocator markerHueAllocator, LatLng latLng) {
+        double radius = Double.parseDouble(context.getString(R.string.default_radius));
+        return new LocationMemo("", "", latLng, radius, markerHueAllocator.allocate());
     }
 
     public void upsert(LocationMemo memo) {

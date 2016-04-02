@@ -9,6 +9,7 @@ import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
+import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 import com.jakewharton.rxbinding.widget.RxTextView;
@@ -41,6 +42,9 @@ import timber.log.Timber;
 public class EditLocationMemoFragment extends DialogFragment {
 
     static final String kLocationMemo = "location_memo";
+
+    @Inject
+    LocationMemoManager memos;
 
     @Inject
     MarkerHueAllocator markerHueAllocator;
@@ -107,7 +111,7 @@ public class EditLocationMemoFragment extends DialogFragment {
             }
             initialAddress = memo.address;
         } else {
-            memo = new LocationMemo("", "", new LatLng(0, 0), 0, markerHueAllocator.allocate());
+            memo = memos.newMemo(getContext(), markerHueAllocator, new LatLng(0, 0));
         }
 
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
