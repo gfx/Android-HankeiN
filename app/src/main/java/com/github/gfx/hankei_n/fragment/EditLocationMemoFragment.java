@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.subjects.PublishSubject;
+import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
 public class EditLocationMemoFragment extends DialogFragment {
@@ -61,7 +62,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     AddressAutocompleAdapter adapter;
 
-    String oldAddress;
+    String initialAddress;
 
     public static EditLocationMemoFragment newInstance() {
         EditLocationMemoFragment fragment = new EditLocationMemoFragment();
@@ -104,7 +105,7 @@ public class EditLocationMemoFragment extends DialogFragment {
                 binding.editRadius.setText(String.valueOf(argMemo.radius));
                 binding.editRadius.setEnabled(true);
             }
-            oldAddress = memo.address;
+            initialAddress = memo.address;
         } else {
             memo = new LocationMemo("", "", new LatLng(0, 0), 0, markerHueAllocator.allocate());
         }
@@ -238,8 +239,12 @@ public class EditLocationMemoFragment extends DialogFragment {
         super.onPause();
     }
 
+    boolean shouldSkipGeocoding() {
+        return memo.address.equals(initialAddress);
+    }
+
     void sendLocationMemoAddedEventAndDismiss() {
-        if (memo.address.equals(oldAddress)) {
+        if (shouldSkipGeocoding()) {
             castLocationMemo();
             return;
         }
@@ -253,6 +258,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
                     @Override
                     public void onError(Throwable e) {
+                        Timber.w(e, "Can't find an address for %s", memo.getLatLng());
                         // Network error or something?
                         onNext(memo.getLatLng());
                     }
@@ -294,6 +300,7 @@ public class EditLocationMemoFragment extends DialogFragment {
             binding.editAddress.setAdapter(null);
             binding.editAddress.setText(address);
             binding.editAddress.setAdapter(adapter);
+            initialAddress = address;
         }
     }
 }
