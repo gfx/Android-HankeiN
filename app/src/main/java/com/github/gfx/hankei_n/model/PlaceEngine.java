@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -97,7 +98,6 @@ public class PlaceEngine {
             guessCurrentLocation();
             return;
         }
-
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         if (currentLocation != null) {
             castMyLocation(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), true);
@@ -109,7 +109,12 @@ public class PlaceEngine {
     private void guessCurrentLocation() {
         TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
-        Observable.just(telephony.getNetworkCountryIso(), telephony.getSimCountryIso(), Locale.getDefault().getCountry())
+        Observable.just(
+                new Locale("", telephony.getNetworkCountryIso()).getDisplayCountry(),
+                new Locale("", telephony.getSimCountryIso()).getDisplayCountry(),
+                TimeZone.getDefault().getID(),
+                Locale.getDefault().getDisplayCountry()
+        )
                 .onBackpressureBuffer(1)
                 .filter(new Func1<String, Boolean>() {
                     @Override
@@ -117,16 +122,10 @@ public class PlaceEngine {
                         return !s.isEmpty();
                     }
                 })
-                .map(new Func1<String, String>() {
-                    @Override
-                    public String call(String s) {
-                        return new Locale("", s).getDisplayCountry();
-                    }
-                })
                 .flatMap(new Func1<String, Observable<LatLng>>() {
                     @Override
-                    public Observable<LatLng> call(String country) {
-                        return getLocationFromAddress(country);
+                    public Observable<LatLng> call(String hint) {
+                        return getLocationFromAddress(hint);
                     }
                 })
                 .filter(new Func1<LatLng, Boolean>() {
