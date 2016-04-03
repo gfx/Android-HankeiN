@@ -14,8 +14,6 @@ import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
-import com.github.gfx.hankei_n.model.Prefs;
-import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.app.Application;
 import android.content.Context;
@@ -63,7 +61,7 @@ public class AppModule {
 
     @Singleton
     @Provides
-    Tracker provideTracker(Context context, GoogleAnalytics ga) {
+    Tracker provideTracker(GoogleAnalytics ga) {
         Tracker tracker = ga.newTracker(BuildConfig.GA_TRACKING_ID);
         tracker.enableAutoActivityTracking(true);
         tracker.enableExceptionReporting(true);
@@ -71,13 +69,13 @@ public class AppModule {
     }
 
     @Provides
-    Prefs providePrefs(Context context) {
-        return new Prefs(context);
+    Locale providesLocale() {
+        return Locale.getDefault();
     }
 
     @Provides
-    Geocoder provideGeocoder(Context context) {
-        return new Geocoder(context, Locale.getDefault());
+    Geocoder provideGeocoder(Context context, Locale locale) {
+        return new Geocoder(context, locale);
     }
 
     @Provides
@@ -102,11 +100,6 @@ public class AppModule {
     @Provides
     LocationMemoManager provideLocationMemoList(Context context) {
         return new LocationMemoManager(context, DB_NAME);
-    }
-
-    @Provides
-    MarkerHueAllocator provideMarkerHue(Prefs prefs) {
-        return new MarkerHueAllocator(prefs);
     }
 
     @Provides

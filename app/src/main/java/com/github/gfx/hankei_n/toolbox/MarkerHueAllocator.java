@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import com.github.gfx.hankei_n.model.Prefs;
 
+import javax.inject.Inject;
+
 public class MarkerHueAllocator {
 
     static final String kMarkerHue = "marker_hue";
@@ -12,6 +14,7 @@ public class MarkerHueAllocator {
 
     final Prefs prefs;
 
+    @Inject
     public MarkerHueAllocator(Prefs prefs) {
         this.prefs = prefs;
     }

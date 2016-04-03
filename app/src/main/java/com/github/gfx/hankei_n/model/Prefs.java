@@ -7,12 +7,14 @@ import android.support.annotation.Nullable;
 import java.util.Set;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.inject.Inject;
 
 @ParametersAreNonnullByDefault
 public class Prefs {
 
     final private SharedPreferences sharedPrefs;
 
+    @Inject
     public Prefs(Context context) {
         sharedPrefs = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
     }
