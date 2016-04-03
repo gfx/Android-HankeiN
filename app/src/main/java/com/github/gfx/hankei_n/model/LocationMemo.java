@@ -14,6 +14,7 @@ import com.github.gfx.android.orma.annotation.Column;
 import com.github.gfx.android.orma.annotation.PrimaryKey;
 import com.github.gfx.android.orma.annotation.Setter;
 import com.github.gfx.android.orma.annotation.Table;
+import com.github.gfx.hankei_n.toolbox.Locations;
 
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -92,11 +93,11 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     }
 
     public boolean isPointingSomewhere() {
-        return latitude > 0 && longitude > 0;
+        return Locations.isSomewhere(latitude, longitude);
     }
 
     public boolean isPointingNowhere() {
-        return latitude > 0 && longitude > 0;
+        return Locations.isNowhere(latitude, longitude);
     }
 
     public LatLng getLatLng() {

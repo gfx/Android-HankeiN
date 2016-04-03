@@ -23,7 +23,7 @@
     <string name="label_note">Random Note</string>
     <string name="attribution_powered_by_google">Powered by Google</string>
     <string name="error_it_must_be_a_number">Error: It must be a number</string>
-    <string name="ask_to_remove_memo">Do you remove it？</string>
+    <string name="ask_to_remove_memo">Are you sure to remove it？</string>
     <string name="affirmative">Yes</string>
     <string name="negative">No</string>
     <string name="circle_required">Draws a circle?</string>

@@ -318,8 +318,9 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     void askToRemove() {
         new AlertDialog.Builder(getActivity())
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(assets.createMarkerDrawable(memo.markerHue))
                 .setTitle(R.string.ask_to_remove_memo)
+                .setMessage(memo.address)
                 .setPositiveButton(R.string.affirmative, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
