@@ -394,8 +394,8 @@ public class MainActivity extends AppCompatActivity {
                 return openResetDialog();
             case R.id.action_about:
                 return openAboutThisApp();
-            case R.id.action_settings:
-                return openSettings();
+            case R.id.action_manage_app:
+                return openManageApp();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -467,13 +467,13 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean openSettings() {
+    private boolean openManageApp() {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 .setData(Uri.parse("package:" + getPackageName()));
         startActivity(intent);
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
-                .setAction("openSettings")
+                .setAction("openManageApp")
                 .build());
         return true;
     }
