@@ -2,26 +2,23 @@ package com.github.gfx.hankei_n.test;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import android.content.Context;
+import android.support.test.runner.AndroidJUnit4;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, manifest = Config.NONE)
+@RunWith(AndroidJUnit4.class)
 public class LocationMemoManagerTest {
 
     Context context;
