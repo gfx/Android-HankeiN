@@ -118,9 +118,9 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
         return new CircleOptions()
                 .center(getLatLng())
                 .radius(radius * 1000)
-                .strokeWidth(2)
+                .strokeWidth(3)
                 .strokeColor(makeAlpha(CIRCLE_COLOR, 0xdd))
-                .fillColor(makeAlpha(CIRCLE_COLOR, 0x1f));
+                .fillColor(makeAlpha(CIRCLE_COLOR, 0x1c));
     }
 
     @ColorInt
