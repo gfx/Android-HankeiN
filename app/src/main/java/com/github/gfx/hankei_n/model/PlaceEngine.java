@@ -100,7 +100,7 @@ public class PlaceEngine {
         }
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         if (currentLocation != null) {
-            castMyLocation(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), true);
+            castMyLocation(Locations.createLatLng(currentLocation), true);
         } else {
             guessCurrentLocation();
         }
@@ -247,9 +247,8 @@ public class PlaceEngine {
                 if (addresses.isEmpty()) {
                     subscriber.onError(new GeocodingException("No location found for: " + address));
                 } else {
-                    final Address address = addresses.get(0);
-
-                    subscriber.onNext(new LatLng(address.getLatitude(), address.getLongitude()));
+                    Address address = addresses.get(0);
+                    subscriber.onNext(Locations.createLatLng(address));
                     subscriber.onCompleted();
                 }
             }

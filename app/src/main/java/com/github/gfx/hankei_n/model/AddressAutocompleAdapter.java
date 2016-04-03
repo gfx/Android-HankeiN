@@ -24,9 +24,9 @@ import timber.log.Timber;
 @ParametersAreNonnullByDefault
 public class AddressAutocompleAdapter extends ArrayAdapter<CharSequence> {
 
-    final PlaceEngine placeEngine;
+    static final StyleSpan BOLD = new StyleSpan(Typeface.BOLD);
 
-    final StyleSpan bold = new StyleSpan(Typeface.BOLD);
+    final PlaceEngine placeEngine;
 
     public AddressAutocompleAdapter(Context context, PlaceEngine placeEngine) {
         super(context, R.layout.widget_autocomplete, android.R.id.text1);
@@ -37,7 +37,7 @@ public class AddressAutocompleAdapter extends ArrayAdapter<CharSequence> {
         List<CharSequence> list = new ArrayList<>();
 
         for (AutocompletePrediction prediction : predictions) {
-            list.add(prediction.getFullText(bold));
+            list.add(prediction.getFullText(BOLD));
         }
         return list;
     }

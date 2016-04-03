@@ -2,6 +2,8 @@ package com.github.gfx.hankei_n.toolbox;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import android.location.Address;
+import android.location.Location;
 import android.support.annotation.NonNull;
 
 public class Locations {
@@ -22,5 +24,13 @@ public class Locations {
 
     public static boolean isNowhere(@NonNull LatLng latLng) {
         return !isSomewhere(latLng);
+    }
+
+    public static LatLng createLatLng(Location location) {
+        return new LatLng(location.getLatitude(), location.getLongitude());
+    }
+
+    public static LatLng createLatLng(Address address) {
+        return new LatLng(address.getLatitude(), address.getLongitude());
     }
 }
