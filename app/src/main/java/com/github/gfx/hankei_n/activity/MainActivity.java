@@ -184,8 +184,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @DebugLog
     void initMap(@NonNull GoogleMap googleMap) {
         map = googleMap;
+        map.setIndoorEnabled(false); // to avoid StackOverflowError
 
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -383,6 +385,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         switch (item.getItemId()) {
+            case R.id.action_add_memo:
+                return newLocationMemo();
             case R.id.action_toggle_satellite:
                 return toggleSatellite(item);
             case R.id.action_reset:
@@ -394,6 +398,13 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private boolean newLocationMemo() {
+        vibrator.vibrate(60);
+        EditLocationMemoFragment.newInstance()
+                .show(getSupportFragmentManager(), "edit_location_memo");
+        return true;
     }
 
     private boolean toggleSatellite(MenuItem item) {

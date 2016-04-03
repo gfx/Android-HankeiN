@@ -83,14 +83,6 @@ public class SidemenuFragment extends Fragment {
 
         binding.listLocationMemos.setAdapter(adapter);
 
-        binding.buttonAddLocationMemo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditLocationMemoFragment.newInstance()
-                        .show(getFragmentManager(), "edit_location_memo");
-            }
-        });
-
         locationMemoChangedSubject.subscribe(new Action1<LocationMemoChangedEvent>() {
             @Override
             public void call(LocationMemoChangedEvent changedEvent) {

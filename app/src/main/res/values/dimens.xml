@@ -1,11 +1,10 @@
 <resources>
-    <dimen name="bottom_bar_size">32dp</dimen>
-
     <!-- navigation drawer spaces: http://www.google.com/design/spec/patterns/navigation-drawer.html#navigation-drawer-specs -->
 
     <dimen name="sidemenu_space_start">16dp</dimen>
     <dimen name="sidemenu_space_end">16dp</dimen>
     <dimen name="sidemenu_space_top">24dp</dimen>
-    <dimen name="sidemenu_min_width">280dp</dimen>
+
+    <dimen name="sidemenu_width">320dp</dimen>
     <dimen name="sidemenu_content_margin">8dp</dimen>
 </resources>

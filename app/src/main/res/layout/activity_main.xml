@@ -41,7 +41,7 @@
         <fragment
                 android:id="@+id/fragment_sidemenu"
                 android:name="com.github.gfx.hankei_n.fragment.SidemenuFragment"
-                android:layout_width="wrap_content"
+                android:layout_width="@dimen/sidemenu_width"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 />

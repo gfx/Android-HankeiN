@@ -17,7 +17,7 @@
     <string name="dialog_button_remove">削除</string>
     <string name="dialog_button_update">更新</string>
     <string name="about_add_location_memo">中心点とは別に住所のメモを記録できます</string>
-    <string name="add_location_memo">住所メモを編集する</string>
+    <string name="add_location_memo">住所メモの追加</string>
     <string name="label_address">住所</string>
     <string name="label_note">ノート</string>
     <string name="attribution_powered_by_google">Powered by Google</string>

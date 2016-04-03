@@ -5,6 +5,15 @@
         >
 
     <item
+            android:id="@+id/action_add_memo"
+            android:orderInCategory="100"
+            android:icon="@android:drawable/ic_input_add"
+            android:title="@string/add_location_memo"
+            android:checkable="true"
+            app:showAsAction="ifRoom"
+            />
+
+    <item
             android:id="@+id/action_toggle_satellite"
             android:orderInCategory="100"
             android:title="@string/action_toggle_satellite"

@@ -1,45 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         >
 
     <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?attr/colorPrimary"
+            android:background="#99eeeeee"
             android:gravity="center"
-            android:minWidth="@dimen/sidemenu_min_width"
             android:orientation="vertical"
             android:paddingEnd="@dimen/sidemenu_space_end"
             android:paddingStart="@dimen/sidemenu_space_start"
             android:paddingTop="@dimen/sidemenu_space_top"
             >
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxWidth="200dp"
-                android:text="@string/about_add_location_memo"
-                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                />
-
-        <Button
-                android:id="@+id/button_add_location_memo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/sidemenu_content_margin"
-                android:drawableStart="@android:drawable/ic_input_add"
-                android:text="@string/add_location_memo"
-                android:textAppearance="@style/TextAppearance.AppCompat.Button"
-                />
-
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/list_location_memos"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="@dimen/sidemenu_content_margin"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
                 app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                tools:listitem="@layout/card_location_memo"
                 />
 
     </LinearLayout>
