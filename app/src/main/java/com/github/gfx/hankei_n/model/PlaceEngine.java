@@ -110,6 +110,7 @@ public class PlaceEngine {
         TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
         Observable.just(telephony.getNetworkCountryIso(), telephony.getSimCountryIso(), Locale.getDefault().getCountry())
+                .onBackpressureBuffer(1)
                 .filter(new Func1<String, Boolean>() {
                     @Override
                     public Boolean call(String s) {
