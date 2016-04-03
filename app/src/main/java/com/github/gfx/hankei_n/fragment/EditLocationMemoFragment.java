@@ -60,6 +60,9 @@ public class EditLocationMemoFragment extends DialogFragment {
     Assets assets;
 
     @Inject
+    DisplayMetrics displayMetrics;
+
+    @Inject
     PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
     @Inject
@@ -247,14 +250,13 @@ public class EditLocationMemoFragment extends DialogFragment {
 
         WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
 
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int screenWidthDp = (int) (metrics.widthPixels / metrics.density);
+        int screenWidthDp = (int) (displayMetrics.widthPixels / displayMetrics.density);
 
         int widthPx;
         if (screenWidthDp < 500) {
-            widthPx = (int) (metrics.widthPixels * 0.95);
+            widthPx = (int) (displayMetrics.widthPixels * 0.95);
         } else {
-            widthPx = (int) (metrics.widthPixels * 0.75);
+            widthPx = (int) (displayMetrics.widthPixels * 0.75);
         }
         lp.width = widthPx;
         dialog.getWindow().setAttributes(lp);
