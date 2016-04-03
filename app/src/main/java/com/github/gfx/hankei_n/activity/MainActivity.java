@@ -414,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
         map.setMapType(satellite ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
-                .setAction("toggleSatelllite")
+                .setAction("toggleSatellite")
                 .build());
         return true;
     }
