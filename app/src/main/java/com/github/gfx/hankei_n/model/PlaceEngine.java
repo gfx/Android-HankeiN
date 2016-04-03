@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
 import rx.Observable;
@@ -59,31 +60,29 @@ public class PlaceEngine {
 
     LatLng location;
 
-    public PlaceEngine(Context context, Geocoder geocoder) {
+    @Inject
+    public PlaceEngine(Context context, Geocoder geocoder, GoogleApiClient googleApiClient) {
         this.context = context;
         this.geocoder = geocoder;
+        this.googleApiClient = googleApiClient;
 
-        googleApiClient = new GoogleApiClient.Builder(context)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                    @Override
-                    public void onConnected(@Nullable Bundle bundle) {
-                        handleLastLocation();
-                    }
+        googleApiClient.registerConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+            @Override
+            public void onConnected(@Nullable Bundle bundle) {
+                handleLastLocation();
+            }
 
-                    @Override
-                    public void onConnectionSuspended(int i) {
-                        Timber.i("GoogleApiClient connection suspended");
-                    }
-                })
-                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        Timber.w("GoogleApiClient connection failed: %s", connectionResult.getErrorMessage());
-                    }
-                })
-                .build();
+            @Override
+            public void onConnectionSuspended(int i) {
+                Timber.i("GoogleApiClient connection suspended");
+            }
+        });
+        googleApiClient.registerConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+            @Override
+            public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                Timber.w("GoogleApiClient connection failed: %s", connectionResult.getErrorMessage());
+            }
+        });
     }
 
     public Observable<LocationChangedEvent> getMyLocationChangedObservable() {

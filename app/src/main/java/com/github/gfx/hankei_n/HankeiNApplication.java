@@ -33,9 +33,9 @@ public class HankeiNApplication extends Application {
                 .appModule(new AppModule(this))
                 .build();
 
-        StethoDelegator.initialize(this);
-
         if (BuildConfig.DEBUG) {
+            StethoDelegator.initialize(this);
+
             registerActivityLifecycleCallbacks(new ActivityLifecycleLogger());
             Timber.plant(new ExtDebugTree());
             Timber.d("start application");

@@ -3,6 +3,9 @@ package com.github.gfx.hankei_n.dependency;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 
 import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
@@ -11,7 +14,6 @@ import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
-import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
@@ -79,8 +81,11 @@ public class AppModule {
     }
 
     @Provides
-    PlaceEngine providePlacesEngine(Context context, Geocoder geocoder) {
-        return new PlaceEngine(context, geocoder);
+    GoogleApiClient provideGoogleApiClient(Context context) {
+        return new GoogleApiClient.Builder(context)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Provides
