@@ -28,6 +28,7 @@ import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
+import com.github.gfx.hankei_n.toolbox.Locations;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.Manifest;
@@ -269,12 +270,12 @@ public class MainActivity extends AppCompatActivity {
         assert map != null;
 
         LatLng latLng = cameraState.getLatLng();
-        if (latLng.latitude != 0.0f || latLng.longitude != 0.0) {
+        if (Locations.isSomewhere(latLng)) {
             updateCameraPosition(latLng, false);
         }
 
         for (final LocationMemo memo : locationMemos.all()) {
-            if (memo.latitude == 0.0 && memo.longitude == 0.0) {
+            if (memo.isPointingNowhere()) {
                 placeEngine.getLocationFromAddress(memo.address)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())

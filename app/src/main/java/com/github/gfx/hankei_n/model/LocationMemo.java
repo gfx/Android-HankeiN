@@ -91,6 +91,14 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
         return new LocationMemo(id, address, note, latitude, longitude, radius, markerHue);
     }
 
+    public boolean isPointingSomewhere() {
+        return latitude > 0 && longitude > 0;
+    }
+
+    public boolean isPointingNowhere() {
+        return latitude > 0 && longitude > 0;
+    }
+
     public LatLng getLatLng() {
         return new LatLng(latitude, longitude);
     }

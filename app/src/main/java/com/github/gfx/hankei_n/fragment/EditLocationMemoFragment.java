@@ -12,6 +12,7 @@ import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
+import com.github.gfx.hankei_n.toolbox.Locations;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.jakewharton.rxbinding.widget.TextViewAfterTextChangeEvent;
@@ -113,7 +114,7 @@ public class EditLocationMemoFragment extends DialogFragment {
             }
             initialAddress = memo.address;
 
-            if (memo.address.isEmpty() && (memo.latitude > 0 && memo.longitude > 0)) {
+            if (memo.address.isEmpty() && memo.isPointingSomewhere()) {
                 placeEngine.getAddressFromLocation(memo.getLatLng())
                         .retry(1)
                         .subscribeOn(Schedulers.io())
@@ -132,7 +133,7 @@ public class EditLocationMemoFragment extends DialogFragment {
             }
 
         } else {
-            memo = memos.newMemo(getContext(), markerHueAllocator, new LatLng(0, 0));
+            memo = memos.newMemo(getContext(), markerHueAllocator, Locations.NOWHERE);
         }
 
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);

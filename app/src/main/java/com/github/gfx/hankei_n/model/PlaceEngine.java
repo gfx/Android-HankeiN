@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
+import com.github.gfx.hankei_n.toolbox.Locations;
 
 import android.Manifest;
 import android.content.Context;
@@ -89,11 +90,6 @@ public class PlaceEngine {
     }
 
     private void handleLastLocation() {
-        if (true) {
-            guessCurrentLocation();
-            return;
-        }
-
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -135,7 +131,7 @@ public class PlaceEngine {
                 .filter(new Func1<LatLng, Boolean>() {
                     @Override
                     public Boolean call(LatLng latLng) {
-                        return latLng.latitude > 0 && latLng.longitude > 0;
+                        return Locations.isSomewhere(latLng);
                     }
                 })
                 .first()
@@ -149,7 +145,7 @@ public class PlaceEngine {
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        Timber.w(throwable, "no location found");
+                        Timber.w(throwable, "no location found in guessCurrentLocation");
                     }
                 });
     }
@@ -173,7 +169,7 @@ public class PlaceEngine {
 
     public Observable<Iterable<AutocompletePrediction>> queryAutocompletion(final String s) {
         if (!googleApiClient.isConnected()) {
-            Timber.w("not connected");
+            Timber.w("GoogleApiClient is not connected");
             return Observable.empty();
         }
 
@@ -217,7 +213,7 @@ public class PlaceEngine {
                 }
 
                 if (addresses.isEmpty()) {
-                    subscriber.onError(new GeocodingException("No addresses found"));
+                    subscriber.onError(new GeocodingException("No addresses found for: " + latLng));
                 } else {
                     final Address address = addresses.get(0);
 
@@ -249,7 +245,7 @@ public class PlaceEngine {
                 }
 
                 if (addresses.isEmpty()) {
-                    subscriber.onError(new GeocodingException("No addresses found"));
+                    subscriber.onError(new GeocodingException("No location found for: " + address));
                 } else {
                     final Address address = addresses.get(0);
 
