@@ -7,4 +7,6 @@
 
     <dimen name="sidemenu_width">320dp</dimen>
     <dimen name="sidemenu_content_margin">8dp</dimen>
+
+    <dimen name="toolbar_margin">16dp</dimen>
 </resources>

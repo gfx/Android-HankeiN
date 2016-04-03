@@ -178,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                Timber.d("onMapReady");
                 initMap(googleMap);
             }
         });
@@ -217,6 +216,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         assert map != null;
+        int extraPadding = (int) getResources().getDimension(R.dimen.toolbar_margin);
+        map.setPadding(0, binding.toolbar.getHeight() + extraPadding, extraPadding, 0);
         map.setMyLocationEnabled(true);
     }
 
