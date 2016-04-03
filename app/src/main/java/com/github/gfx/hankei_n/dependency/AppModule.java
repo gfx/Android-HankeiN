@@ -17,8 +17,10 @@ import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.res.Resources;
 import android.location.Geocoder;
 import android.os.Vibrator;
+import android.util.DisplayMetrics;
 
 import java.util.Locale;
 
@@ -100,6 +102,11 @@ public class AppModule {
     @Provides
     MarkerHueAllocator provideMarkerHue(Prefs prefs) {
         return new MarkerHueAllocator(prefs);
+    }
+
+    @Provides
+    DisplayMetrics provideDisplayMetrics() {
+        return Resources.getSystem().getDisplayMetrics();
     }
 
     @Singleton

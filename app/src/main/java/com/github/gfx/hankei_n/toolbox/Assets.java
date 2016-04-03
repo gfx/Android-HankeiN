@@ -1,15 +1,21 @@
 package com.github.gfx.hankei_n.toolbox;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
+import android.util.DisplayMetrics;
 
 import javax.inject.Inject;
 
-public class Colors {
+public class Assets {
 
     @Inject
-    public Colors() {
+    DisplayMetrics displayMetrics;
+
+    @Inject
+    public Assets() {
     }
 
     @ColorInt
@@ -30,4 +36,19 @@ public class Colors {
                 Math.max((int) (g * factor), 0),
                 Math.max((int) (b * factor), 0));
     }
+
+    public Drawable createMarkerDrawable(float hue) {
+        int color = hueToColor(hue);
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.OVAL);
+        drawable.setColor(color);
+        drawable.setStroke(dpToPx(1), makeDark(color, 0.7f));
+        return drawable;
+    }
+
+
+    public int dpToPx(int dp) {
+        return (int) (dp * displayMetrics.density);
+    }
+
 }

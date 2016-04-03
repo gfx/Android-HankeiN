@@ -12,6 +12,7 @@ import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
+import com.github.gfx.hankei_n.toolbox.Assets;
 import com.github.gfx.hankei_n.toolbox.Locations;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 import com.jakewharton.rxbinding.widget.RxTextView;
@@ -54,6 +55,9 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     @Inject
     PlaceEngine placeEngine;
+
+    @Inject
+    Assets assets;
 
     @Inject
     PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
@@ -143,7 +147,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     private Dialog buildDialog(@Nullable LocationMemo argMemo) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext())
-                .setTitle(R.string.add_location_memo)
+                .setIcon(assets.createMarkerDrawable(memo.markerHue))
                 .setView(binding.getRoot())
                 .setNeutralButton(R.string.dialog_button_cancel, new DialogInterface.OnClickListener() {
                     @Override
@@ -153,6 +157,7 @@ public class EditLocationMemoFragment extends DialogFragment {
                 });
 
         if (argMemo == null || argMemo.id == 0) {
+            dialogBuilder.setTitle(R.string.add_location_memo);
             dialogBuilder.setPositiveButton(R.string.dialog_button_add, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -160,6 +165,7 @@ public class EditLocationMemoFragment extends DialogFragment {
                 }
             });
         } else {
+            dialogBuilder.setTitle(R.string.update_location_memo);
             dialogBuilder.setPositiveButton(R.string.dialog_button_update, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

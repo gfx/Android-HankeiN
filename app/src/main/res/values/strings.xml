@@ -18,6 +18,7 @@
     <string name="dialog_button_update">Update</string>
     <string name="about_add_location_memo">You can write memos for addresses</string>
     <string name="add_location_memo">Add an address memo</string>
+    <string name="update_location_memo">Update an address memo</string>
     <string name="label_address">Postal Address</string>
     <string name="label_note">Random Note</string>
     <string name="attribution_powered_by_google">Powered by Google</string>
