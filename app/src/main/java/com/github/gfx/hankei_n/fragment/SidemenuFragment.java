@@ -88,11 +88,6 @@ public class SidemenuFragment extends Fragment {
         return binding.getRoot();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
     private void showEditDialog(LocationMemo memo) {
         vibrator.vibrate(100);
 
@@ -132,7 +127,6 @@ public class SidemenuFragment extends Fragment {
             return memos.get(position);
         }
 
-
         @Override
         public long getItemId(int position) {
             return position;
@@ -152,8 +146,6 @@ public class SidemenuFragment extends Fragment {
         @Override
         public void onBindViewHolder(VH holder, int position) {
             final LocationMemo memo = getItem(position);
-
-            Timber.d("onBindViewHolder for " + memo.address);
 
             CardLocationMemoBinding binding = holder.binding;
             binding.circle.setImageDrawable(assets.createMarkerDrawable(memo.markerHue));
