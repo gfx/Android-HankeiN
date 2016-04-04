@@ -5,7 +5,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
@@ -58,7 +57,7 @@ public class PlaceEngine {
 
     final Geocoder geocoder;
 
-    LatLng location;
+    LatLng location = Locations.NOWHERE;
 
     @Inject
     public PlaceEngine(Context context, Geocoder geocoder, GoogleApiClient googleApiClient) {
@@ -150,7 +149,6 @@ public class PlaceEngine {
     }
 
     private void castMyLocation(LatLng latLng, boolean accurate) {
-        location = latLng;
         locationChangedSubject.onNext(new LocationChangedEvent(latLng, accurate));
     }
 
@@ -162,7 +160,7 @@ public class PlaceEngine {
         googleApiClient.disconnect();
     }
 
-    public void setLocation(LatLng latLng) {
+    public void setLocation(@NonNull LatLng latLng) {
         this.location = latLng;
     }
 
@@ -172,19 +170,15 @@ public class PlaceEngine {
             return Observable.empty();
         }
 
-        final LatLngBounds bounds = LatLngBounds.builder()
-                .include(location)
-                .build();
-
-        //List<Integer> types = Arrays.asList();
-        //final AutocompleteFilter filter = AutocompleteFilter.create(types);
-        final AutocompleteFilter filter = null;
-
         return Observable.create(new Observable.OnSubscribe<Iterable<AutocompletePrediction>>() {
             @Override
             public void call(final Subscriber<? super Iterable<AutocompletePrediction>> subscriber) {
+                LatLngBounds bounds = LatLngBounds.builder()
+                        .include(location)
+                        .build();
+
                 final PendingResult<AutocompletePredictionBuffer> result = Places.GeoDataApi
-                        .getAutocompletePredictions(googleApiClient, s, bounds, filter);
+                        .getAutocompletePredictions(googleApiClient, s, bounds, null);
 
                 result.setResultCallback(new ResultCallback<AutocompletePredictionBuffer>() {
                     @Override

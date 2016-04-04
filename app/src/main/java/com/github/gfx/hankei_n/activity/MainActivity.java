@@ -8,6 +8,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -202,6 +203,13 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+        map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                placeEngine.setLocation(cameraPosition.target);
+                cameraState.save(cameraPosition);
+            }
+        });
 
         loadInitialData();
         setMyLocationEnabled();
@@ -356,11 +364,6 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
 
         placeEngine.stop();
-
-        if (map != null) {
-            cameraState.save(map.getCameraPosition());
-        }
-
         subscription.unsubscribe();
     }
 
