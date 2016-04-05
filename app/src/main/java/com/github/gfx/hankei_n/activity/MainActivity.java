@@ -63,7 +63,6 @@ import javax.inject.Inject;
 
 import hugo.weaving.DebugLog;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
@@ -498,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
         map.moveCamera(update);
     }
 
-    public void addPoint(LatLng latLng) {
+    public void addPoint(final LatLng latLng) {
         vibrator.vibrate(100);
 
         final LocationMemo memo = locationMemos.newMemo(this, markerHueAllocator, latLng);
@@ -509,20 +508,16 @@ public class MainActivity extends AppCompatActivity {
                 .lift(new OperatorAddToCompositeSubscription<String>(subscription))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .onErrorReturn(new Func1<Throwable, String>() {
-                    @Override
-                    public String call(Throwable throwable) {
-                        Timber.w(throwable, "Failed to get address from location");
-                        return "";
-                    }
-                })
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
-                        if (!s.isEmpty()) {
-                            memo.address = s;
-                            addLocationMemo(memo);
-                        }
+                        memo.address = s;
+                        addLocationMemo(memo);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.w(throwable, "Failed to getAddressFromLocation: " + latLng);
                     }
                 });
     }
