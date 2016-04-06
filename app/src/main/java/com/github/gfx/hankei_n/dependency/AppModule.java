@@ -63,6 +63,7 @@ public class AppModule {
     @Provides
     Tracker provideTracker(GoogleAnalytics ga) {
         Tracker tracker = ga.newTracker(BuildConfig.GA_TRACKING_ID);
+        tracker.setAnonymizeIp(true);
         tracker.enableAutoActivityTracking(true);
         tracker.enableExceptionReporting(true);
         return tracker;
