@@ -1,8 +1,8 @@
 # Hankei-N [![Build Status](https://secure.travis-ci.org/gfx/Android-HankeiN.png)](http://travis-ci.org/gfx/Android-HankeiN)
 
-<a href='https://play.google.com/store/apps/details?id=com.github.gfx.hankei_n&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-ap-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png' width='256'/></a>
+<a href='https://play.google.com/store/apps/details?id=com.github.gfx.hankei_n&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-ap-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png' width='200'/></a>
 
-(Android, Google Play and the Google Play logo are trademarks of Google Inc.)
+*(Android, Google Play and the Google Play logo are trademarks of Google Inc.)*
 
 # DESCRIPTION
 
