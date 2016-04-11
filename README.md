@@ -1,17 +1,18 @@
 # Hankei-N [![Build Status](https://secure.travis-ci.org/gfx/Android-HankeiN.png)](http://travis-ci.org/gfx/Android-HankeiN)
 
+<a href='https://play.google.com/store/apps/details?id=com.github.gfx.hankei_n&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-ap-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png'/></a>
+
+(Android, Google Play and the Google Play logo are trademarks of Google Inc.)
+
 # DESCRIPTION
 
-地図上のある地点から半径Nキロメートルの地域を調べるAndroidアプリです。また、住所メモにより、任意の地点を地図上に記録できます。
+地図上のある地点から半径Nキロメートルの地域を調べるAndroidアプリです。また、「住所メモ」により、任意の地点を地図上に記録できます。
 
 引っ越しの際に参考としてお使いください。
 
 # PRIVACY POLICY
 
-* このアプリは端末情報とアプリの使用記録をGoogle Analyticsに送信しています
-* アプリ内ではGPSなどにより位置情報を取得していますが、その情報を外部には送信していません
-* アプリ内で入力する住所は、住所の補完のためにGoogleのサーバに情報を送信しています
-* 位置情報や住所メモなど取得したすべての情報は他のアプリからアクセス出来ない場所に保存しています
+See [PRIVACY-POLICY.md][PRIVACY-POLICY.md] for details.
 
 # DEVELOPMENT INFORMATION
 
@@ -27,4 +28,4 @@
 
 # AUTHOR
 
-Fuji, Goro (gfx) <g.psy.va@gmail.com>
+Fuji, Goro (gfx) <gfuji@cpan.org>
