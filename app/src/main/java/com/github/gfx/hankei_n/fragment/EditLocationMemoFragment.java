@@ -72,8 +72,6 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     LocationMemo memo;
 
-    AlertDialog dialog;
-
     AddressAutocompleAdapter adapter;
 
     String initialAddress;
@@ -183,17 +181,17 @@ public class EditLocationMemoFragment extends DialogFragment {
             });
         }
 
-        dialog = dialogBuilder.create();
+        AlertDialog dialog = dialogBuilder.create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
-                setupEventListeners();
+                setupEventListeners((AlertDialog)dialogInterface);
             }
         });
         return dialog;
     }
 
-    void setupEventListeners() {
+    void setupEventListeners(final AlertDialog dialog) {
         Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         positiveButton.setEnabled(binding.editAddress.length() > 0);
 
@@ -313,7 +311,7 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     void castLocationMemo() {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-        dialog.dismiss();
+        getDialog().dismiss();
     }
 
     void askToRemove() {
