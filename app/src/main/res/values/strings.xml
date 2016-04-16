@@ -7,7 +7,6 @@
     <string name="action_about">About this app</string>
     <string name="message_reset">Do you really reset the application data?</string>
     <string name="message_reset_done">Reset!</string>
-    <string name="initial_instruction">Long tap a point in the map</string>
     <string name="project_url">http://github.com/gfx/Android-HankeiN</string>
     <string name="main_setting_radius_km">Radius (km)</string>
     <string name="drawer_open">open navigation drawer</string>
@@ -16,7 +15,6 @@
     <string name="dialog_button_cancel">Cancel</string>
     <string name="dialog_button_remove">Remove</string>
     <string name="dialog_button_update">Update</string>
-    <string name="about_add_location_memo">You can write memos for addresses</string>
     <string name="add_location_memo">Add an address memo</string>
     <string name="update_location_memo">Update an address memo</string>
     <string name="label_address">Postal Address</string>
