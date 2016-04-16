@@ -50,7 +50,7 @@ public class LocationMemoManager {
                 return item;
             }
         }
-        throw new NoSuchElementException("LocationMemo not found: " + memo);
+        throw new NoSuchElementException("LocationMemo not found");
     }
 
     public LocationMemo newMemo(Context context, MarkerHueAllocator markerHueAllocator, LatLng latLng) {
@@ -87,6 +87,6 @@ public class LocationMemoManager {
                 return item;
             }
         }
-        throw new NoSuchElementException("Marker not found: " + marker.getTitle() + " " + marker.getSnippet());
+        throw new NoSuchElementException("Marker not found");
     }
 }
