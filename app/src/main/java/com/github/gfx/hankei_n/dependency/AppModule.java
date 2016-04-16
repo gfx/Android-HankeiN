@@ -56,6 +56,7 @@ public class AppModule {
     public GoogleAnalytics provideGoogleAnalytics(Application application) {
         GoogleAnalytics ga = GoogleAnalytics.getInstance(application);
         ga.enableAutoActivityReports(application);
+        ga.enableAdvertisingIdCollection(true);
         return ga;
     }
 
