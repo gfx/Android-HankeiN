@@ -10,7 +10,6 @@ import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 import android.content.Context;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -38,10 +37,6 @@ public class LocationMemoManager implements Iterable<LocationMemo> {
 
     public int count() {
         return relation.count();
-    }
-
-    public List<LocationMemo> all() {
-        return relation.selector().toList();
     }
 
     public LocationMemo get(int i) {

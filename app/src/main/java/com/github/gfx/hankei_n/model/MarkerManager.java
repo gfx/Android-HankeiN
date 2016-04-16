@@ -17,7 +17,7 @@ public class MarkerManager {
     final LongSparseArray<MarkerHolder> markers = new LongSparseArray<>();
 
     @Inject
-    MarkerManager() {
+    public MarkerManager() {
     }
 
     @NonNull

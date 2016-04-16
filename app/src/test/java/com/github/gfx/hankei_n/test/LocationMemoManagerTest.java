@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
+import com.github.gfx.hankei_n.model.MarkerManager;
+import com.github.gfx.hankei_n.model.OrmaDatabase;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,8 +14,6 @@ import org.robolectric.RuntimeEnvironment;
 
 import android.content.Context;
 import android.support.test.runner.AndroidJUnit4;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
@@ -33,7 +33,8 @@ public class LocationMemoManagerTest {
     }
 
     void reset() {
-        memos = new LocationMemoManager(context, "test.db");
+        memos = new LocationMemoManager(
+                OrmaDatabase.builder(context).name("test.db").build(), new MarkerManager());
     }
 
     @Test
@@ -41,12 +42,10 @@ public class LocationMemoManagerTest {
         memos.upsert(new LocationMemo("foo", "note 1", new LatLng(1.0, 2.0), 1.5, 0));
         memos.upsert(new LocationMemo("bar", "note 2", new LatLng(3.0, 4.0), 1.5, 0));
 
-        List<LocationMemo> list = memos.all();
+        assertThat(memos.count(), is(2));
 
-        assertThat(list.size(), is(2));
-
-        assertThat(list.get(0).address, is("foo"));
-        assertThat(list.get(1).address, is("bar"));
+        assertThat(memos.get(0).address, is("foo"));
+        assertThat(memos.get(1).address, is("bar"));
     }
 
     @Test
@@ -55,12 +54,10 @@ public class LocationMemoManagerTest {
         memos.upsert(a);
         memos.upsert(a);
 
-        List<LocationMemo> list = memos.all();
+        assertThat(memos.count(), is(1));
 
-        assertThat(list.size(), is(1));
-
-        assertThat(list.get(0).address, is("foo"));
-        assertThat(list.get(0).id, is(greaterThan(0L)));
+        assertThat(memos.get(0).address, is("foo"));
+        assertThat(memos.get(0).id, is(greaterThan(0L)));
     }
 
     @Test
@@ -73,10 +70,8 @@ public class LocationMemoManagerTest {
 
         memos.remove(a);
 
-        List<LocationMemo> list = memos.all();
-
-        assertThat(list.size(), is(1));
-        assertThat(list.get(0), is(b));
+        assertThat(memos.count(), is(1));
+        assertThat(memos.get(0), is(b));
     }
 
     @Test
@@ -86,15 +81,14 @@ public class LocationMemoManagerTest {
 
         reset();
 
-        List<LocationMemo> list = memos.all();
-        assertThat(list.size(), is(2));
+        assertThat(memos.count(), is(2));
 
-        assertThat(list.get(0).address, is("foo"));
-        assertThat(list.get(0).note, is("note 1"));
-        assertThat(list.get(0).getLatLng(), is(new LatLng(1.0, 2.0)));
+        assertThat(memos.get(0).address, is("foo"));
+        assertThat(memos.get(0).note, is("note 1"));
+        assertThat(memos.get(0).getLatLng(), is(new LatLng(1.0, 2.0)));
 
-        assertThat(list.get(1).address, is("bar"));
-        assertThat(list.get(1).note, is("note 2"));
-        assertThat(list.get(1).getLatLng(), is(new LatLng(3.0, 4.0)));
+        assertThat(memos.get(1).address, is("bar"));
+        assertThat(memos.get(1).note, is("note 2"));
+        assertThat(memos.get(1).getLatLng(), is(new LatLng(3.0, 4.0)));
     }
 }
