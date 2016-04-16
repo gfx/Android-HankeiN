@@ -236,9 +236,9 @@ public class EditLocationMemoFragment extends DialogFragment {
     }
 
     double parseDouble(CharSequence s) {
-        if (s.length() > 0) {
+        try {
             return Double.parseDouble(s.toString());
-        } else {
+        } catch (NumberFormatException e) {
             return 0;
         }
     }
