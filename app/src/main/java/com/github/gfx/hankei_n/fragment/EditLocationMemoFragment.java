@@ -3,9 +3,9 @@ package com.github.gfx.hankei_n.fragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
-import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.DialogEditLocationMemoBinding;
+import com.github.gfx.hankei_n.dependency.DependencyContainer;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
 import com.github.gfx.hankei_n.model.AddressAutocompleAdapter;
@@ -100,7 +100,7 @@ public class EditLocationMemoFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        HankeiNApplication.getAppComponent(context).inject(this);
+        DependencyContainer.getComponent(this).inject(this);
     }
 
     @NonNull

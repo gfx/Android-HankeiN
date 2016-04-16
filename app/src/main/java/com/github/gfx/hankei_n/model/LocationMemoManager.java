@@ -4,53 +4,48 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import com.github.gfx.hankei_n.R;
+import com.github.gfx.hankei_n.dependency.scope.ContextScope;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.content.Context;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.inject.Inject;
 
 @ParametersAreNonnullByDefault
-public class LocationMemoManager {
+@ContextScope
+public class LocationMemoManager implements Iterable<LocationMemo> {
 
     final OrmaDatabase orma;
 
-    final List<LocationMemo> items;
+    final MarkerManager markerManager;
 
     final LocationMemo_Relation relation;
 
-    public LocationMemoManager(Context context, String name) {
-        orma = OrmaDatabase.builder(context)
-                .name(name)
-                .build();
+    @Inject
+    public LocationMemoManager(OrmaDatabase orma, MarkerManager markerManager) {
+        this.orma = orma;
 
         relation = orma.relationOfLocationMemo()
                 .orderByIdAsc();
-        items = relation.selector().toList();
+
+        this.markerManager = markerManager;
     }
 
     public int count() {
-        return items.size();
+        return relation.count();
     }
 
     public List<LocationMemo> all() {
-        return items;
+        return relation.selector().toList();
     }
 
     public LocationMemo get(int i) {
-        return items.get(i);
-    }
-
-    public LocationMemo reload(LocationMemo memo) {
-        for (LocationMemo item : items) {
-            if (item.equals(memo)) {
-                return item;
-            }
-        }
-        throw new NoSuchElementException("LocationMemo not found");
+        return relation.get(i);
     }
 
     public LocationMemo newMemo(Context context, MarkerHueAllocator markerHueAllocator, LatLng latLng) {
@@ -61,32 +56,32 @@ public class LocationMemoManager {
     public void upsert(LocationMemo memo) {
         if (memo.id == 0) {
             memo.id = relation.inserter().execute(memo);
-            items.add(memo);
         } else {
             relation.upserter().execute(memo);
-            int index = items.indexOf(memo);
-            items.get(index).update(memo);
         }
     }
 
     public void remove(LocationMemo memo) {
         relation.deleter().idEq(memo.id).execute();
-
-        reload(memo).removeFromMap();
-        items.remove(memo);
+        markerManager.remove(memo);
+        memo.id = -1;
     }
 
     public void clear() {
         relation.deleter().execute();
-        items.clear();
     }
 
     public LocationMemo findMemoByMarker(Marker marker) {
-        for (LocationMemo item : items) {
-            if (marker.equals(item.marker)) {
+        for (LocationMemo item : relation) {
+            if (marker.equals(markerManager.get(item))) {
                 return item;
             }
         }
-        throw new NoSuchElementException("Marker not found");
+        throw new NoSuchElementException("Marker not found for id=" + marker.getId());
+    }
+
+    @Override
+    public Iterator<LocationMemo> iterator() {
+        return relation.iterator();
     }
 }

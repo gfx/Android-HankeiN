@@ -3,10 +3,10 @@ package com.github.gfx.hankei_n.fragment;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
-import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.activity.MainActivity;
 import com.github.gfx.hankei_n.databinding.CardLocationMemoBinding;
 import com.github.gfx.hankei_n.databinding.FragmentSidemenuBinding;
+import com.github.gfx.hankei_n.dependency.DependencyContainer;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
@@ -64,9 +64,7 @@ public class SidemenuFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        HankeiNApplication.getAppComponent(context).inject(this);
-
+        DependencyContainer.getComponent(this).inject(this);
         Timber.d("onAttach");
     }
 

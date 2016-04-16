@@ -13,7 +13,7 @@ import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoFocusedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoRemovedEvent;
-import com.github.gfx.hankei_n.model.LocationMemoManager;
+import com.github.gfx.hankei_n.model.OrmaDatabase;
 
 import android.app.Application;
 import android.content.Context;
@@ -35,25 +35,25 @@ public class AppModule {
 
     static final String DB_NAME = "main.db";
 
-    final Context context;
+    final Application application;
 
-    public AppModule(Context context) {
-        this.context = context;
+    public AppModule(Application application) {
+        this.application = application;
     }
 
     @Provides
-    Application provideApplication() {
-        return (Application) context.getApplicationContext();
+    public Application provideApplication() {
+        return application;
     }
 
     @Provides
-    Context provideContext() {
-        return context;
+    public Context provideApplicationContext() {
+        return application;
     }
 
     @Singleton
     @Provides
-    GoogleAnalytics provideGoogleAnalytics(Application application) {
+    public GoogleAnalytics provideGoogleAnalytics(Application application) {
         GoogleAnalytics ga = GoogleAnalytics.getInstance(application);
         ga.enableAutoActivityReports(application);
         return ga;
@@ -61,7 +61,7 @@ public class AppModule {
 
     @Singleton
     @Provides
-    Tracker provideTracker(GoogleAnalytics ga) {
+    public Tracker provideTracker(GoogleAnalytics ga) {
         Tracker tracker = ga.newTracker(BuildConfig.GA_TRACKING_ID);
         tracker.setAnonymizeIp(true);
         tracker.enableAutoActivityTracking(true);
@@ -70,17 +70,22 @@ public class AppModule {
     }
 
     @Provides
-    Locale providesLocale() {
+    public GoogleApiAvailability provideGoogleApiAvailability() {
+        return GoogleApiAvailability.getInstance();
+    }
+
+    @Provides
+    public Locale providesLocale() {
         return Locale.getDefault();
     }
 
     @Provides
-    Geocoder provideGeocoder(Context context, Locale locale) {
+    public Geocoder provideGeocoder(Context context, Locale locale) {
         return new Geocoder(context, locale);
     }
 
     @Provides
-    GoogleApiClient provideGoogleApiClient(Context context) {
+    public GoogleApiClient provideGoogleApiClient(Context context) {
         return new GoogleApiClient.Builder(context)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(LocationServices.API)
@@ -88,53 +93,56 @@ public class AppModule {
     }
 
     @Provides
-    Vibrator provideVibrator(Context context) {
+    public Vibrator provideVibrator(Context context) {
         return (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     @Provides
-    GoogleApiAvailability provideGoogleApiAvailability() {
-        return GoogleApiAvailability.getInstance();
+    public Resources provideResources(Context context) {
+        return context.getResources();
+    }
+
+
+    @Provides
+    public DisplayMetrics provideDisplayMetrics(Resources resources) {
+        return resources.getDisplayMetrics();
     }
 
     @Singleton
     @Provides
-    LocationMemoManager provideLocationMemoList(Context context) {
-        return new LocationMemoManager(context, DB_NAME);
-    }
-
-    @Provides
-    DisplayMetrics provideDisplayMetrics() {
-        return Resources.getSystem().getDisplayMetrics();
+    public OrmaDatabase provideOrmaDatabase(Context context) {
+        return OrmaDatabase.builder(context)
+                .name(DB_NAME)
+                .build();
     }
 
     @Singleton
     @Provides
-    PublishSubject<LocationChangedEvent> provideLocationChangedEventSubject() {
+    public PublishSubject<LocationChangedEvent> provideLocationChangedEventSubject() {
         return PublishSubject.create();
     }
 
     @Singleton
     @Provides
-    PublishSubject<LocationMemoAddedEvent> provideLocationMemoAddedEventSubject() {
+    public PublishSubject<LocationMemoAddedEvent> provideLocationMemoAddedEventSubject() {
         return PublishSubject.create();
     }
 
     @Singleton
     @Provides
-    PublishSubject<LocationMemoRemovedEvent> provideLocationMemoRemovedEventSubject() {
+    public PublishSubject<LocationMemoRemovedEvent> provideLocationMemoRemovedEventSubject() {
         return PublishSubject.create();
     }
 
     @Singleton
     @Provides
-    PublishSubject<LocationMemoChangedEvent> provideLocationMemoChangedEventSubject() {
+    public PublishSubject<LocationMemoChangedEvent> provideLocationMemoChangedEventSubject() {
         return PublishSubject.create();
     }
 
     @Singleton
     @Provides
-    PublishSubject<LocationMemoFocusedEvent> provideLocationMemoFocusedEventSubject() {
+    public PublishSubject<LocationMemoFocusedEvent> provideLocationMemoFocusedEventSubject() {
         return PublishSubject.create();
     }
 }

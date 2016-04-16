@@ -1,12 +1,9 @@
 package com.github.gfx.hankei_n.model;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.annotations.SerializedName;
 
@@ -60,10 +57,6 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     @SerializedName("marker_hue")
     @Column
     public float markerHue;
-
-    protected transient Marker marker;
-
-    protected transient Circle circle;
 
     @Setter
     public LocationMemo(long id, @NonNull String address, @NonNull String note, double latitude, double longitude,
@@ -126,29 +119,6 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     @ColorInt
     private static int makeAlpha(@ColorInt int color, int alpha) {
         return (color & 0xFFFFFF) | (alpha << 24);
-    }
-
-    public void addMarkerToMap(@NonNull GoogleMap map) {
-        removeFromMap();
-        marker = map.addMarker(buildMarkerOptions());
-        if (radius > 0) {
-            circle = map.addCircle(buildCircleOptions());
-        }
-    }
-
-    public void removeFromMap() {
-        if (marker != null) {
-            marker.remove();
-        }
-        if (circle != null) {
-            circle.remove();
-        }
-    }
-
-    public void showInfoWindow() {
-        if (marker != null && !address.isEmpty()) {
-            marker.showInfoWindow();
-        }
     }
 
     public void update(LocationMemo memo) {

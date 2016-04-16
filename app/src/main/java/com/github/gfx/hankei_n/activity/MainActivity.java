@@ -15,9 +15,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
 import com.cookpad.android.rxt4a.subscriptions.AndroidCompositeSubscription;
-import com.github.gfx.hankei_n.HankeiNApplication;
 import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.databinding.ActivityMainBinding;
+import com.github.gfx.hankei_n.dependency.DependencyContainer;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
@@ -27,6 +27,7 @@ import com.github.gfx.hankei_n.fragment.EditLocationMemoFragment;
 import com.github.gfx.hankei_n.model.CameraState;
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
+import com.github.gfx.hankei_n.model.MarkerManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.model.Prefs;
 import com.github.gfx.hankei_n.toolbox.Locations;
@@ -118,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
     LocationMemoManager locationMemos;
 
     @Inject
+    MarkerManager markerManager;
+
+    @Inject
     CameraState cameraState;
 
     @Inject
@@ -141,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        HankeiNApplication.getAppComponent(this).inject(this);
+        DependencyContainer.getComponent(this).inject(this);
 
         setupDrawer();
         checkGooglePlayServices();
@@ -284,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
             updateCameraPosition(latLng, false);
         }
 
-        for (final LocationMemo memo : locationMemos.all()) {
+        for (final LocationMemo memo : locationMemos) {
             if (memo.isPointingNowhere()) {
                 placeEngine.getLocationFromAddress(memo.address)
                         .subscribeOn(Schedulers.io())
@@ -304,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
             } else {
-                memo.addMarkerToMap(map);
+                markerManager.create(map, memo);
             }
         }
     }
@@ -353,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void focusOnMemo(LocationMemo memo) {
-        memo.showInfoWindow();
+        markerManager.get(memo).showInfoWindow();
         updateCameraPosition(memo.getLatLng(), true);
         binding.drawer.closeDrawer(GravityCompat.START);
     }
@@ -571,11 +575,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         locationMemos.upsert(memo);
-        memo = locationMemos.reload(memo);
 
         // FIXME: ensure GoogleMap is ready
-        memo.addMarkerToMap(map);
-        memo.showInfoWindow();
+        Marker marker = markerManager.create(map, memo);
+        marker.showInfoWindow();
 
         locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
     }
