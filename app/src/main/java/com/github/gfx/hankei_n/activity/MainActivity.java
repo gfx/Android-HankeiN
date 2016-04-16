@@ -398,6 +398,8 @@ public class MainActivity extends AppCompatActivity {
                 return openAboutThisApp();
             case R.id.action_manage_app:
                 return openManageApp();
+            case R.id.action_open_with_play_store:
+                return openWithPlayStore();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -476,6 +478,17 @@ public class MainActivity extends AppCompatActivity {
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
                 .setAction("openManageApp")
+                .build());
+        return true;
+    }
+
+    private boolean openWithPlayStore() {
+        Intent intent = new Intent(Intent.ACTION_VIEW)
+                .setData(Uri.parse("market://details?id=" + getPackageName().replace(".debug", "")));
+        startActivity(intent);
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openWithPlayStore")
                 .build());
         return true;
     }
