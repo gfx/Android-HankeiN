@@ -43,6 +43,7 @@
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_mapmode"
                     android:text="Street View"
+                    android:onClick="@{fragment.openWithStreetMap}"
                     />
 
             <Button
@@ -52,6 +53,7 @@
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_share"
                     android:text="Share"
+                    android:onClick="@{fragment.share}"
                     />
 
             <Button

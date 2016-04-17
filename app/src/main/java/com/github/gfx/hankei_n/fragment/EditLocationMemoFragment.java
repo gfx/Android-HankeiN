@@ -21,6 +21,8 @@ import com.jakewharton.rxbinding.widget.TextViewAfterTextChangeEvent;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
@@ -30,6 +32,8 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
+
+import java.util.Locale;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -59,6 +63,8 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     @Inject
     DisplayMetrics displayMetrics;
+
+    @Inject Locale locale;
 
     @Inject
     PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
@@ -278,6 +284,30 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     void removeMemo() {
         locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
+    }
+
+    public void openWithStreetMap(View view) {
+        // https://developers.google.com/maps/documentation/android-api/intents
+        Uri uri = Uri.parse(String.format(locale, "google.streetview:cbll=%g,%g", memo.latitude, memo.longitude));
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+
+    public void share(View view) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+
+        StringBuilder textToShare = new StringBuilder();
+        textToShare.append(binding.editAddress.getText());
+        textToShare.append('\n');
+        if (binding.editNote.getText().length() > 0) {
+            textToShare.append(binding.editNote.getText());
+            textToShare.append('\n');
+        }
+
+        textToShare.append(String.format(locale, "https://www.google.co.jp/maps/?q=%g,%g", memo.latitude, memo.longitude));
+        intent.putExtra(Intent.EXTRA_TEXT, (CharSequence)textToShare);
+        startActivity(Intent.createChooser(intent, "To share: " + binding.editAddress.getText()));
     }
 
     public void initAddress(String address) {
