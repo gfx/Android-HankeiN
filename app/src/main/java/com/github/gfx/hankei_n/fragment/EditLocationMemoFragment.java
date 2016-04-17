@@ -21,17 +21,19 @@ import com.jakewharton.rxbinding.widget.TextViewAfterTextChangeEvent;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.WindowManager;
-import android.widget.Button;
+import android.view.View;
 import android.widget.CompoundButton;
+
+import java.util.Locale;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -43,7 +45,7 @@ import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 @ParametersAreNonnullByDefault
-public class EditLocationMemoFragment extends DialogFragment {
+public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     static final String kLocationMemo = "location_memo";
 
@@ -62,6 +64,8 @@ public class EditLocationMemoFragment extends DialogFragment {
     @Inject
     DisplayMetrics displayMetrics;
 
+    @Inject Locale locale;
+
     @Inject
     PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
 
@@ -71,8 +75,6 @@ public class EditLocationMemoFragment extends DialogFragment {
     DialogEditLocationMemoBinding binding;
 
     LocationMemo memo;
-
-    AlertDialog dialog;
 
     AddressAutocompleAdapter adapter;
 
@@ -103,21 +105,32 @@ public class EditLocationMemoFragment extends DialogFragment {
         DependencyContainer.getComponent(this).inject(this);
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        binding = DialogEditLocationMemoBinding.inflate(inflater, null, false);
+    public void setupDialog(Dialog dialog, int style) {
+        super.setupDialog(dialog, style);
 
-        LocationMemo argMemo = (LocationMemo) getArguments().getSerializable(kLocationMemo);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        binding = DialogEditLocationMemoBinding.inflate(inflater);
+        bindData((LocationMemo) getArguments().getSerializable(kLocationMemo));
+        dialog.setContentView(binding.getRoot());
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                // it must be done after initial binding
+                setupEventListeners();
+            }
+        });
+    }
+
+    public void bindData(@Nullable LocationMemo argMemo) {
         if (argMemo != null) {
             memo = argMemo.copy();
-            binding.editAddress.setText(argMemo.address);
-            binding.editNote.setText(argMemo.note);
-            if (argMemo.radius > 0) {
+            if (memo.radius > 0) {
                 binding.checkboxCircle.setChecked(true);
-                binding.editRadius.setText(String.valueOf(argMemo.radius));
                 binding.editRadius.setEnabled(true);
+            } else {
+                binding.editRadius.setText(R.string.default_radius);
             }
             initialAddress = memo.address;
 
@@ -142,66 +155,23 @@ public class EditLocationMemoFragment extends DialogFragment {
         } else {
             memo = memos.newMemo(getContext(), markerHueAllocator, Locations.NOWHERE);
         }
+        Timber.d("setMemo: %s", memo);
+        binding.setMemo(memo);
+        binding.setFragment(this);
 
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
         binding.editAddress.setAdapter(adapter);
-        return buildDialog(argMemo);
-    }
 
-    private Dialog buildDialog(@Nullable LocationMemo argMemo) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext())
-                .setIcon(assets.createMarkerDrawable(memo.markerHue))
-                .setView(binding.getRoot())
-                .setNeutralButton(R.string.dialog_button_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
-                    }
-                });
-
-        if (argMemo == null || argMemo.id == 0) {
-            dialogBuilder.setTitle(R.string.add_location_memo);
-            dialogBuilder.setPositiveButton(R.string.dialog_button_add, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    sendLocationMemoAddedEventAndDismiss();
-                }
-            });
-        } else {
-            dialogBuilder.setTitle(R.string.update_location_memo);
-            dialogBuilder.setPositiveButton(R.string.dialog_button_update, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    sendLocationMemoAddedEventAndDismiss();
-                }
-            });
-            dialogBuilder.setNegativeButton(R.string.dialog_button_remove, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    askToRemove();
-                }
-            });
-        }
-
-        dialog = dialogBuilder.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                setupEventListeners();
-            }
-        });
-        return dialog;
+        binding.save.setEnabled(binding.editAddress.length() > 0);
     }
 
     void setupEventListeners() {
-        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        positiveButton.setEnabled(binding.editAddress.length() > 0);
 
         RxTextView.afterTextChangeEvents(binding.editAddress).subscribe(new Action1<TextViewAfterTextChangeEvent>() {
             @Override
             public void call(TextViewAfterTextChangeEvent event) {
                 Editable s = event.editable();
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(s.length() > 0);
+                binding.save.setEnabled(s.length() > 0);
                 memo.address = s.toString();
             }
         });
@@ -244,25 +214,6 @@ public class EditLocationMemoFragment extends DialogFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        Dialog dialog = getDialog();
-
-        WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-
-        int screenWidthDp = (int) (displayMetrics.widthPixels / displayMetrics.density);
-
-        int widthPx;
-        if (screenWidthDp < 500) {
-            widthPx = (int) (displayMetrics.widthPixels * 0.95);
-        } else {
-            widthPx = (int) (displayMetrics.widthPixels * 0.75);
-        }
-        lp.width = widthPx;
-        dialog.getWindow().setAttributes(lp);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
@@ -280,7 +231,7 @@ public class EditLocationMemoFragment extends DialogFragment {
         return memo.address.equals(initialAddress);
     }
 
-    void sendLocationMemoAddedEventAndDismiss() {
+    public void sendLocationMemoAddedEventAndDismiss(View view) {
         if (shouldSkipGeocoding()) {
             castLocationMemo();
             return;
@@ -313,10 +264,10 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     void castLocationMemo() {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-        dialog.dismiss();
+        getDialog().dismiss();
     }
 
-    void askToRemove() {
+    public void askToRemove(View view) {
         new AlertDialog.Builder(getActivity())
                 .setIcon(assets.createMarkerDrawable(memo.markerHue))
                 .setTitle(R.string.ask_to_remove_memo)
@@ -333,6 +284,30 @@ public class EditLocationMemoFragment extends DialogFragment {
 
     void removeMemo() {
         locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
+    }
+
+    public void openWithStreetMap(View view) {
+        // https://developers.google.com/maps/documentation/android-api/intents
+        Uri uri = Uri.parse(String.format(locale, "google.streetview:cbll=%g,%g", memo.latitude, memo.longitude));
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+
+    public void share(View view) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+
+        StringBuilder textToShare = new StringBuilder();
+        textToShare.append(binding.editAddress.getText());
+        textToShare.append('\n');
+        if (binding.editNote.getText().length() > 0) {
+            textToShare.append(binding.editNote.getText());
+            textToShare.append('\n');
+        }
+
+        textToShare.append(String.format(locale, "https://www.google.co.jp/maps/?q=%g,%g", memo.latitude, memo.longitude));
+        intent.putExtra(Intent.EXTRA_TEXT, (CharSequence)textToShare);
+        startActivity(Intent.createChooser(intent, "To share: " + binding.editAddress.getText()));
     }
 
     public void initAddress(String address) {

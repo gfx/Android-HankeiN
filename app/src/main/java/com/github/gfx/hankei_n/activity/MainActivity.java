@@ -555,8 +555,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void showEditDialog(LocationMemo memo) {
-        EditLocationMemoFragment.newInstance(memo)
-                .show(getSupportFragmentManager(), "edit_location_memo");
+        EditLocationMemoFragment fragment = EditLocationMemoFragment.newInstance(memo);
+        fragment.show(getSupportFragmentManager(), fragment.getTag());
 
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(MainActivity.CATEGORY_LOCATION_MEMO)
