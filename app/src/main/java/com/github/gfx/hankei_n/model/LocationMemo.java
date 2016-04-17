@@ -154,4 +154,17 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     public int compareTo(LocationMemo another) {
         return another.address.compareTo(this.address);
     }
+
+    @Override
+    public String toString() {
+        return "LocationMemo{" +
+                "id=" + id +
+                ", address='" + address + '\'' +
+                ", note='" + note + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", radius=" + radius +
+                ", markerHue=" + markerHue +
+                '}';
+    }
 }

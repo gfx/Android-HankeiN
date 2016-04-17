@@ -1,12 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        >
+    <data>
+        <variable name="memo" type="com.github.gfx.hankei_n.model.LocationMemo"/>
+        <variable name="fragment" type="com.github.gfx.hankei_n.fragment.EditLocationMemoFragment"/>
+        <import type="android.view.View"/>
+    </data>
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="@dimen/abc_dialog_padding_material"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
             >
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                >
+
+            <Button
+                    android:id="@+id/delete"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@android:drawable/ic_menu_delete"
+                    android:text="Delete"
+                    android:onClick="@{fragment.askToRemove}"
+                    android:visibility="@{memo.id == 0 ? View.INVISIBLE : View.VISIBLE}"
+                    />
+
+
+            <Button
+                    android:id="@+id/map"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@android:drawable/ic_menu_mapmode"
+                    android:text="Street View"
+                    />
+
+            <Button
+                    android:id="@+id/share"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@android:drawable/ic_menu_share"
+                    android:text="Share"
+                    />
+
+            <Button
+                    android:id="@+id/save"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@android:drawable/ic_menu_save"
+                    android:onClick="@{fragment.sendLocationMemoAddedEventAndDismiss}"
+                    android:text="Save"
+                    />
+
+        </LinearLayout>
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -33,6 +91,7 @@
                     android:imeOptions="actionNext"
                     android:inputType="textPostalAddress"
                     android:maxLength="512"
+                    android:text="@{memo.address}"
                     />
         </LinearLayout>
 
@@ -60,6 +119,7 @@
                     android:inputType="text"
                     android:maxLength="512"
                     android:singleLine="true"
+                    android:text="@{memo.note}"
                     />
         </LinearLayout>
 
@@ -80,28 +140,29 @@
                     />
 
 
-                <EditText
-                        android:id="@+id/edit_radius"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ems="3"
-                        android:enabled="false"
-                        android:inputType="number"
-                        android:maxLength="10"
-                        android:singleLine="true"
-                        android:text="@string/default_radius"
-                        />
+            <EditText
+                    android:id="@+id/edit_radius"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="3"
+                    android:enabled="false"
+                    android:inputType="number"
+                    android:maxLength="10"
+                    android:singleLine="true"
+                    android:text="@{String.valueOf(memo.radius)}"
+                    tools:text="@string/default_radius"
+                    />
 
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="start"
-                        android:labelFor="@+id/edit_radius"
-                        android:paddingEnd="4dp"
-                        android:paddingStart="4dp"
-                        android:text="@string/radius_unit"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        />
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:labelFor="@+id/edit_radius"
+                    android:paddingEnd="4dp"
+                    android:paddingStart="4dp"
+                    android:text="@string/radius_unit"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    />
         </LinearLayout>
     </LinearLayout>
 </layout>
