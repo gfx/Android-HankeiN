@@ -159,7 +159,6 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         } else {
             memo = memos.newMemo(getContext(), markerHueAllocator, Locations.NOWHERE);
         }
-        Timber.d("setMemo: %s", memo);
         binding.setMemo(memo);
         binding.setFragment(this);
 
