@@ -1,5 +1,7 @@
 package com.github.gfx.hankei_n.fragment;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.model.LatLng;
 
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
@@ -13,6 +15,7 @@ import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
 import com.github.gfx.hankei_n.model.PlaceEngine;
 import com.github.gfx.hankei_n.toolbox.Assets;
+import com.github.gfx.hankei_n.toolbox.Intents;
 import com.github.gfx.hankei_n.toolbox.Locations;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 import com.jakewharton.rxbinding.widget.RxTextView;
@@ -21,8 +24,6 @@ import com.jakewharton.rxbinding.widget.TextViewAfterTextChangeEvent;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -48,6 +49,8 @@ import timber.log.Timber;
 @ParametersAreNonnullByDefault
 public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
+    static final String TAG = EditLocationMemoFragment.class.getSimpleName();
+
     static final String kLocationMemo = "location_memo";
 
     @Inject
@@ -65,7 +68,11 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     @Inject
     DisplayMetrics displayMetrics;
 
-    @Inject Locale locale;
+    @Inject
+    Locale locale;
+
+    @Inject
+    Tracker tracker;
 
     @Inject
     PublishSubject<LocationMemoAddedEvent> locationMemoAddedSubject;
@@ -108,8 +115,8 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     @Override
     public void setupDialog(Dialog dialog, int style) {
+        final long t0 = System.currentTimeMillis();
         super.setupDialog(dialog, style);
-
         LayoutInflater inflater = LayoutInflater.from(getContext());
         binding = DialogEditLocationMemoBinding.inflate(inflater);
         bindData((LocationMemo) getArguments().getSerializable(kLocationMemo));
@@ -119,10 +126,18 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             @Override
             public void onShow(DialogInterface dialog) {
                 View contentView = binding.getRoot();
-                BottomSheetBehavior.from((View)contentView.getParent()).setPeekHeight(contentView.getHeight());
+                BottomSheetBehavior.from((View) contentView.getParent()).setPeekHeight(contentView.getHeight());
 
                 // it must be done after initial binding
                 setupEventListeners();
+
+                long elapsed = System.currentTimeMillis() - t0;
+                tracker.send(new HitBuilders.TimingBuilder()
+                        .setCategory(TAG)
+                        .setVariable("setupDialog")
+                        .setValue(elapsed)
+                        .build());
+                Timber.d("setupDialog: %dms", elapsed);
             }
         });
     }
@@ -154,6 +169,8 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
                                 Timber.w(throwable, "no address found");
                             }
                         });
+            } else if (!memo.address.isEmpty() && memo.isPointingNowhere()) {
+                Timber.w("No location set in %s", memo);
             }
 
         } else {
@@ -287,30 +304,15 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     void removeMemo() {
         locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
+        dismiss();
     }
 
     public void openWithStreetMap(View view) {
-        // https://developers.google.com/maps/documentation/android-api/intents
-        Uri uri = Uri.parse(String.format(locale, "google.streetview:cbll=%g,%g", memo.latitude, memo.longitude));
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);
+        startActivity(Intents.createStreetViewIntent(memo.latitude, memo.longitude));
     }
 
     public void share(View view) {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-
-        StringBuilder textToShare = new StringBuilder();
-        textToShare.append(binding.editAddress.getText());
-        textToShare.append('\n');
-        if (binding.editNote.getText().length() > 0) {
-            textToShare.append(binding.editNote.getText());
-            textToShare.append('\n');
-        }
-
-        textToShare.append(String.format(locale, "https://www.google.co.jp/maps/?q=%g,%g", memo.latitude, memo.longitude));
-        intent.putExtra(Intent.EXTRA_TEXT, (CharSequence)textToShare);
-        startActivity(Intent.createChooser(intent, "To share: " + binding.editAddress.getText()));
+        startActivity(Intents.createShareLocationMemoIntent(getContext(), memo));
     }
 
     public void initAddress(String address) {

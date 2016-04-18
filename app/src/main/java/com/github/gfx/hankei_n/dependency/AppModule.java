@@ -7,6 +7,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 
+import com.github.gfx.android.orma.AccessThreadConstraint;
 import com.github.gfx.hankei_n.BuildConfig;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
@@ -114,6 +115,7 @@ public class AppModule {
     public OrmaDatabase provideOrmaDatabase(Context context) {
         return OrmaDatabase.builder(context)
                 .name(DB_NAME)
+                .readOnMainThread(AccessThreadConstraint.NONE)
                 .build();
     }
 

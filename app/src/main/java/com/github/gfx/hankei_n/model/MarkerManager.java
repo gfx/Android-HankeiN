@@ -22,6 +22,7 @@ public class MarkerManager {
 
     @NonNull
     public Marker get(@NonNull LocationMemo memo) {
+        assert memo.id != 0;
         return markers.get(memo.id).marker;
     }
 
