@@ -37,13 +37,13 @@
 
 
             <Button
-                    android:id="@+id/map"
+                    android:id="@+id/street_view"
                     style="?buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_mapmode"
                     android:text="Street View"
-                    android:onClick="@{fragment.openWithStreetMap}"
+                    android:onClick="@{fragment.openWithStreetView}"
                     />
 
             <Button
@@ -53,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_share"
                     android:text="Share"
-                    android:onClick="@{fragment.share}"
+                    android:onClick="@{fragment.openShareChooser}"
                     />
 
             <Button

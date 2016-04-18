@@ -1,5 +1,6 @@
 package com.github.gfx.hankei_n.toolbox;
 
+import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.model.LocationMemo;
 
 import android.content.Context;
@@ -34,6 +35,6 @@ public class Intents {
 
         textToShare.append(String.format(Locale.getDefault(), "https://www.google.co.jp/maps/?q=%g,%g",
                 memo.latitude, memo.longitude));
-        return createShareTextIntent("To share: " + memo.address, textToShare);
+        return createShareTextIntent(context.getString(R.string.share_location_memo_title, memo.address), textToShare);
     }
 }

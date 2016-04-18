@@ -31,6 +31,7 @@
     <string name="memo_removed">メモを削除しました</string>
     <string name="action_manage_app">アプリの管理</string>
     <string name="action_open_with_play_store">Play Storeで開く</string>
+    <string name="share_location_memo_title">共有: %s</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

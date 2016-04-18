@@ -307,12 +307,20 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         dismiss();
     }
 
-    public void openWithStreetMap(View view) {
+    public void openWithStreetView(View view) {
         startActivity(Intents.createStreetViewIntent(memo.latitude, memo.longitude));
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openWithStreetView")
+                .build());
     }
 
-    public void share(View view) {
+    public void openShareChooser(View view) {
         startActivity(Intents.createShareLocationMemoIntent(getContext(), memo));
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openShareChooser")
+                .build());
     }
 
     public void initAddress(String address) {

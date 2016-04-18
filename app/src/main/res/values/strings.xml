@@ -34,4 +34,5 @@
     <string name="memo_removed">Removed!</string>
     <string name="action_manage_app">Manage App</string>
     <string name="action_open_with_play_store">Open with Play Store</string>
+    <string name="share_location_memo_title">To share: %s</string>
 </resources>
