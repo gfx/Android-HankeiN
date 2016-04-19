@@ -179,6 +179,8 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         binding.setMemo(memo);
         binding.setFragment(this);
 
+        binding.iconCircle.setImageDrawable(assets.createMarkerDrawable(memo.markerHue));
+
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
         binding.editAddress.setAdapter(adapter);
     }

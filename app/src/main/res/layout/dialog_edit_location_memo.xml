@@ -24,6 +24,14 @@
                 android:gravity="center"
                 >
 
+            <ImageView
+                    android:id="@+id/iconCircle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
+                    tools:src="@drawable/circle"
+                    />
+
             <Button
                     android:id="@+id/delete"
                     style="?buttonBarButtonStyle"
