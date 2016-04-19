@@ -2,19 +2,30 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         >
+
     <data>
-        <variable name="memo" type="com.github.gfx.hankei_n.model.LocationMemo"/>
-        <variable name="fragment" type="com.github.gfx.hankei_n.fragment.EditLocationMemoFragment"/>
-        <import type="android.view.View"/>
+
+        <variable
+                name="memo"
+                type="com.github.gfx.hankei_n.model.LocationMemo"
+                />
+
+        <variable
+                name="fragment"
+                type="com.github.gfx.hankei_n.fragment.EditLocationMemoFragment"
+                />
+
+        <import type="android.view.View" />
     </data>
+
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
             android:paddingBottom="16dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
             >
 
         <LinearLayout
@@ -28,9 +39,14 @@
                     android:id="@+id/iconCircle"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
                     android:padding="8dp"
                     tools:src="@drawable/circle"
-                    />
+                    >
+
+                <requestFocus />
+            </ImageView>
 
             <Button
                     android:id="@+id/delete"
@@ -38,8 +54,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_delete"
-                    android:text="@string/delete"
                     android:onClick="@{fragment.askToRemove}"
+                    android:text="@string/delete"
                     android:visibility="@{memo.id == 0 ? View.INVISIBLE : View.VISIBLE}"
                     />
 
@@ -49,8 +65,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_view"
-                    android:text="@string/street_view"
                     android:onClick="@{fragment.openWithStreetView}"
+                    android:text="@string/street_view"
                     />
 
             <Button
@@ -59,8 +75,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_mapmode"
-                    android:text="@string/map"
                     android:onClick="@{fragment.openWithMap}"
+                    android:text="@string/map"
                     />
 
             <Button
@@ -69,8 +85,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_share"
-                    android:text="@string/share"
                     android:onClick="@{fragment.openShareChooser}"
+                    android:text="@string/share"
                     />
 
         </LinearLayout>
