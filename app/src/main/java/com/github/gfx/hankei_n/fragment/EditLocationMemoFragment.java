@@ -83,6 +83,8 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     DialogEditLocationMemoBinding binding;
 
+    LocationMemo argMemo;
+
     LocationMemo memo;
 
     AddressAutocompleAdapter adapter;
@@ -177,6 +179,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         } else {
             memo = memos.newMemo(getContext(), markerHueAllocator, Locations.NOWHERE);
         }
+        this.argMemo = memo;
         binding.setMemo(memo);
         binding.setFragment(this);
 
@@ -252,7 +255,13 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     public void saveLocationMemoAddedEventAndDismiss() {
         if (TextUtils.isEmpty(binding.editAddress.getText())) {
-            Timber.d("saveLocationMemoAddedEventAndDismiss: nothing to do");
+            Timber.d("saveLocationMemoAddedEventAndDismiss: empty address");
+            dismiss();
+            return;
+        }
+        if (argMemo.equals(memo)) {
+            Timber.d("saveLocationMemoAddedEventAndDismiss: no changes");
+            dismiss();
             return;
         }
         if (shouldSkipGeocoding()) {
