@@ -30,6 +30,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -181,8 +182,6 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
         binding.editAddress.setAdapter(adapter);
-
-        binding.save.setEnabled(binding.editAddress.length() > 0);
     }
 
     void setupEventListeners() {
@@ -191,7 +190,6 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             @Override
             public void call(TextViewAfterTextChangeEvent event) {
                 Editable s = event.editable();
-                binding.save.setEnabled(s.length() > 0);
                 memo.address = s.toString();
             }
         });
@@ -242,6 +240,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onPause() {
+        saveLocationMemoAddedEventAndDismiss();
         placeEngine.stop();
 
         super.onPause();
@@ -251,9 +250,13 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         return memo.address.equals(initialAddress);
     }
 
-    public void sendLocationMemoAddedEventAndDismiss(View view) {
+    public void saveLocationMemoAddedEventAndDismiss() {
+        if (TextUtils.isEmpty(binding.editAddress.getText())) {
+            Timber.d("saveLocationMemoAddedEventAndDismiss: nothing to do");
+            return;
+        }
         if (shouldSkipGeocoding()) {
-            castLocationMemo();
+            castLocationMemoAndDismiss();
             return;
         }
 
@@ -277,14 +280,14 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
                     public void onNext(LatLng latLng) {
                         memo.latitude = latLng.latitude;
                         memo.longitude = latLng.longitude;
-                        castLocationMemo();
+                        castLocationMemoAndDismiss();
                     }
                 });
     }
 
-    void castLocationMemo() {
+    void castLocationMemoAndDismiss() {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-        getDialog().dismiss();
+        dismiss();
     }
 
     public void askToRemove(View view) {
@@ -312,6 +315,14 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
                 .setAction("openWithStreetView")
+                .build());
+    }
+
+    public void openWithMap(View view) {
+        startActivity(Intents.createOpenWithMapIntent(memo));
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openWithMap")
                 .build());
     }
 

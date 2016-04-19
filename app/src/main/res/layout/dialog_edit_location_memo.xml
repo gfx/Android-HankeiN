@@ -47,6 +47,16 @@
                     />
 
             <Button
+                    android:id="@+id/map"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@android:drawable/ic_menu_mapmode"
+                    android:text="Map"
+                    android:onClick="@{fragment.openWithMap}"
+                    />
+
+            <Button
                     android:id="@+id/share"
                     style="?buttonBarButtonStyle"
                     android:layout_width="wrap_content"
@@ -54,16 +64,6 @@
                     android:drawableTop="@android:drawable/ic_menu_share"
                     android:text="Share"
                     android:onClick="@{fragment.openShareChooser}"
-                    />
-
-            <Button
-                    android:id="@+id/save"
-                    style="?buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableTop="@android:drawable/ic_menu_save"
-                    android:onClick="@{fragment.sendLocationMemoAddedEventAndDismiss}"
-                    android:text="Save"
                     />
 
         </LinearLayout>

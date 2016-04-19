@@ -11,6 +11,10 @@ import java.util.Locale;
 
 public class Intents {
 
+    private static String createGoogleMapUri(double latitude, double longitude) {
+        return String.format(Locale.getDefault(), "https://www.google.co.jp/maps/?q=%g,%g", latitude, longitude);
+    }
+
     public static Intent createStreetViewIntent(double latitude, double longitude) {
         // https://developers.google.com/maps/documentation/android-api/intents
         Uri uri = Uri.parse(String.format(Locale.getDefault(), "google.streetview:cbll=%g,%g",latitude, longitude));
@@ -33,8 +37,15 @@ public class Intents {
             textToShare.append('\n');
         }
 
-        textToShare.append(String.format(Locale.getDefault(), "https://www.google.co.jp/maps/?q=%g,%g",
-                memo.latitude, memo.longitude));
+        textToShare.append(createGoogleMapUri(memo.latitude, memo.longitude));
         return createShareTextIntent(context.getString(R.string.share_location_memo_title, memo.address), textToShare);
+    }
+
+    public static Intent createOpenWithMapIntent(LocationMemo memo) {
+        Uri gmmIntentUri = Uri.parse(String.format(Locale.getDefault(),
+                "geo:%g,%g?q=%s",memo.latitude, memo.longitude, Uri.encode(memo.address)));
+        Intent intent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        //intent.setPackage("com.google.android.apps.maps");
+        return intent;
     }
 }
