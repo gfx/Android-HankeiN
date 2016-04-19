@@ -35,7 +35,6 @@
                     android:visibility="@{memo.id == 0 ? View.INVISIBLE : View.VISIBLE}"
                     />
 
-
             <Button
                     android:id="@+id/street_view"
                     style="?buttonBarButtonStyle"
