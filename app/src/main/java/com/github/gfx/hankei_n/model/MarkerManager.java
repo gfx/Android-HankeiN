@@ -34,7 +34,7 @@ public class MarkerManager {
 
         Marker marker = map.addMarker(memo.buildMarkerOptions());
         Circle circle = null;
-        if (memo.radius > 0) {
+        if (memo.radius > 0 && memo.drawCircle) {
             circle = map.addCircle(memo.buildCircleOptions());
         }
 

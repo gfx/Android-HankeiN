@@ -148,12 +148,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     public void bindData(@Nullable LocationMemo argMemo) {
         if (argMemo != null) {
             memo = argMemo.copy();
-            if (memo.radius > 0) {
-                binding.checkboxCircle.setChecked(true);
-                binding.editRadius.setEnabled(true);
-            } else {
-                binding.editRadius.setText(R.string.default_radius);
-            }
+            this.argMemo = argMemo;
             initialAddress = memo.address;
 
             if (memo.address.isEmpty() && memo.isPointingSomewhere()) {
@@ -178,8 +173,9 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
         } else {
             memo = memos.newMemo(getContext(), markerHueAllocator, Locations.NOWHERE);
+            this.argMemo = memo.copy();
+
         }
-        this.argMemo = memo;
         binding.setMemo(memo);
         binding.setFragment(this);
 
@@ -217,11 +213,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 binding.editRadius.setEnabled(isChecked);
-                if (isChecked) {
-                    memo.radius = parseDouble(binding.editRadius.getText());
-                } else {
-                    memo.radius = 0;
-                }
+                memo.drawCircle = isChecked;
             }
         });
     }
@@ -259,7 +251,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             dismiss();
             return;
         }
-        if (argMemo.equals(memo)) {
+        if (argMemo.contentEquals(memo)) {
             Timber.d("saveLocationMemoAddedEventAndDismiss: no changes");
             dismiss();
             return;

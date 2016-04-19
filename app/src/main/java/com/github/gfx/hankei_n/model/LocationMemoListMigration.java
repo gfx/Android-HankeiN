@@ -65,7 +65,7 @@ public class LocationMemoListMigration {
 
         LocationMemoManager locationMemoManager = getLocationMemoManager();
 
-        LocationMemo memo = new LocationMemo(address, "", new LatLng(latitude, longitude), radius,
+        LocationMemo memo = new LocationMemo(address, "", new LatLng(latitude, longitude), radius, radius > 0,
                 BitmapDescriptorFactory.HUE_ORANGE);
         Timber.d("migrate the pointed location as %s", memo);
         locationMemoManager.upsert(memo);
