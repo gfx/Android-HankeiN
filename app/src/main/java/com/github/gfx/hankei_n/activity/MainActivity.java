@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
+    public static final String kSatellite = "satellite";
 
     @Inject
     PlaceEngine placeEngine;
@@ -389,6 +390,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+
+        menu.findItem(R.id.action_toggle_satellite).setChecked(prefs.get(kSatellite, false));
+        menu.findItem(R.id.action_toggle_default_circle).setChecked(LocationMemoManager.getDefaultDrawCircle(this));
         return true;
     }
 
@@ -401,6 +405,8 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_add_memo:
                 return newLocationMemo();
+            case R.id.action_toggle_default_circle:
+                return toggleDefaultDrawCircle(item);
             case R.id.action_toggle_satellite:
                 return toggleSatellite(item);
             case R.id.action_reset:
@@ -423,8 +429,20 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private boolean toggleDefaultDrawCircle(MenuItem item) {
+        boolean defaultDrawCircle = !item.isChecked();
+        LocationMemoManager.setDefaultDrawCircle(this, defaultDrawCircle);
+        item.setChecked(defaultDrawCircle);
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("toggleDefaultDrawCircle")
+                .build());
+        return true;
+    }
+
     private boolean toggleSatellite(MenuItem item) {
         boolean satellite = !item.isChecked();
+        prefs.put(kSatellite, satellite);
         item.setChecked(satellite);
         assert map != null;
         map.setMapType(satellite ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);

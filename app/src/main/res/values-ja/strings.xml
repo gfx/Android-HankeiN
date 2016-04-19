@@ -36,6 +36,7 @@
     <string name="map">Google Map</string>
     <string name="street_view">Street View</string>
     <string name="delete">削除</string>
+    <string name="action_toggle_default_circle">デフォルトで円を描く？</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

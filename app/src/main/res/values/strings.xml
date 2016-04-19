@@ -39,4 +39,5 @@
     <string name="map">Google Map</string>
     <string name="street_view">Street View</string>
     <string name="delete">Delete</string>
+    <string name="action_toggle_default_circle">circle by default?</string>
 </resources>

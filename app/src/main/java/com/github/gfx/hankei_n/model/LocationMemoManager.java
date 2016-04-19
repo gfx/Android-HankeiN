@@ -47,8 +47,11 @@ public class LocationMemoManager implements Iterable<LocationMemo> {
 
     public LocationMemo newMemo(Context context, MarkerHueAllocator markerHueAllocator, LatLng latLng) {
         double radius = Double.parseDouble(context.getString(R.string.default_radius));
-        Prefs prefs = new Prefs(context);
-        return new LocationMemo("", "", latLng, radius, prefs.get(kDefaultDrawCircle, true), markerHueAllocator.allocate());
+        return new LocationMemo("", "", latLng, radius, getDefaultDrawCircle(context), markerHueAllocator.allocate());
+    }
+
+    public static boolean getDefaultDrawCircle(Context context) {
+        return new Prefs(context).get(kDefaultDrawCircle, true);
     }
 
     public static void setDefaultDrawCircle(Context context, boolean value) {
