@@ -30,7 +30,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_delete"
-                    android:text="Delete"
+                    android:text="@string/delete"
                     android:onClick="@{fragment.askToRemove}"
                     android:visibility="@{memo.id == 0 ? View.INVISIBLE : View.VISIBLE}"
                     />
@@ -41,8 +41,8 @@
                     style="?buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:drawableTop="@android:drawable/ic_menu_mapmode"
-                    android:text="Street View"
+                    android:drawableTop="@android:drawable/ic_menu_view"
+                    android:text="@string/street_view"
                     android:onClick="@{fragment.openWithStreetView}"
                     />
 
@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_mapmode"
-                    android:text="Map"
+                    android:text="@string/map"
                     android:onClick="@{fragment.openWithMap}"
                     />
 
@@ -62,7 +62,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_share"
-                    android:text="Share"
+                    android:text="@string/share"
                     android:onClick="@{fragment.openShareChooser}"
                     />
 

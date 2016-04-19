@@ -35,4 +35,8 @@
     <string name="action_manage_app">Manage App</string>
     <string name="action_open_with_play_store">Open with Play Store</string>
     <string name="share_location_memo_title">To share: %s</string>
+    <string name="share">Share</string>
+    <string name="map">Google Map</string>
+    <string name="street_view">Street View</string>
+    <string name="delete">Delete</string>
 </resources>
