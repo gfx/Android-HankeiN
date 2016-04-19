@@ -1,44 +1,38 @@
 package com.github.gfx.hankei_n.model;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 
 import com.github.gfx.hankei_n.R;
-import com.github.gfx.hankei_n.dependency.scope.ContextScope;
 import com.github.gfx.hankei_n.toolbox.MarkerHueAllocator;
 
 import android.content.Context;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @ParametersAreNonnullByDefault
-@ContextScope
+@Singleton
 public class LocationMemoManager implements Iterable<LocationMemo> {
 
     public static final String kDefaultDrawCircle = "default_draw_circle"; // boolean
 
-    final OrmaDatabase orma;
-
-    final MarkerManager markerManager;
-
     final LocationMemo_Relation relation;
 
-    @Inject
-    public LocationMemoManager(OrmaDatabase orma, MarkerManager markerManager) {
-        this.orma = orma;
+    int count;
 
+    @Inject
+    public LocationMemoManager(OrmaDatabase orma) {
         relation = orma.relationOfLocationMemo()
                 .orderByIdAsc();
-
-        this.markerManager = markerManager;
+        count = relation.count();
     }
 
     public int count() {
-        return relation.count();
+        assert count == relation.count();
+        return count;
     }
 
     public LocationMemo get(int i) {
@@ -59,30 +53,24 @@ public class LocationMemoManager implements Iterable<LocationMemo> {
     }
 
     public void upsert(LocationMemo memo) {
+        assert memo.id != -1;
         if (memo.id == 0) {
             memo.id = relation.inserter().execute(memo);
         } else {
             relation.upserter().execute(memo);
         }
+        count = relation.count();
     }
 
     public void remove(LocationMemo memo) {
         relation.deleter().idEq(memo.id).execute();
-        markerManager.remove(memo);
         memo.id = -1;
+        count = relation.count();
     }
 
     public void clear() {
         relation.deleter().execute();
-    }
-
-    public LocationMemo findMemoByMarker(Marker marker) {
-        for (LocationMemo item : relation) {
-            if (marker.equals(markerManager.get(item))) {
-                return item;
-            }
-        }
-        throw new NoSuchElementException("Marker not found for id=" + marker.getId());
+        count = 0;
     }
 
     @Override

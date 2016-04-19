@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                LocationMemo memo = locationMemos.findMemoByMarker(marker);
+                LocationMemo memo = markerManager.findMemoByMarker(locationMemos, marker);
                 showEditDialog(memo);
                 return true;
             }
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                LocationMemo memo = locationMemos.findMemoByMarker(marker);
+                LocationMemo memo = markerManager.findMemoByMarker(locationMemos, marker);
                 showEditDialog(memo);
             }
         });
@@ -478,8 +478,10 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @DebugLog
     private void reset() {
         prefs.resetAll();
+        markerManager.clear();
         locationMemos.clear();
         cameraInitialized = false;
         restart();
@@ -598,7 +600,8 @@ public class MainActivity extends AppCompatActivity {
 
     @DebugLog
     void addLocationMemo(LocationMemo memo) {
-        if (memo.id != 0) {
+        assert memo.id != -1;
+        if (memo.id == 0) {
             tracker.send(new HitBuilders.EventBuilder()
                     .setCategory(CATEGORY_LOCATION_MEMO)
                     .setAction("add")
@@ -616,12 +619,12 @@ public class MainActivity extends AppCompatActivity {
 
     @DebugLog
     void removeLocationMemo(LocationMemo memo) {
+        markerManager.remove(memo);
         locationMemos.remove(memo);
 
         if (locationMemos.count() == 0) {
             markerHueAllocator.reset();
         }
-
         locationMemoChangedSubject.onNext(new LocationMemoChangedEvent());
 
         Toast.makeText(this, R.string.memo_removed, Toast.LENGTH_SHORT).show();

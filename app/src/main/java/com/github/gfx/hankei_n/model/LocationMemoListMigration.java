@@ -46,7 +46,7 @@ public class LocationMemoListMigration {
     synchronized LocationMemoManager getLocationMemoManager() {
         if (locationMemoManager == null) {
             OrmaDatabase orma = OrmaDatabase.builder(context).name("main.db").build();
-            locationMemoManager = new LocationMemoManager(orma, new MarkerManager());
+            locationMemoManager = new LocationMemoManager(orma);
         }
         return locationMemoManager;
     }

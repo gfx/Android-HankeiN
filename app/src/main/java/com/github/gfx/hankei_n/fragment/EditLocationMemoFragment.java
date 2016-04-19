@@ -91,6 +91,8 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     String initialAddress;
 
+    boolean removed;
+
     public static EditLocationMemoFragment newInstance() {
         EditLocationMemoFragment fragment = new EditLocationMemoFragment();
 
@@ -237,7 +239,9 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onPause() {
-        saveLocationMemoAddedEventAndDismiss();
+        if (!removed) {
+            saveLocationMemoAddedEventAndDismiss();
+        }
         placeEngine.stop();
 
         super.onPause();
@@ -305,6 +309,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     }
 
     void removeMemo() {
+        removed = true;
         locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
         dismiss();
     }

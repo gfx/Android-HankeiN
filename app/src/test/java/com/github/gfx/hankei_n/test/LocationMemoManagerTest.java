@@ -4,7 +4,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import com.github.gfx.hankei_n.model.LocationMemo;
 import com.github.gfx.hankei_n.model.LocationMemoManager;
-import com.github.gfx.hankei_n.model.MarkerManager;
 import com.github.gfx.hankei_n.model.OrmaDatabase;
 
 import org.junit.Before;
@@ -34,7 +33,7 @@ public class LocationMemoManagerTest {
 
     void reset() {
         memos = new LocationMemoManager(
-                OrmaDatabase.builder(context).name("test.db").build(), new MarkerManager());
+                OrmaDatabase.builder(context).name("test.db").build());
     }
 
     @Test
