@@ -41,8 +41,8 @@ import java.util.Locale;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
-import rx.Subscriber;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
@@ -265,20 +265,16 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
                 .retry(1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<LatLng>() {
+                .onErrorReturn(new Func1<Throwable, LatLng>() {
                     @Override
-                    public void onCompleted() {
+                    public LatLng call(Throwable throwable) {
+                        Timber.w(throwable, "Can't find an address for %s", memo.getLatLng());
+                        return memo.getLatLng();
                     }
-
+                })
+                .subscribe(new Action1<LatLng>() {
                     @Override
-                    public void onError(Throwable e) {
-                        Timber.w(e, "Can't find an address for %s", memo.getLatLng());
-                        // Network error or something?
-                        onNext(memo.getLatLng());
-                    }
-
-                    @Override
-                    public void onNext(LatLng latLng) {
+                    public void call(LatLng latLng) {
                         memo.latitude = latLng.latitude;
                         memo.longitude = latLng.longitude;
                         castLocationMemoAndDismiss();
