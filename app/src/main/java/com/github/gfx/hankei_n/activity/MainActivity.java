@@ -206,6 +206,13 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                LocationMemo memo = locationMemos.findMemoByMarker(marker);
+                showEditDialog(memo);
+            }
+        });
         map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {

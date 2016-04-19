@@ -24,26 +24,43 @@
                 android:gravity="center"
                 >
 
+            <ImageView
+                    android:id="@+id/iconCircle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
+                    tools:src="@drawable/circle"
+                    />
+
             <Button
                     android:id="@+id/delete"
                     style="?buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_delete"
-                    android:text="Delete"
+                    android:text="@string/delete"
                     android:onClick="@{fragment.askToRemove}"
                     android:visibility="@{memo.id == 0 ? View.INVISIBLE : View.VISIBLE}"
                     />
-
 
             <Button
                     android:id="@+id/street_view"
                     style="?buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:drawableTop="@android:drawable/ic_menu_mapmode"
-                    android:text="Street View"
+                    android:drawableTop="@android:drawable/ic_menu_view"
+                    android:text="@string/street_view"
                     android:onClick="@{fragment.openWithStreetView}"
+                    />
+
+            <Button
+                    android:id="@+id/map"
+                    style="?buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@android:drawable/ic_menu_mapmode"
+                    android:text="@string/map"
+                    android:onClick="@{fragment.openWithMap}"
                     />
 
             <Button
@@ -52,18 +69,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_share"
-                    android:text="Share"
+                    android:text="@string/share"
                     android:onClick="@{fragment.openShareChooser}"
-                    />
-
-            <Button
-                    android:id="@+id/save"
-                    style="?buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableTop="@android:drawable/ic_menu_save"
-                    android:onClick="@{fragment.sendLocationMemoAddedEventAndDismiss}"
-                    android:text="Save"
                     />
 
         </LinearLayout>
@@ -137,7 +144,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:checked="false"
+                    android:checked="@{memo.drawCircle}"
                     android:text="@string/circle_required"
                     />
 
@@ -147,7 +154,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="3"
-                    android:enabled="false"
+                    android:enabled="@{memo.drawCircle}"
                     android:inputType="number"
                     android:maxLength="10"
                     android:singleLine="true"

@@ -54,35 +54,39 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
     @Column
     public double radius;
 
+    @SerializedName("draw_circle")
+    @Column(defaultExpr = "1")
+    public boolean drawCircle;
+
     @SerializedName("marker_hue")
     @Column
     public float markerHue;
 
     @Setter
     public LocationMemo(long id, @NonNull String address, @NonNull String note, double latitude, double longitude,
-            double radius,
-            float markerHue) {
+            double radius,  boolean drawCircle, float markerHue) {
         this.id = id;
         this.address = address;
         this.note = note;
         this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
+        this.drawCircle  = drawCircle;
         this.markerHue = markerHue;
     }
 
-    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
-            float markerHue) {
-        this(id, address, note, location.latitude, location.longitude, radius, markerHue);
+    public LocationMemo(long id, @NonNull String address, @NonNull String note, @NonNull LatLng location,
+            double radius, boolean drawCircle, float markerHue) {
+        this(id, address, note, location.latitude, location.longitude, radius, drawCircle, markerHue);
     }
 
-    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location, double radius,
-            float markerHue) {
-        this(0, address, note, location, radius, markerHue);
+    public LocationMemo(@NonNull String address, @NonNull String note, @NonNull LatLng location,
+            double radius, boolean drawCircle, float markerHue) {
+        this(0, address, note, location, radius, drawCircle, markerHue);
     }
 
     public LocationMemo copy() {
-        return new LocationMemo(id, address, note, latitude, longitude, radius, markerHue);
+        return new LocationMemo(id, address, note, latitude, longitude, radius, drawCircle, markerHue);
     }
 
     public boolean isPointingSomewhere() {
@@ -145,6 +149,10 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
         return id == that.id;
     }
 
+    public boolean contentEquals(LocationMemo memo) {
+        return toString().equals(memo.toString());
+    }
+
     @Override
     public int hashCode() {
         return (int) (id % Integer.MAX_VALUE);
@@ -164,6 +172,7 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", radius=" + radius +
+                ", drawCircle=" + drawCircle +
                 ", markerHue=" + markerHue +
                 '}';
     }

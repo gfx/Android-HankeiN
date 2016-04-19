@@ -30,6 +30,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,8 +41,8 @@ import java.util.Locale;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
-import rx.Subscriber;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
@@ -81,6 +82,8 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     PublishSubject<LocationMemoRemovedEvent> locationMemoRemovedSubject;
 
     DialogEditLocationMemoBinding binding;
+
+    LocationMemo argMemo;
 
     LocationMemo memo;
 
@@ -145,12 +148,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     public void bindData(@Nullable LocationMemo argMemo) {
         if (argMemo != null) {
             memo = argMemo.copy();
-            if (memo.radius > 0) {
-                binding.checkboxCircle.setChecked(true);
-                binding.editRadius.setEnabled(true);
-            } else {
-                binding.editRadius.setText(R.string.default_radius);
-            }
+            this.argMemo = argMemo;
             initialAddress = memo.address;
 
             if (memo.address.isEmpty() && memo.isPointingSomewhere()) {
@@ -175,14 +173,16 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
         } else {
             memo = memos.newMemo(getContext(), markerHueAllocator, Locations.NOWHERE);
+            this.argMemo = memo.copy();
+
         }
         binding.setMemo(memo);
         binding.setFragment(this);
 
+        binding.iconCircle.setImageDrawable(assets.createMarkerDrawable(memo.markerHue));
+
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
         binding.editAddress.setAdapter(adapter);
-
-        binding.save.setEnabled(binding.editAddress.length() > 0);
     }
 
     void setupEventListeners() {
@@ -191,7 +191,6 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             @Override
             public void call(TextViewAfterTextChangeEvent event) {
                 Editable s = event.editable();
-                binding.save.setEnabled(s.length() > 0);
                 memo.address = s.toString();
             }
         });
@@ -216,11 +215,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 binding.editRadius.setEnabled(isChecked);
-                if (isChecked) {
-                    memo.radius = parseDouble(binding.editRadius.getText());
-                } else {
-                    memo.radius = 0;
-                }
+                memo.drawCircle = isChecked;
             }
         });
     }
@@ -242,6 +237,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onPause() {
+        saveLocationMemoAddedEventAndDismiss();
         placeEngine.stop();
 
         super.onPause();
@@ -251,9 +247,19 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         return memo.address.equals(initialAddress);
     }
 
-    public void sendLocationMemoAddedEventAndDismiss(View view) {
+    public void saveLocationMemoAddedEventAndDismiss() {
+        if (TextUtils.isEmpty(binding.editAddress.getText())) {
+            Timber.d("saveLocationMemoAddedEventAndDismiss: empty address");
+            dismiss();
+            return;
+        }
+        if (argMemo.contentEquals(memo)) {
+            Timber.d("saveLocationMemoAddedEventAndDismiss: no changes");
+            dismiss();
+            return;
+        }
         if (shouldSkipGeocoding()) {
-            castLocationMemo();
+            castLocationMemoAndDismiss();
             return;
         }
 
@@ -261,30 +267,26 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
                 .retry(1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<LatLng>() {
+                .onErrorReturn(new Func1<Throwable, LatLng>() {
                     @Override
-                    public void onCompleted() {
+                    public LatLng call(Throwable throwable) {
+                        Timber.w(throwable, "Can't find an address for %s", memo.getLatLng());
+                        return memo.getLatLng();
                     }
-
+                })
+                .subscribe(new Action1<LatLng>() {
                     @Override
-                    public void onError(Throwable e) {
-                        Timber.w(e, "Can't find an address for %s", memo.getLatLng());
-                        // Network error or something?
-                        onNext(memo.getLatLng());
-                    }
-
-                    @Override
-                    public void onNext(LatLng latLng) {
+                    public void call(LatLng latLng) {
                         memo.latitude = latLng.latitude;
                         memo.longitude = latLng.longitude;
-                        castLocationMemo();
+                        castLocationMemoAndDismiss();
                     }
                 });
     }
 
-    void castLocationMemo() {
+    void castLocationMemoAndDismiss() {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-        getDialog().dismiss();
+        dismiss();
     }
 
     public void askToRemove(View view) {
@@ -312,6 +314,14 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
                 .setAction("openWithStreetView")
+                .build());
+    }
+
+    public void openWithMap(View view) {
+        startActivity(Intents.createOpenWithMapIntent(memo));
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openWithMap")
                 .build());
     }
 

@@ -19,6 +19,8 @@ import javax.inject.Inject;
 @ContextScope
 public class LocationMemoManager implements Iterable<LocationMemo> {
 
+    public static final String kDefaultDrawCircle = "default_draw_circle"; // boolean
+
     final OrmaDatabase orma;
 
     final MarkerManager markerManager;
@@ -45,7 +47,12 @@ public class LocationMemoManager implements Iterable<LocationMemo> {
 
     public LocationMemo newMemo(Context context, MarkerHueAllocator markerHueAllocator, LatLng latLng) {
         double radius = Double.parseDouble(context.getString(R.string.default_radius));
-        return new LocationMemo("", "", latLng, radius, markerHueAllocator.allocate());
+        Prefs prefs = new Prefs(context);
+        return new LocationMemo("", "", latLng, radius, prefs.get(kDefaultDrawCircle, true), markerHueAllocator.allocate());
+    }
+
+    public static void setDefaultDrawCircle(Context context, boolean value) {
+        new Prefs(context).put(kDefaultDrawCircle, value);
     }
 
     public void upsert(LocationMemo memo) {
