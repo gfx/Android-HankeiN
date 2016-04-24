@@ -22,10 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:paddingBottom="16dp"
-            android:paddingEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
+            android:padding="16dp"
             >
 
         <LinearLayout
@@ -42,6 +39,7 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:padding="8dp"
+                    tools:ignore="ContentDescription"
                     tools:src="@drawable/circle"
                     >
 
@@ -54,9 +52,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_delete"
+                    android:enabled="@{!memo.address.empty}"
                     android:onClick="@{fragment.askToRemove}"
                     android:text="@string/delete"
-                    android:enabled="@{!memo.address.empty}"
                     />
 
             <Button
@@ -65,9 +63,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_view"
+                    android:enabled="@{!memo.address.empty}"
                     android:onClick="@{fragment.openWithStreetView}"
                     android:text="@string/street_view"
-                    android:enabled="@{!memo.address.empty}"
                     />
 
             <Button
@@ -76,9 +74,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_mapmode"
+                    android:enabled="@{!memo.address.empty}"
                     android:onClick="@{fragment.openWithMap}"
                     android:text="@string/map"
-                    android:enabled="@{!memo.address.empty}"
                     />
 
             <Button
@@ -87,9 +85,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableTop="@android:drawable/ic_menu_share"
+                    android:enabled="@{!memo.address.empty}"
                     android:onClick="@{fragment.openShareChooser}"
                     android:text="@string/share"
-                    android:enabled="@{!memo.address.empty}"
                     />
 
         </LinearLayout>
@@ -187,6 +185,8 @@
                     android:gravity="start"
                     android:labelFor="@+id/edit_radius"
                     android:paddingEnd="4dp"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
                     android:paddingStart="4dp"
                     android:text="@string/radius_unit"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"

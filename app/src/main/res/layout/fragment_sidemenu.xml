@@ -11,6 +11,8 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingEnd="@dimen/sidemenu_space_end"
+            android:paddingLeft="@dimen/sidemenu_space_start"
+            android:paddingRight="@dimen/sidemenu_space_end"
             android:paddingStart="@dimen/sidemenu_space_start"
             android:paddingTop="@dimen/sidemenu_space_top"
             >
