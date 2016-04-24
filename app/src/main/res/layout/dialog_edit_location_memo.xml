@@ -56,7 +56,7 @@
                     android:drawableTop="@android:drawable/ic_menu_delete"
                     android:onClick="@{fragment.askToRemove}"
                     android:text="@string/delete"
-                    android:visibility="@{memo.id == 0 ? View.INVISIBLE : View.VISIBLE}"
+                    android:enabled="@{!memo.address.empty}"
                     />
 
             <Button
@@ -67,6 +67,7 @@
                     android:drawableTop="@android:drawable/ic_menu_view"
                     android:onClick="@{fragment.openWithStreetView}"
                     android:text="@string/street_view"
+                    android:enabled="@{!memo.address.empty}"
                     />
 
             <Button
@@ -77,6 +78,7 @@
                     android:drawableTop="@android:drawable/ic_menu_mapmode"
                     android:onClick="@{fragment.openWithMap}"
                     android:text="@string/map"
+                    android:enabled="@{!memo.address.empty}"
                     />
 
             <Button
@@ -87,6 +89,7 @@
                     android:drawableTop="@android:drawable/ic_menu_share"
                     android:onClick="@{fragment.openShareChooser}"
                     android:text="@string/share"
+                    android:enabled="@{!memo.address.empty}"
                     />
 
         </LinearLayout>

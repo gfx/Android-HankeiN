@@ -64,14 +64,14 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
     @Setter
     public LocationMemo(long id, @NonNull String address, @NonNull String note, double latitude, double longitude,
-            double radius,  boolean drawCircle, float markerHue) {
+            double radius, boolean drawCircle, float markerHue) {
         this.id = id;
         this.address = address;
         this.note = note;
         this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
-        this.drawCircle  = drawCircle;
+        this.drawCircle = drawCircle;
         this.markerHue = markerHue;
     }
 
@@ -125,6 +125,10 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
         return (color & 0xFFFFFF) | (alpha << 24);
     }
 
+    public boolean isPersistent() {
+        return id > 0;
+    }
+
     public void update(LocationMemo memo) {
         id = memo.id;
         address = memo.address;
@@ -133,6 +137,11 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
         longitude = memo.longitude;
         radius = memo.radius;
         markerHue = memo.markerHue;
+    }
+
+    public void setLatLng(LatLng latLng) {
+        latitude = latLng.latitude;
+        longitude = latLng.longitude;
     }
 
     @Override

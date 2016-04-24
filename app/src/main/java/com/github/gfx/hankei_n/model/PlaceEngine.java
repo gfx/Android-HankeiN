@@ -192,6 +192,8 @@ public class PlaceEngine {
         });
     }
 
+    // Geocoding
+
     @DebugLog
     public Observable<String> getAddressFromLocation(final LatLng latLng) {
         return Observable.create(new Observable.OnSubscribe<String>() {
@@ -221,8 +223,6 @@ public class PlaceEngine {
             }
         });
     }
-
-    // Geocoding
 
     @DebugLog
     public Observable<LatLng> getLocationFromAddress(final String address) {

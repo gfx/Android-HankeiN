@@ -30,11 +30,11 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -42,7 +42,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
@@ -91,7 +90,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     String initialAddress;
 
-    boolean removed;
+    boolean doNotSaveOnPause;
 
     public static EditLocationMemoFragment newInstance() {
         EditLocationMemoFragment fragment = new EditLocationMemoFragment();
@@ -194,6 +193,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             public void call(TextViewAfterTextChangeEvent event) {
                 Editable s = event.editable();
                 memo.address = s.toString();
+                updateButtons();
             }
         });
 
@@ -210,6 +210,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             public void call(TextViewAfterTextChangeEvent event) {
                 Editable s = event.editable();
                 memo.radius = parseDouble(s);
+                updateButtons();
             }
         });
 
@@ -218,8 +219,16 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 binding.editRadius.setEnabled(isChecked);
                 memo.drawCircle = isChecked;
+                updateButtons();
             }
         });
+    }
+
+    void updateButtons() {
+        binding.delete.setEnabled(!memo.address.isEmpty());
+        binding.streetView.setEnabled(!memo.address.isEmpty());
+        binding.map.setEnabled(!memo.address.isEmpty());
+        binding.share.setEnabled(!memo.address.isEmpty());
     }
 
     double parseDouble(CharSequence s) {
@@ -239,7 +248,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onPause() {
-        if (!removed) {
+        if (!doNotSaveOnPause) {
             saveLocationMemoAddedEventAndDismiss();
         }
         placeEngine.stop();
@@ -248,11 +257,11 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     }
 
     boolean shouldSkipGeocoding() {
-        return memo.address.equals(initialAddress);
+        return memo.address.equals(initialAddress) || memo.isPointingSomewhere();
     }
 
     public void saveLocationMemoAddedEventAndDismiss() {
-        if (TextUtils.isEmpty(binding.editAddress.getText())) {
+        if (memo.address.isEmpty()) {
             Timber.d("saveLocationMemoAddedEventAndDismiss: empty address");
             dismiss();
             return;
@@ -271,18 +280,16 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
                 .retry(1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .onErrorReturn(new Func1<Throwable, LatLng>() {
-                    @Override
-                    public LatLng call(Throwable throwable) {
-                        Timber.w(throwable, "Can't find an address for %s", memo.getLatLng());
-                        return memo.getLatLng();
-                    }
-                })
                 .subscribe(new Action1<LatLng>() {
                     @Override
                     public void call(LatLng latLng) {
-                        memo.latitude = latLng.latitude;
-                        memo.longitude = latLng.longitude;
+                        memo.setLatLng(latLng);
+                        castLocationMemoAndDismiss();
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.w(throwable, "failed to getLocationFromAddress: %s", memo.address);
                         castLocationMemoAndDismiss();
                     }
                 });
@@ -294,6 +301,12 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     }
 
     public void askToRemove(View view) {
+        if (!memo.isPersistent()) {
+            doNotSaveOnPause = true;
+            dismiss();
+            return;
+        }
+
         new AlertDialog.Builder(getActivity())
                 .setIcon(assets.createMarkerDrawable(memo.markerHue))
                 .setTitle(R.string.ask_to_remove_memo)
@@ -309,13 +322,34 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     }
 
     void removeMemo() {
-        removed = true;
+        doNotSaveOnPause = true;
         locationMemoRemovedSubject.onNext(new LocationMemoRemovedEvent(memo));
         dismiss();
     }
 
     public void openWithStreetView(View view) {
-        startActivity(Intents.createStreetViewIntent(memo.latitude, memo.longitude));
+        if (shouldSkipGeocoding()) {
+            startActivity(Intents.createStreetViewIntent(memo.latitude, memo.longitude));
+        } else {
+            placeEngine.getLocationFromAddress(memo.address)
+                    .retry(1)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Action1<LatLng>() {
+                        @Override
+                        public void call(LatLng latLng) {
+                            memo.setLatLng(latLng);
+                            startActivity(Intents.createStreetViewIntent(memo.latitude, memo.longitude));
+                        }
+                    }, new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            Timber.w(throwable, "failed to getLocationFromAddress: %s", memo.address);
+                            Toast.makeText(getContext(), "No network connected. Retry it.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+        }
+
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
                 .setAction("openWithStreetView")
@@ -323,7 +357,28 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
     }
 
     public void openWithMap(View view) {
-        startActivity(Intents.createOpenWithMapIntent(memo));
+        if (shouldSkipGeocoding()) {
+            startActivity(Intents.createOpenWithMapIntent(memo));
+        } else {
+            placeEngine.getLocationFromAddress(memo.address)
+                    .retry(1)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Action1<LatLng>() {
+                        @Override
+                        public void call(LatLng latLng) {
+                            memo.setLatLng(latLng);
+                            startActivity(Intents.createOpenWithMapIntent(memo));
+                        }
+                    }, new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            Timber.w(throwable, "failed to getLocationFromAddress: %s", memo.address);
+                            Toast.makeText(getContext(), "No network connected. Retry it.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+        }
+
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
                 .setAction("openWithMap")
