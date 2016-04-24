@@ -1,6 +1,6 @@
 # Hankei-N [![Build Status](https://secure.travis-ci.org/gfx/Android-HankeiN.png)](http://travis-ci.org/gfx/Android-HankeiN)
 
-![feature graphic](asset/feature-graphic.png)
+<img src="asset/feature-graphic.png" width="512" height="250"/>
 
 <a href='https://play.google.com/store/apps/details?id=com.github.gfx.hankei_n&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-ap-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png' width='200'/></a>
 
