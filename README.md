@@ -21,6 +21,10 @@ See [PRIVACY-POLICY.md](PRIVACY-POLICY.md) for details.
 * Obtain **Google API Key** from [Google Developer Console](https://cloud.google.com/console?redirected=true#/project)
 * Open the project with [Android Studio](http://developer.android.com/sdk/installing/studio.html)
 
+## Open Source Software Licenses
+
+This application depends on a lot of Open Source Software listed in [app/build.gradle](app/build.gradle).
+
 ## SEE ALSO
 
 * [Google Map API for Android](https://developers.google.com/maps/documentation/android/start)
