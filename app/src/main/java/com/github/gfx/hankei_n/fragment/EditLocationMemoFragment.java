@@ -25,6 +25,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
@@ -123,30 +124,11 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         super.setupDialog(dialog, style);
         LayoutInflater inflater = LayoutInflater.from(getContext());
         binding = DialogEditLocationMemoBinding.inflate(inflater);
-        bindData((LocationMemo) getArguments().getSerializable(kLocationMemo));
+        bindData(dialog, (LocationMemo) getArguments().getSerializable(kLocationMemo), t0);
         dialog.setContentView(binding.getRoot());
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                View contentView = binding.getRoot();
-                BottomSheetBehavior.from((View) contentView.getParent()).setPeekHeight(contentView.getHeight());
-
-                // it must be done after initial binding
-                setupEventListeners();
-
-                long elapsed = System.currentTimeMillis() - t0;
-                tracker.send(new HitBuilders.TimingBuilder()
-                        .setCategory(TAG)
-                        .setVariable("setupDialog")
-                        .setValue(elapsed)
-                        .build());
-                Timber.d("setupDialog: %dms", elapsed);
-            }
-        });
     }
 
-    public void bindData(@Nullable LocationMemo argMemo) {
+    public void bindData(@NonNull  Dialog dialog, @Nullable LocationMemo argMemo, final long t0) {
         if (argMemo != null) {
             memo = argMemo.copy();
             this.argMemo = argMemo;
@@ -183,7 +165,27 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         binding.iconCircle.setImageDrawable(assets.createMarkerDrawable(memo.markerHue));
 
         adapter = new AddressAutocompleAdapter(getContext(), placeEngine);
-        binding.editAddress.setAdapter(adapter);
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                View contentView = binding.getRoot();
+                BottomSheetBehavior.from((View) contentView.getParent()).setPeekHeight(contentView.getHeight());
+
+                binding.editAddress.setAdapter(adapter);
+
+                // it must be done after initial binding
+                setupEventListeners();
+
+                long elapsed = System.currentTimeMillis() - t0;
+                tracker.send(new HitBuilders.TimingBuilder()
+                        .setCategory(TAG)
+                        .setVariable("setupDialog")
+                        .setValue(elapsed)
+                        .build());
+                Timber.d("setupDialog: %dms", elapsed);
+            }
+        });
     }
 
     void setupEventListeners() {
