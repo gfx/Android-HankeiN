@@ -4,7 +4,7 @@
     <string name="app_name">半径N</string>
     <string name="app_title_template">半径%.01fキロメートル</string>
     <string name="action_reset">初期化</string>
-    <string name="privacy_policy_url" translatable="false">https://github.com/gfx/Android-HankeiN/blob/master/PRIVACY-POLICY.md#japanese</string>
+    <string name="privacy_policy_url">https://github.com/gfx/Android-HankeiN/blob/master/PRIVACY-POLICY.md#japanese</string>
     <string name="action_about">このアプリについて</string>
     <string name="message_reset">アプリケーションデータを初期化しますか？</string>
     <string name="message_reset_done">初期化しました</string>
