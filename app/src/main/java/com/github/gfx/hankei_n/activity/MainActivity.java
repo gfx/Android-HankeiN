@@ -40,11 +40,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -414,11 +412,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_reset:
                 return openResetDialog();
             case R.id.action_about:
-                return openAboutThisApp();
-            case R.id.action_manage_app:
-                return openManageApp();
-            case R.id.action_open_with_play_store:
-                return openWithPlayStore();
+                return openAboutActivity();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -497,35 +491,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private boolean openAboutThisApp() {
-        final Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse(getString(R.string.project_url)));
-        startActivity(intent);
+    private boolean openAboutActivity() {
+        startActivity(AboutActivity.createIntent(this));
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
-                .setAction("openAboutThisApp")
-                .build());
-        return true;
-    }
-
-    private boolean openManageApp() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.parse("package:" + getPackageName()));
-        startActivity(intent);
-        tracker.send(new HitBuilders.EventBuilder()
-                .setCategory(TAG)
-                .setAction("openManageApp")
-                .build());
-        return true;
-    }
-
-    private boolean openWithPlayStore() {
-        Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse("market://details?id=" + getPackageName().replace(".debug", "")));
-        startActivity(intent);
-        tracker.send(new HitBuilders.EventBuilder()
-                .setCategory(TAG)
-                .setAction("openWithPlayStore")
+                .setAction("openAboutActivity")
                 .build());
         return true;
     }
@@ -567,7 +537,7 @@ public class MainActivity extends AppCompatActivity {
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        Timber.w(throwable, "Failed to getAddressFromLocation: " + latLng);
+                        Timber.w(throwable, "Failed to getAddressFromLocation: %s", latLng);
                     }
                 });
     }
