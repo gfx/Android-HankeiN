@@ -128,7 +128,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
         dialog.setContentView(binding.getRoot());
     }
 
-    public void bindData(@NonNull  Dialog dialog, @Nullable LocationMemo argMemo, final long t0) {
+    public void bindData(@NonNull Dialog dialog, @Nullable LocationMemo argMemo, final long t0) {
         if (argMemo != null) {
             memo = argMemo.copy();
             this.argMemo = argMemo;
@@ -347,7 +347,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
                         @Override
                         public void call(Throwable throwable) {
                             Timber.w(throwable, "failed to getLocationFromAddress: %s", memo.address);
-                            Toast.makeText(getContext(), "No network connected. Retry it.", Toast.LENGTH_LONG).show();
+                            showErrorWithToast("No network connected. Retry it.");
                         }
                     });
         }
@@ -376,7 +376,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
                         @Override
                         public void call(Throwable throwable) {
                             Timber.w(throwable, "failed to getLocationFromAddress: %s", memo.address);
-                            Toast.makeText(getContext(), "No network connected. Retry it.", Toast.LENGTH_LONG).show();
+                            showErrorWithToast("No network connected. Retry it.");
                         }
                     });
         }
@@ -401,6 +401,12 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
             binding.editAddress.setText(address);
             binding.editAddress.setAdapter(adapter);
             initialAddress = address;
+        }
+    }
+
+    void showErrorWithToast(String message) {
+        if (isAdded()) {
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         }
     }
 }
