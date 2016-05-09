@@ -8,6 +8,7 @@
     <string name="message_reset">Do you really reset the application data?</string>
     <string name="message_reset_done">Reset!</string>
     <string name="project_url" translatable="false">http://github.com/gfx/Android-HankeiN</string>
+    <string name="privacy_policy_url" translatable="false">https://github.com/gfx/Android-HankeiN/blob/master/PRIVACY-POLICY.md</string>
     <string name="main_setting_radius_km">Radius (km)</string>
     <string name="drawer_open">open navigation drawer</string>
     <string name="drawer_close">close navigation drawer</string>
@@ -43,4 +44,5 @@
     <string name="action_project_page">Project Page</string>
     <string name="action_app_info">App Info</string>
     <string name="action_open_with_play_store">Open with Play Store</string>
+    <string name="action_privacy_policy">Privacy Policy</string>
 </resources>

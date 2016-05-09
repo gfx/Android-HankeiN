@@ -46,11 +46,10 @@
                     tools:text="This is $AppName version $VersionName."
                     />
 
-            <View
+            <Space
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="0dp"
                     android:layout_marginTop="16dp"
-                    android:background="@android:color/darker_gray"
                     />
 
             <android.support.v7.widget.CardView
@@ -72,6 +71,29 @@
                         android:layout_height="wrap_content"
                         android:padding="16dp"
                         android:text="@string/action_project_page"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        />
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginTop="16dp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:onClick="@{activity.openPrivacyPolicy}"
+                    app:cardCornerRadius="2dp"
+                    app:cardElevation="2dp"
+                    >
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:text="@string/action_privacy_policy"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                         />
             </android.support.v7.widget.CardView>
@@ -124,11 +146,10 @@
                         />
             </android.support.v7.widget.CardView>
 
-            <View
+            <Space
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="0dp"
                     android:layout_marginTop="16dp"
-                    android:background="@android:color/darker_gray"
                     />
 
         </LinearLayout>

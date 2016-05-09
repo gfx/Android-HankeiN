@@ -33,6 +33,7 @@
     <string name="action_toggle_default_circle">デフォルトで円を描く？</string>
 
     <string name="action_project_page">プロジェクトページ</string>
+    <string name="action_privacy_policy">プライバシーポリシー</string>
     <string name="action_app_info">アプリの情報</string>
     <string name="action_open_with_play_store">Play Storeで開く</string>
 

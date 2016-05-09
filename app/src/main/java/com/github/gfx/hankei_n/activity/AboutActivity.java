@@ -14,6 +14,8 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -50,13 +52,20 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     public void openProjectPage(View view) {
-        Intent intent = new Intent(Intent.ACTION_VIEW)
-                .setData(Uri.parse(getString(R.string.project_url)));
-        startActivity(intent);
+        openUrl(getString(R.string.project_url));
 
         tracker.send(new HitBuilders.EventBuilder()
                 .setCategory(TAG)
                 .setAction("openProjectPage")
+                .build());
+    }
+
+    public void openPrivacyPolicy(View view) {
+        openUrl(getString(R.string.privacy_policy_url));
+
+        tracker.send(new HitBuilders.EventBuilder()
+                .setCategory(TAG)
+                .setAction("openPrivacyPolicy")
                 .build());
     }
 
@@ -71,7 +80,6 @@ public class AboutActivity extends AppCompatActivity {
                 .build());
     }
 
-
     public void openWithPlayStore(View view) {
         Intent intent = new Intent(Intent.ACTION_VIEW)
                 .setData(Uri.parse("market://details?id=" + getPackageName().replace(".debug", "")));
@@ -81,6 +89,15 @@ public class AboutActivity extends AppCompatActivity {
                 .setCategory(TAG)
                 .setAction("openWithPlayStore")
                 .build());
+    }
+
+    private void openUrl(String url) {
+        final CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder()
+                .setShowTitle(true)
+                .setToolbarColor(ContextCompat.getColor(this, R.color.primary))
+                .build();
+
+        tabsIntent.launchUrl(this, Uri.parse(url));
     }
 
 }
