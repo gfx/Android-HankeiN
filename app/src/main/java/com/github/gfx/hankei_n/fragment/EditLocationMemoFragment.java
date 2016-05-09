@@ -299,7 +299,7 @@ public class EditLocationMemoFragment extends BottomSheetDialogFragment {
 
     void castLocationMemoAndDismiss() {
         locationMemoAddedSubject.onNext(new LocationMemoAddedEvent(memo));
-        dismiss();
+        dismissAllowingStateLoss();
     }
 
     public void askToRemove(View view) {
