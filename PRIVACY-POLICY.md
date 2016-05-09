@@ -14,7 +14,7 @@
 * The app takes location information with GPS and Wi-Fi and sends it to Google
 * The app sends what you input in the address form to Google in order to pull the place auto-completion
 * All the data of the app are not available from the other apps
-* All the data of the app may be send to the Google backup services
+* All the data of the app may be sent to the Google backup services
 
 # Contacts
 
