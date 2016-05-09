@@ -14,6 +14,7 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -34,11 +35,15 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        DependencyContainer.getComponent(this).inject(this);
+
         ActivityAboutBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_about);
         binding.setActivity(this);
         setSupportActionBar(binding.toolbar);
-
-        DependencyContainer.getComponent(this).inject(this);
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDefaultDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         binding.textAboutThisApp.setText(getString(R.string.about_app_description, getString(R.string.app_name),
                 BuildConfig.VERSION_NAME));
