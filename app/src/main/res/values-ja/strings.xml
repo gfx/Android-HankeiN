@@ -7,7 +7,6 @@
     <string name="action_about">このアプリについて</string>
     <string name="message_reset">アプリケーションデータを初期化しますか？</string>
     <string name="message_reset_done">初期化しました</string>
-    <string name="project_url">http://github.com/gfx/Android-HankeiN</string>
     <string name="main_setting_radius_km">半径の設定 (km)</string>
     <string name="drawer_open">open navigation drawer</string>
     <string name="drawer_close">close navigation drawer</string>
@@ -19,7 +18,6 @@
     <string name="update_location_memo">住所メモの編集</string>
     <string name="label_address">住所</string>
     <string name="label_note">ノート</string>
-    <string name="attribution_powered_by_google">Powered by Google</string>
     <string name="error_it_must_be_a_number">エラー: 数値を入力してください</string>
     <string name="ask_to_remove_memo">メモを削除しますか？</string>
     <string name="affirmative">はい</string>
@@ -29,14 +27,14 @@
     <string name="action_toggle_satellite">衛星写真</string>
     <string name="launched_without_location">位置情報を使わずにアプリを起動します</string>
     <string name="memo_removed">メモを削除しました</string>
-    <string name="action_manage_app">アプリの管理</string>
-    <string name="action_open_with_play_store">Play Storeで開く</string>
     <string name="share_location_memo_title">共有: %s</string>
     <string name="share">共有</string>
-    <string name="map">Google Map</string>
-    <string name="street_view">Street View</string>
     <string name="delete">削除</string>
     <string name="action_toggle_default_circle">デフォルトで円を描く？</string>
+
+    <string name="action_project_page">プロジェクトページ</string>
+    <string name="action_app_info">アプリの情報</string>
+    <string name="action_open_with_play_store">Play Storeで開く</string>
 
     <!-- <string name="maps_v2_api_key">this value is filled by build.gradle</string> -->
 </resources>

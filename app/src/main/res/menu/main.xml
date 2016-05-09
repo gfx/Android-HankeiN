@@ -42,19 +42,4 @@
             android:title="@string/action_about"
             app:showAsAction="never"
             />
-
-    <item
-            android:id="@+id/action_manage_app"
-            android:orderInCategory="100"
-            android:title="@string/action_manage_app"
-            app:showAsAction="never"
-            />
-
-    <item
-            android:id="@+id/action_open_with_play_store"
-            android:orderInCategory="100"
-            android:title="@string/action_open_with_play_store"
-            app:showAsAction="never"
-            />
-
 </menu>

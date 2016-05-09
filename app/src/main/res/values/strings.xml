@@ -7,7 +7,7 @@
     <string name="action_about">About this app</string>
     <string name="message_reset">Do you really reset the application data?</string>
     <string name="message_reset_done">Reset!</string>
-    <string name="project_url">http://github.com/gfx/Android-HankeiN</string>
+    <string name="project_url" translatable="false">http://github.com/gfx/Android-HankeiN</string>
     <string name="main_setting_radius_km">Radius (km)</string>
     <string name="drawer_open">open navigation drawer</string>
     <string name="drawer_close">close navigation drawer</string>
@@ -19,7 +19,7 @@
     <string name="update_location_memo">Update an address memo</string>
     <string name="label_address">Postal Address</string>
     <string name="label_note">Random Note</string>
-    <string name="attribution_powered_by_google">Powered by Google</string>
+    <string name="attribution_powered_by_google" translatable="false">Powered by Google</string>
     <string name="error_it_must_be_a_number">Error: It must be a number</string>
     <string name="ask_to_remove_memo">Are you sure to remove it？</string>
     <string name="affirmative">Yes</string>
@@ -32,12 +32,15 @@
     <string name="action_toggle_satellite">Satellite</string>
     <string name="launched_without_location">The application launched without location data</string>
     <string name="memo_removed">Removed!</string>
-    <string name="action_manage_app">Manage App</string>
-    <string name="action_open_with_play_store">Open with Play Store</string>
     <string name="share_location_memo_title">To share: %s</string>
     <string name="share">Share</string>
-    <string name="map">Google Map</string>
-    <string name="street_view">Street View</string>
+    <string name="map" translatable="false">Google Map</string>
+    <string name="street_view" translatable="false">Street View</string>
     <string name="delete">Delete</string>
     <string name="action_toggle_default_circle">circle by default?</string>
+
+    <string name="about_app_description" translatable="false">This is %s version %s.</string>
+    <string name="action_project_page">Project Page</string>
+    <string name="action_app_info">App Info</string>
+    <string name="action_open_with_play_store">Open with Play Store</string>
 </resources>
