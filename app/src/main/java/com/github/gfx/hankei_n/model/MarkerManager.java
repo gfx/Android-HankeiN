@@ -1,11 +1,17 @@
 package com.github.gfx.hankei_n.model;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.github.gfx.hankei_n.dependency.scope.ContextScope;
+import com.github.gfx.hankei_n.toolbox.Assets;
 
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.LongSparseArray;
@@ -20,10 +26,16 @@ import javax.inject.Inject;
 @ContextScope
 public class MarkerManager {
 
+    @ColorInt
+    static final int CIRCLE_COLOR = 0x00ff66;
+
     final LongSparseArray<MarkerHolder> markerHolders = new LongSparseArray<>();
 
+    final Assets assets;
+
     @Inject
-    public MarkerManager() {
+    public MarkerManager(Assets assets) {
+        this.assets = assets;
     }
 
     @NonNull
@@ -60,10 +72,10 @@ public class MarkerManager {
 
         remove(memo);
 
-        Marker marker = map.addMarker(memo.buildMarkerOptions());
+        Marker marker = map.addMarker(buildMarkerOptions(memo));
         Circle circle = null;
         if (memo.radius > 0 && memo.drawCircle) {
-            circle = map.addCircle(memo.buildCircleOptions());
+            circle = map.addCircle(buildCircleOptions(memo));
         }
 
         markerHolders.put(memo.id, new MarkerHolder(marker, circle));
@@ -85,6 +97,31 @@ public class MarkerManager {
             long id = markerHolders.keyAt(i);
             markerHolders.get(id).removeFromMap();
         }
+    }
+
+
+    public MarkerOptions buildMarkerOptions(LocationMemo memo) {
+        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(memo.markerHue % 360.0f);
+
+        return new MarkerOptions()
+                .title(memo.address)
+                .snippet(memo.note)
+                .position(memo.getLatLng())
+                .icon(icon);
+    }
+
+    public CircleOptions buildCircleOptions(LocationMemo memo) {
+        return new CircleOptions()
+                .center(memo.getLatLng())
+                .radius(memo.radius * 1000)
+                .strokeWidth(3)
+                .strokeColor(makeAlpha(assets.hueToColor(memo.markerHue), 0xdd))
+                .fillColor(makeAlpha(CIRCLE_COLOR, 0x1c));
+    }
+
+    @ColorInt
+    private static int makeAlpha(@ColorInt int color, int alpha) {
+        return (color & 0xFFFFFF) | (alpha << 24);
     }
 
     @Override

@@ -1,10 +1,6 @@
 package com.github.gfx.hankei_n.model;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.annotations.SerializedName;
 
 import com.github.gfx.android.orma.annotation.Column;
@@ -24,9 +20,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Table("addresses")
 @ParametersAreNonnullByDefault
 public class LocationMemo implements Serializable, Comparable<LocationMemo> {
-
-    @ColorInt
-    static final int CIRCLE_COLOR = 0x00ff66;
 
     @SerializedName("id")
     @PrimaryKey(autoincrement = true)
@@ -99,30 +92,6 @@ public class LocationMemo implements Serializable, Comparable<LocationMemo> {
 
     public LatLng getLatLng() {
         return new LatLng(latitude, longitude);
-    }
-
-    public MarkerOptions buildMarkerOptions() {
-        BitmapDescriptor icon = BitmapDescriptorFactory.defaultMarker(markerHue % 360.0f);
-
-        return new MarkerOptions()
-                .title(address)
-                .snippet(note)
-                .position(getLatLng())
-                .icon(icon);
-    }
-
-    public CircleOptions buildCircleOptions() {
-        return new CircleOptions()
-                .center(getLatLng())
-                .radius(radius * 1000)
-                .strokeWidth(3)
-                .strokeColor(makeAlpha(CIRCLE_COLOR, 0xdd))
-                .fillColor(makeAlpha(CIRCLE_COLOR, 0x1c));
-    }
-
-    @ColorInt
-    private static int makeAlpha(@ColorInt int color, int alpha) {
-        return (color & 0xFFFFFF) | (alpha << 24);
     }
 
     public boolean isPersistent() {
