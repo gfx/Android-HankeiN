@@ -1,0 +1,65 @@
+{
+  "project_info": {
+    "project_number": "111111111111",
+    "firebase_url": "https://dummy-111.firebaseio.com",
+    "project_id": "dummy-111",
+    "storage_bucket": "dummy-111.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "dummy",
+        "android_client_info": {
+          "package_name": "com.github.gfx.hankei_n.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "dummy.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "DUMMY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "DUMMY"
+          }
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "dummy",
+        "android_client_info": {
+          "package_name": "com.github.gfx.hankei_n"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "dummy.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "DUMMY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "DUMMY"
+          }
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

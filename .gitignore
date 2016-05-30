@@ -1,9 +1,12 @@
 .gradle
-local.properties
 .idea/*
 *.iml
 
 .DS_Store
+local.properties
 gradle.properties
+google-services.json
+!app/google-services.json
 build/
 captures/
+
