@@ -8,7 +8,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 
 import com.github.gfx.android.orma.AccessThreadConstraint;
-import com.github.gfx.hankei_n.BuildConfig;
+import com.github.gfx.hankei_n.R;
 import com.github.gfx.hankei_n.event.LocationChangedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoAddedEvent;
 import com.github.gfx.hankei_n.event.LocationMemoChangedEvent;
@@ -64,7 +64,7 @@ public class AppModule {
     @Singleton
     @Provides
     public Tracker provideTracker(GoogleAnalytics ga) {
-        Tracker tracker = ga.newTracker(BuildConfig.GA_TRACKING_ID);
+        Tracker tracker = ga.newTracker(R.xml.global_tracker);
         tracker.setAnonymizeIp(true);
         tracker.enableAutoActivityTracking(true);
         tracker.enableExceptionReporting(true);
