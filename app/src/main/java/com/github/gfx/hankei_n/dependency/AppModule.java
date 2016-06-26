@@ -116,6 +116,7 @@ public class AppModule {
         return OrmaDatabase.builder(context)
                 .name(DB_NAME)
                 .readOnMainThread(AccessThreadConstraint.NONE)
+                .writeOnMainThread(AccessThreadConstraint.WARNING)
                 .build();
     }
 

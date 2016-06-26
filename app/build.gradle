@@ -13,30 +13,23 @@ rootProject.ext.properties.each { key, value ->
 final APPLICATION_ID = "com.github.gfx.hankei_n"
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.3'
-
+    compileSdkVersion 24
+    buildToolsVersion '24.0.0'
     dataBinding.enabled = true
-
     defaultConfig {
         applicationId APPLICATION_ID
-
         minSdkVersion 16
-        targetSdkVersion 23
-
+        targetSdkVersion 24
         def version = readVersion(rootProject.file("VERSION"))
         versionCode version.toVersionCode()
         versionName version.toVersionName()
-
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
-
     compileOptions {
         encoding = "UTF-8"
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-
     signingConfigs {
         debug {
             storeFile file("debug.keystore")
@@ -63,7 +56,6 @@ android {
             }
         }
     }
-
     buildTypes {
         debug {
             debuggable true
@@ -83,26 +75,26 @@ android {
             signingConfig signingConfigs.release
         }
     }
-
     lintOptions {
         disable 'InvalidPackage'
         disable 'TypographyDashes'
     }
-
     packagingOptions {
         exclude 'LICENSE.txt'
         exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+    productFlavors {
     }
 }
 
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:cardview-v7:23.4.0'
-    compile 'com.android.support:recyclerview-v7:23.4.0'
-    compile 'com.android.support:design:23.4.0'
-    compile 'com.android.support:customtabs:23.4.0'
-    compile 'com.android.support:support-annotations:23.4.0'
+    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'com.android.support:cardview-v7:24.0.0'
+    compile 'com.android.support:recyclerview-v7:24.0.0'
+    compile 'com.android.support:design:24.0.0'
+    compile 'com.android.support:customtabs:24.0.0'
+    compile 'com.android.support:support-annotations:24.0.0'
     compile 'com.google.android.gms:play-services-maps:9.0.2'
     compile 'com.google.android.gms:play-services-location:9.0.2'
     compile 'com.google.android.gms:play-services-analytics:9.0.2'
