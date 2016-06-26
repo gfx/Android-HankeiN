@@ -172,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:ems="3"
                     android:enabled="@{memo.drawCircle}"
-                    android:inputType="number"
+                    android:inputType="numberDecimal"
                     android:maxLength="10"
                     android:singleLine="true"
                     android:text="@{String.valueOf(memo.radius)}"
