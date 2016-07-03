@@ -11,6 +11,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.firebase.crash.FirebaseCrash;
 
 import com.cookpad.android.rxt4a.operators.OperatorAddToCompositeSubscription;
 import com.cookpad.android.rxt4a.schedulers.AndroidSchedulers;
@@ -296,15 +297,17 @@ public class MainActivity extends AppCompatActivity {
 
         for (final LocationMemo memo : locationMemos) {
             if (memo.isPointingNowhere()) {
+                FirebaseCrash.log("No location data for " + memo);
                 placeEngine.getLocationFromAddress(memo.address)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .retry(1)
+                        .retry(2)
                         .subscribe(new Action1<LatLng>() {
                             @Override
                             public void call(LatLng latLng) {
                                 memo.latitude = latLng.latitude;
                                 memo.longitude = latLng.longitude;
+                                FirebaseCrash.log("Found location data for " + memo);
                                 addLocationMemo(memo);
                             }
                         }, new Action1<Throwable>() {
